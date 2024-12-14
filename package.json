@@ -1,6 +1,6 @@
 {
   "name": "boom-wallet-sdk",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "",
   "private": false,
   "main": "dist/index.js",
