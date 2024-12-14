@@ -6,7 +6,6 @@ import { PrivyProvider } from "@privy-io/react-auth";
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 
 // src/constant.ts
-var INJECTED_WALLET_CLIENT = ["metamask", "phantom"];
 var SOLANA_MAINNET_RPC_URL = "https://rpc-mainnet.solanatracker.io/?api_key=72759b5d-df4b-461b-9a1d-4ab2abc30ad4";
 var SOLANA_MAINNET_CLUSTER = {
   name: "mainnet-beta",
@@ -88,80 +87,96 @@ function BoomWalletProvider({ appId, children }) {
 // src/useBoomWallet.tsx
 import {
   usePrivy,
-  useSendTransaction,
+  useSendSolanaTransaction,
+  useSignMessage,
   useSolanaWallets
 } from "@privy-io/react-auth";
 import { useEffect } from "react";
 import bs58 from "bs58";
 var useBoomWallet = () => {
-  const {
-    user,
-    ready: readyUser,
-    authenticated,
-    login,
-    connectWallet,
-    logout,
-    signMessage: signMessageByPrivy
-  } = usePrivy();
-  const { sendTransaction } = useSendTransaction();
-  console.log(user);
+  const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
+  const { sendSolanaTransaction } = useSendSolanaTransaction();
+  const { signMessage: signMessageByPrivy } = useSignMessage();
   const {
     ready: readySolanaWallets,
     wallets: embeddedSolanaWallets,
     createWallet,
     exportWallet
   } = useSolanaWallets();
-  const embeddedWallet = embeddedSolanaWallets.find(
+  const userEmbeddedWallet = embeddedSolanaWallets.find(
     (wallet) => wallet.walletClientType === "privy"
   );
-  const externalWallet = embeddedSolanaWallets.find(
-    (wallet) => INJECTED_WALLET_CLIENT.includes(wallet.walletClientType)
-  );
-  console.log("solanaWallets", embeddedSolanaWallets, embeddedWallet);
-  const userSolanaWallet = externalWallet || embeddedWallet;
+  const loginType = (user == null ? void 0 : user.email) ? "EMAIL" : "WALLET";
   useEffect(() => {
     if (!authenticated || !readyUser) return;
-    if (userSolanaWallet || (user == null ? void 0 : user.wallet)) return;
+    if (userEmbeddedWallet || (user == null ? void 0 : user.wallet)) return;
+    if (loginType !== "EMAIL") return;
     try {
-      console.log("createWallet");
+      console.log("CreateWallet");
       createWallet();
     } catch (error) {
       console.warn(error);
     }
-  }, [embeddedWallet, authenticated]);
-  const signMessage = async (message) => {
-    const messageBuffer = new TextEncoder().encode(message);
-    const signature = await (embeddedWallet == null ? void 0 : embeddedWallet.signMessage(messageBuffer));
-    console.log("\u{1F680} ~ signMessage ~ signature:", signature);
-    if (!signature) return null;
-    const base58Signature = bs58.encode(signature);
-    const hexSignature = Buffer.from(signature).toString("hex");
-    return {
-      signature: base58Signature,
-      // base58 格式
-      hexSignature
-      // hex 格式
+  }, [userEmbeddedWallet, authenticated]);
+  console.log("user", user);
+  console.log("solanaWallets", userEmbeddedWallet, user == null ? void 0 : user.wallet);
+  let diff = void 0;
+  if (loginType === "EMAIL") {
+    const signMessage = async (message) => {
+      const messageBuffer = new TextEncoder().encode(message);
+      const signature = await (userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.signMessage(messageBuffer));
+      if (!signature) {
+        console.warn("Failed to sign message");
+        return null;
+      }
+      const base58Signature = bs58.encode(signature);
+      const hexSignature = Buffer.from(signature).toString("hex");
+      return {
+        signature: base58Signature,
+        // base58 格式
+        hexSignature
+        // hex 格式
+      };
     };
-  };
+    diff = {
+      user: {
+        id: user == null ? void 0 : user.id,
+        wallet: user == null ? void 0 : user.wallet,
+        //这个时候 user?.wallet 和 userEmbeddedWallet 应该是一样的
+        email: user == null ? void 0 : user.email
+      },
+      loginType: "EMAIL",
+      signMessage,
+      exportWallet
+    };
+  } else {
+    diff = {
+      user: {
+        id: user == null ? void 0 : user.id,
+        wallet: user == null ? void 0 : user.wallet,
+        email: user == null ? void 0 : user.email
+        // 钱包登录时 email 为 undefined
+      },
+      loginType: "WALLET",
+      signMessage: (message) => {
+        console.warn("signMessage not supported");
+        return Promise.resolve(null);
+      },
+      //todo
+      exportWallet: void 0
+    };
+  }
   return {
-    user: {
-      id: user == null ? void 0 : user.id,
-      wallet: user == null ? void 0 : user.wallet,
-      // 当前用户默认的钱包
-      email: user == null ? void 0 : user.email
-    },
+    // 公共属性和方法
     authenticated,
     login,
-    connectWallet,
     logout,
-    wallet: userSolanaWallet,
-    signMessage,
-    signMessageByPrivy
+    ...diff
   };
 };
 
 // src/WalletConnectButton.tsx
-import { useLogin, usePrivy as usePrivy2 } from "@privy-io/react-auth";
+import { useLogin } from "@privy-io/react-auth";
 
 // src/solana.ts
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -173,7 +188,6 @@ var useSolanaBalance = (address) => {
     try {
       const publicKey = new PublicKey(address2);
       const balance2 = await connection.getBalance(publicKey);
-      console.log(`Balance of ${address2}: ${balance2 / 1e9} SOL`);
       return balance2;
     } catch (error) {
       console.error("Failed to get balance:", error);
@@ -199,13 +213,13 @@ function WalletConnectButton({
   onComplete,
   className
 }) {
-  var _a, _b, _c;
+  var _a;
   const { login } = useLogin({
     onComplete: () => onComplete == null ? void 0 : onComplete()
   });
-  const { connectWallet, user, authenticated, logout } = usePrivy2();
-  const balance = useSolanaBalance(((_a = user == null ? void 0 : user.wallet) == null ? void 0 : _a.address) || "");
-  console.log("\u{1F680} ~ balance:", balance);
+  const { user, authenticated, logout, exportWallet, loginType } = useBoomWallet();
+  const userWalletAddress = (_a = user == null ? void 0 : user.wallet) == null ? void 0 : _a.address;
+  const balance = useSolanaBalance(userWalletAddress || "");
   if (!user || !authenticated)
     return /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx2(
@@ -235,11 +249,13 @@ function WalletConnectButton({
       /* @__PURE__ */ jsxs("div", { className: "privy-user-info", children: [
         "(",
         (balance / 1e9).toFixed(2),
-        " SOL)",
-        " ",
-        formatAddress(((_b = user.email) == null ? void 0 : _b.address) || ((_c = user.wallet) == null ? void 0 : _c.address))
+        " SOL) ",
+        formatAddress(userWalletAddress)
       ] }),
-      /* @__PURE__ */ jsx2("div", { className: "privy-dropdown-content", children: /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: logout, children: "Logout" }) })
+      /* @__PURE__ */ jsxs("div", { className: "privy-dropdown-content", children: [
+        /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: logout, children: "Logout" }),
+        loginType === "EMAIL" && /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: exportWallet, children: "Export Wallet" })
+      ] })
     ] }),
     /* @__PURE__ */ jsx2("style", { children: `
             .privy-user-info{
@@ -274,7 +290,7 @@ function WalletConnectButton({
                 min-width: 160px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                 border-radius: 8px;
-                padding: 8px 0;
+                padding: 8px;
                 z-index: 1000;
             }
 
@@ -290,6 +306,7 @@ function WalletConnectButton({
                 background: none;
                 text-align: left;
                 cursor: pointer;
+                border-radius: 8px;
             }
 
             .dropdown-item:hover {

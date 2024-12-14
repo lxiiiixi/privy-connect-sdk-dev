@@ -1,5 +1,6 @@
-import { useLogin, usePrivy } from "@privy-io/react-auth";
+import { useLogin } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
+import { useBoomWallet } from "./useBoomWallet";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -17,9 +18,9 @@ export default function WalletConnectButton({
     const { login } = useLogin({
         onComplete: () => onComplete?.(),
     });
-    const { connectWallet, user, authenticated, logout } = usePrivy();
-    const balance = useSolanaBalance(user?.wallet?.address || "");
-    console.log("🚀 ~ balance:", balance);
+    const { user, authenticated, logout, exportWallet, loginType } = useBoomWallet();
+    const userWalletAddress = user?.wallet?.address;
+    const balance = useSolanaBalance(userWalletAddress || "");
 
     if (!user || !authenticated)
         return (
@@ -50,13 +51,17 @@ export default function WalletConnectButton({
         <>
             <div className="privy-wallet-dropdown">
                 <div className="privy-user-info">
-                    ({(balance / 1e9).toFixed(2)} SOL){" "}
-                    {formatAddress(user.email?.address || user.wallet?.address)}
+                    ({(balance / 1e9).toFixed(2)} SOL) {formatAddress(userWalletAddress)}
                 </div>
                 <div className="privy-dropdown-content">
                     <button className="dropdown-item" onClick={logout}>
                         Logout
                     </button>
+                    {loginType === "EMAIL" && (
+                        <button className="dropdown-item" onClick={exportWallet}>
+                            Export Wallet
+                        </button>
+                    )}
                 </div>
             </div>
             <style>{`
@@ -92,7 +97,7 @@ export default function WalletConnectButton({
                 min-width: 160px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                 border-radius: 8px;
-                padding: 8px 0;
+                padding: 8px;
                 z-index: 1000;
             }
 
@@ -108,6 +113,7 @@ export default function WalletConnectButton({
                 background: none;
                 text-align: left;
                 cursor: pointer;
+                border-radius: 8px;
             }
 
             .dropdown-item:hover {
