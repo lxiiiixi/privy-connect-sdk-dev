@@ -1,5 +1,8 @@
 import {
     Email,
+    SendTransactionModalUIOptions,
+    SolanaTransactionReceipt,
+    SupportedSolanaTransaction,
     usePrivy,
     useSendSolanaTransaction,
     useSignMessage,
@@ -8,6 +11,8 @@ import {
 } from "@privy-io/react-auth";
 import { useEffect } from "react";
 import bs58 from "bs58";
+import { Connection, TransactionSignature } from "@solana/web3.js";
+import { SendTransactionOptions } from "@solana/wallet-adapter-base";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -15,6 +20,13 @@ export type User = {
     email?: Email; // 邮箱登录时才有，钱包登录时为 undefined
     wallet?: Wallet; // 用户最新的链接的钱包，也会是用于签名的钱包。
 };
+
+export type SendTransactionFunction = (
+    transaction: SupportedSolanaTransaction,
+    connection: Connection,
+    uiOptions?: SendTransactionModalUIOptions,
+    transactionOptions?: SendTransactionOptions
+) => Promise<SolanaTransactionReceipt> | Promise<{ signature: TransactionSignature }>;
 export type BoomWallet = {
     user: User;
     authenticated: boolean; // 是否通过了登录授权
@@ -23,7 +35,10 @@ export type BoomWallet = {
     loginType: LoginType; // 用户的登录类型
     exportWallet?: () => void; // 导出钱包
     signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
+    sendTransaction?: SendTransactionFunction; // 发送交易
 };
+
+// https://docs.privy.io/guide/react/wallets/usage/solana/
 
 export const useBoomWallet: () => BoomWallet = () => {
     const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
@@ -90,6 +105,7 @@ export const useBoomWallet: () => BoomWallet = () => {
             },
             loginType: "EMAIL" as LoginType,
             signMessage,
+            sendTransaction: sendSolanaTransaction,
             exportWallet: exportWallet,
         };
     } else {
@@ -106,6 +122,7 @@ export const useBoomWallet: () => BoomWallet = () => {
                 return Promise.resolve(null);
             }, //todo
             exportWallet: undefined,
+            sendTransaction: window?.solana?.signAndSendTransaction,
         };
     }
 

@@ -2,6 +2,7 @@ import React from "react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { SOLANA_CHAIN, SOLANA_MAINNET_CLUSTER } from "./constant";
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 
 export interface BoomWalletProviderProps {
     appId: string;

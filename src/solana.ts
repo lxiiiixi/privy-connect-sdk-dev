@@ -2,7 +2,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { useEffect, useState } from "react";
 import { SOLANA_MAINNET_RPC_URL } from "./constant";
 
-const connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
+export const connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 
 export const useSolanaBalance = (address: string) => {
     const [balance, setBalance] = useState(0);

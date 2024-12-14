@@ -32,6 +32,7 @@ var src_exports = {};
 __export(src_exports, {
   BoomWalletProvider: () => BoomWalletProvider,
   WalletConnectButton: () => WalletConnectButton,
+  useBoomTransactions: () => useBoomTransactions,
   useBoomWallet: () => useBoomWallet
 });
 module.exports = __toCommonJS(src_exports);
@@ -125,6 +126,7 @@ var import_react_auth2 = require("@privy-io/react-auth");
 var import_react = require("react");
 var import_bs58 = __toESM(require("bs58"));
 var useBoomWallet = () => {
+  var _a;
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = (0, import_react_auth2.usePrivy)();
   const { sendSolanaTransaction } = (0, import_react_auth2.useSendSolanaTransaction)();
   const { signMessage: signMessageByPrivy } = (0, import_react_auth2.useSignMessage)();
@@ -178,6 +180,7 @@ var useBoomWallet = () => {
       },
       loginType: "EMAIL",
       signMessage,
+      sendTransaction: sendSolanaTransaction,
       exportWallet
     };
   } else {
@@ -194,7 +197,8 @@ var useBoomWallet = () => {
         return Promise.resolve(null);
       },
       //todo
-      exportWallet: void 0
+      exportWallet: void 0,
+      sendTransaction: (_a = window == null ? void 0 : window.solana) == null ? void 0 : _a.signAndSendTransaction
     };
   }
   return {
@@ -347,6 +351,90 @@ function WalletConnectButton({
   ] });
 }
 
+// src/lib/buy.ts
+var import_web32 = require("@solana/web3.js");
+var import_cross_fetch = __toESM(require("cross-fetch"));
+async function fetchQuote(inputMint, outputMint, amount, slippageBps, excludeDexes = []) {
+  try {
+    console.log("\u{1F680} \u6B63\u5728\u8C03\u7528api\u83B7\u53D6\u62A5\u4EF7 \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
+    const excludeDexesParam = excludeDexes.length > 0 ? `&excludeDexes=${excludeDexes.join(",")}` : "";
+    const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}${excludeDexesParam}`;
+    const response = await (0, import_cross_fetch.default)(quoteUrl);
+    if (!response.ok) {
+      throw new Error(`\u83B7\u53D6\u62A5\u4EF7\u5931\u8D25\uFF0CHTTP \u72B6\u6001\u7801: ${response.status}`);
+    }
+    const quote = await response.json();
+    console.log("\u2705 \u83B7\u53D6\u62A5\u4EF7\u6210\u529F:", quote);
+    return quote;
+  } catch (error) {
+    console.error("\u274C \u83B7\u53D6\u62A5\u4EF7\u5931\u8D25:", error.message);
+    throw error;
+  }
+}
+async function fetchSwapTransaction(quoteResponse, userPublicKey) {
+  try {
+    console.log("\u{1F680} \u6B63\u5728\u83B7\u53D6\u4EA4\u6362\u4EA4\u6613...");
+    const swapUrl = "https://quote-api.jup.ag/v6/swap";
+    const response = await (0, import_cross_fetch.default)(swapUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        quoteResponse,
+        userPublicKey,
+        wrapAndUnwrapSol: true
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`\u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u5931\u8D25\uFF0CHTTP \u72B6\u6001\u7801: ${response.status}`);
+    }
+    const { swapTransaction } = await response.json();
+    console.log("\u2705 \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u6210\u529F", swapTransaction);
+    return swapTransaction;
+  } catch (error) {
+    console.error("\u274C \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u5931\u8D25:", error.message);
+    throw error;
+  }
+}
+var buy = async (userWalletAddress, sendTransaction, connection2) => {
+  if (!userWalletAddress) return;
+  if (!sendTransaction) return;
+  if (!connection2) return;
+  console.time("\u2705 \u6240\u6709\u6D41\u7A0B\u5B8C\u6210!");
+  const inputMint = "So11111111111111111111111111111111111111112";
+  const outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  const amount = 1e7;
+  const slippageBps = 50;
+  console.log("\u{1F4A1} \u5F00\u59CB\u4EA4\u6613\u6D41\u7A0B \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
+  console.time("\u23F1\uFE0F \u83B7\u53D6\u62A5\u4EF7\u8017\u65F6");
+  const quote = await fetchQuote(inputMint, outputMint, amount, slippageBps);
+  console.timeEnd("\u23F1\uFE0F \u83B7\u53D6\u62A5\u4EF7\u8017\u65F6");
+  console.time("\u23F1\uFE0F \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u8017\u65F6");
+  const swapTransaction = await fetchSwapTransaction(quote, userWalletAddress);
+  console.timeEnd("\u23F1\uFE0F \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u8017\u65F6");
+  console.log("\u{1F680} \u5F00\u59CB\u53CD\u5E8F\u5217\u5316\u4EA4\u6613 \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
+  console.time("\u23F1\uFE0F \u53CD\u5E8F\u5217\u5316\u8017\u65F6");
+  const swapTransactionBuf = Buffer.from(swapTransaction, "base64");
+  const transaction = import_web32.VersionedTransaction.deserialize(swapTransactionBuf);
+  console.timeEnd("\u23F1\uFE0F \u53CD\u5E8F\u5217\u5316\u8017\u65F6");
+  console.time("\u23F1\uFE0F \u53D1\u9001\u4EA4\u6613\u8017\u65F6");
+  const res = await sendTransaction(transaction, connection2);
+  console.timeEnd("\u23F1\uFE0F \u53D1\u9001\u4EA4\u6613\u8017\u65F6");
+  console.log("\u{1F680} ~ Buy ~ res:", res);
+  console.timeEnd("\u2705 \u6240\u6709\u6D41\u7A0B\u5B8C\u6210!");
+};
+
+// src/useTransactions.tsx
+function useBoomTransactions() {
+  const { user, sendTransaction } = useBoomWallet();
+  const wallet = user == null ? void 0 : user.wallet;
+  const sendBuyTransaction = async () => {
+    if (!(wallet == null ? void 0 : wallet.address) || !sendTransaction || !connection) return;
+    const transaction = await buy(wallet == null ? void 0 : wallet.address, sendTransaction, connection);
+    console.log("\u{1F680} ~ sendBuyTransaction ~ transaction:", transaction);
+  };
+  return { sendBuyTransaction };
+}
+
 // src/index.ts
 if (typeof window !== "undefined") {
   window.Buffer = import_buffer.Buffer;
@@ -355,5 +443,6 @@ if (typeof window !== "undefined") {
 0 && (module.exports = {
   BoomWalletProvider,
   WalletConnectButton,
+  useBoomTransactions,
   useBoomWallet
 });

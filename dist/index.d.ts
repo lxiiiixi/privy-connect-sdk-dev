@@ -1,6 +1,8 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
-import { Email, Wallet } from '@privy-io/react-auth';
+import { Email, Wallet, SupportedSolanaTransaction, SendTransactionModalUIOptions, SolanaTransactionReceipt } from '@privy-io/react-auth';
+import { Connection, TransactionSignature } from '@solana/web3.js';
+import { SendTransactionOptions } from '@solana/wallet-adapter-base';
 
 interface BoomWalletProviderProps {
     appId: string;
@@ -14,6 +16,9 @@ type User = {
     email?: Email;
     wallet?: Wallet;
 };
+type SendTransactionFunction = (transaction: SupportedSolanaTransaction, connection: Connection, uiOptions?: SendTransactionModalUIOptions, transactionOptions?: SendTransactionOptions) => Promise<SolanaTransactionReceipt> | Promise<{
+    signature: TransactionSignature;
+}>;
 type BoomWallet = {
     user: User;
     authenticated: boolean;
@@ -25,6 +30,7 @@ type BoomWallet = {
         signature: string;
         hexSignature: string;
     } | null>;
+    sendTransaction?: SendTransactionFunction;
 };
 declare const useBoomWallet: () => BoomWallet;
 
@@ -33,4 +39,8 @@ declare function WalletConnectButton({ onComplete, className, }: {
     className?: string;
 }): react_jsx_runtime.JSX.Element;
 
-export { BoomWalletProvider, WalletConnectButton, useBoomWallet };
+declare function useBoomTransactions(): {
+    sendBuyTransaction: () => Promise<void>;
+};
+
+export { BoomWalletProvider, WalletConnectButton, useBoomTransactions, useBoomWallet };

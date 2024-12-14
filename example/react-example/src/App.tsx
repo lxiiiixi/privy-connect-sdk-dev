@@ -1,9 +1,11 @@
 import "./App.css";
-import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
+import { WalletConnectButton, useBoomTransactions, useBoomWallet } from "boom-wallet-sdk";
 
 function App() {
     const { user, signMessage, loginType } = useBoomWallet();
     console.log("🚀 ~ App ~ user:", user, user.wallet);
+
+    const { sendBuyTransaction } = useBoomTransactions();
 
     return (
         <>
@@ -27,8 +29,7 @@ function App() {
                         <hr className="my-2" />
                         <div>User Email —— {user?.email?.address || "null"}</div>
                         <div>Embedded Wallet —— {user.wallet?.address || "null"}</div>
-                        <div className="bg-white/10 p-4 rounded-md m-4 space-y-4">
-                            <div> Sign Message</div>
+                        <div className="bg-white/10 p-4 rounded-md m-4 space-y-4 space-x-4">
                             <button
                                 className="btn"
                                 onClick={() => {
@@ -36,6 +37,14 @@ function App() {
                                 }}
                             >
                                 Sign Message
+                            </button>
+                            <button
+                                className="btn"
+                                onClick={() => {
+                                    sendBuyTransaction();
+                                }}
+                            >
+                                Buy usdc by 0.01 SOL
                             </button>
                         </div>
                     </div>
@@ -45,8 +54,7 @@ function App() {
                         <h2>钱包类型二：用户自己的外部钱包</h2>
                         <hr className="my-2" />
                         <div>External Wallet —— {user?.wallet?.address || "null"}</div>
-                        <div className="bg-white/10 p-4 rounded-md m-4 space-y-4">
-                            <div> Sign Message</div>
+                        <div className="bg-white/10 p-4 rounded-md m-4 space-y-4 space-x-4">
                             <button
                                 className="btn"
                                 onClick={() => {
@@ -54,6 +62,14 @@ function App() {
                                 }}
                             >
                                 Sign Message
+                            </button>
+                            <button
+                                className="btn"
+                                onClick={() => {
+                                    sendBuyTransaction();
+                                }}
+                            >
+                                Buy usdc by 0.01 SOL
                             </button>
                         </div>
                     </div>
