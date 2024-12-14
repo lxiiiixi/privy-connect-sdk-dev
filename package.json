@@ -1,0 +1,41 @@
+{
+  "name": "privy-connect-test-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "private": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "ESNext",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "example:dev": "pnpm --filter react-example dev",
+    "start": "pnpm run dev & pnpm run example:dev",
+    "prepublish": "rm -rf dist && npm run build"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "^1.95.2",
+    "@solana/web3.js": "^1.95.8",
+    "bs58": "^6.0.0",
+    "buffer": "^6.0.3",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
