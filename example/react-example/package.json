@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "privy-connect-test-sdk": "workspace:*",
+    "boom-wallet-sdk": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

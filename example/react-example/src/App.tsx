@@ -1,5 +1,5 @@
 import "./App.css";
-import { WalletConnectButton, useBoomWallet } from "privy-connect-test-sdk";
+import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
 
 function App() {
     const { user, signMessage, wallet } = useBoomWallet();
