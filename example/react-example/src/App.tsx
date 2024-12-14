@@ -29,6 +29,9 @@ function App() {
                         <hr className="my-2" />
                         <div>User Email —— {user?.email?.address || "null"}</div>
                         <div>Embedded Wallet —— {user.wallet?.address || "null"}</div>
+                        <div>
+                            是否授权了privy钱包的权限：
+                        </div>
                         <div className="bg-white/10 p-4 rounded-md m-4 space-y-4 space-x-4">
                             <button
                                 className="btn"
