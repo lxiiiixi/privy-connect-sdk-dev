@@ -1,13 +1,16 @@
 import {
     Email,
+    LinkedAccountWithMetadata,
     SendTransactionModalUIOptions,
     SolanaTransactionReceipt,
     SupportedSolanaTransaction,
+    useDelegatedActions,
     usePrivy,
     useSendSolanaTransaction,
     useSignMessage,
     useSolanaWallets,
     Wallet,
+    WalletWithMetadata,
 } from "@privy-io/react-auth";
 import { useEffect } from "react";
 import bs58 from "bs58";
@@ -19,6 +22,7 @@ export type User = {
     id?: string; // 用户在 privy 的唯一 id
     email?: Email; // 邮箱登录时才有，钱包登录时为 undefined
     wallet?: Wallet; // 用户最新的链接的钱包，也会是用于签名的钱包。
+    linkedAccounts?: LinkedAccountWithMetadata[]; // 用户关联的钱包
 };
 
 export type SendTransactionFunction = (
@@ -102,6 +106,7 @@ export const useBoomWallet: () => BoomWallet = () => {
                 id: user?.id,
                 wallet: user?.wallet, //这个时候 user?.wallet 和 userEmbeddedWallet 应该是一样的
                 email: user?.email,
+                linkedAccounts: user?.linkedAccounts,
             },
             loginType: "EMAIL" as LoginType,
             signMessage,
@@ -115,6 +120,7 @@ export const useBoomWallet: () => BoomWallet = () => {
                 id: user?.id,
                 wallet: user?.wallet,
                 email: user?.email, // 钱包登录时 email 为 undefined
+                linkedAccounts: user?.linkedAccounts,
             },
             loginType: "WALLET" as LoginType,
             signMessage: (message: string) => {
@@ -132,5 +138,47 @@ export const useBoomWallet: () => BoomWallet = () => {
         login,
         logout,
         ...diff,
+    };
+};
+
+export const useBoomWalletDelegate = () => {
+    const { user } = useBoomWallet();
+    const wallet = user?.wallet;
+
+    const { delegateWallet, revokeWallets } = useDelegatedActions();
+
+    // Find the embedded wallet to delegate from the array of the user's wallets
+    const walletToDelegate = wallet?.walletClientType === "privy" ? wallet : undefined;
+
+    // Check if the wallet to delegate by inspecting the user's linked accounts
+    const isAlreadyDelegated = !!user?.linkedAccounts?.find(
+        (account): account is WalletWithMetadata =>
+            Boolean(account.type === "wallet" && account.address && account.delegated)
+    );
+
+    const isDisplay = !!walletToDelegate; // 准备好了并且有可以代理调用的钱包
+
+    const onDelegate = async () => {
+        console.log(walletToDelegate, isAlreadyDelegated);
+
+        if (isAlreadyDelegated) return; // Button is disabled to prevent this case
+        if (walletToDelegate && walletToDelegate.address) {
+            console.log(isAlreadyDelegated, walletToDelegate.address);
+
+            await delegateWallet({ address: walletToDelegate.address, chainType: "solana" });
+        }
+    };
+
+    const onRevoke = async () => {
+        if (!isAlreadyDelegated) return; // Button is disabled to prevent this case
+        await revokeWallets();
+    };
+
+    const option = isDisplay ? (isAlreadyDelegated ? "REVOKE" : "DELEGATE") : null;
+
+    return {
+        option,
+        onDelegate,
+        onRevoke,
     };
 };

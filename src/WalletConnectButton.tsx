@@ -1,6 +1,6 @@
 import { useLogin } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
-import { useBoomWallet } from "./useBoomWallet";
+import { useBoomWallet, useBoomWalletDelegate } from "./useBoomWallet";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -21,6 +21,8 @@ export default function WalletConnectButton({
     const { user, authenticated, logout, exportWallet, loginType } = useBoomWallet();
     const userWalletAddress = user?.wallet?.address;
     const balance = useSolanaBalance(userWalletAddress || "");
+
+    const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
     if (!user || !authenticated)
         return (
@@ -60,6 +62,14 @@ export default function WalletConnectButton({
                     {loginType === "EMAIL" && (
                         <button className="dropdown-item" onClick={exportWallet}>
                             Export Wallet
+                        </button>
+                    )}
+                    {loginType === "EMAIL" && option && (
+                        <button
+                            className="dropdown-item"
+                            onClick={option === "DELEGATE" ? onDelegate : onRevoke}
+                        >
+                            {option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"}
                         </button>
                     )}
                 </div>

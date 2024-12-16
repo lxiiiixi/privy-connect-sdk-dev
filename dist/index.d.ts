@@ -1,6 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
-import { Email, Wallet, SupportedSolanaTransaction, SendTransactionModalUIOptions, SolanaTransactionReceipt } from '@privy-io/react-auth';
+import { Email, Wallet, LinkedAccountWithMetadata, SupportedSolanaTransaction, SendTransactionModalUIOptions, SolanaTransactionReceipt } from '@privy-io/react-auth';
 import { Connection, TransactionSignature } from '@solana/web3.js';
 import { SendTransactionOptions } from '@solana/wallet-adapter-base';
 
@@ -15,6 +15,7 @@ type User = {
     id?: string;
     email?: Email;
     wallet?: Wallet;
+    linkedAccounts?: LinkedAccountWithMetadata[];
 };
 type SendTransactionFunction = (transaction: SupportedSolanaTransaction, connection: Connection, uiOptions?: SendTransactionModalUIOptions, transactionOptions?: SendTransactionOptions) => Promise<SolanaTransactionReceipt> | Promise<{
     signature: TransactionSignature;

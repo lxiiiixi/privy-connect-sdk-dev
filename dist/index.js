@@ -176,7 +176,8 @@ var useBoomWallet = () => {
         id: user == null ? void 0 : user.id,
         wallet: user == null ? void 0 : user.wallet,
         //这个时候 user?.wallet 和 userEmbeddedWallet 应该是一样的
-        email: user == null ? void 0 : user.email
+        email: user == null ? void 0 : user.email,
+        linkedAccounts: user == null ? void 0 : user.linkedAccounts
       },
       loginType: "EMAIL",
       signMessage,
@@ -188,8 +189,9 @@ var useBoomWallet = () => {
       user: {
         id: user == null ? void 0 : user.id,
         wallet: user == null ? void 0 : user.wallet,
-        email: user == null ? void 0 : user.email
+        email: user == null ? void 0 : user.email,
         // 钱包登录时 email 为 undefined
+        linkedAccounts: user == null ? void 0 : user.linkedAccounts
       },
       loginType: "WALLET",
       signMessage: (message) => {
@@ -207,6 +209,35 @@ var useBoomWallet = () => {
     login,
     logout,
     ...diff
+  };
+};
+var useBoomWalletDelegate = () => {
+  var _a;
+  const { user } = useBoomWallet();
+  const wallet = user == null ? void 0 : user.wallet;
+  const { delegateWallet, revokeWallets } = (0, import_react_auth2.useDelegatedActions)();
+  const walletToDelegate = (wallet == null ? void 0 : wallet.walletClientType) === "privy" ? wallet : void 0;
+  const isAlreadyDelegated = !!((_a = user == null ? void 0 : user.linkedAccounts) == null ? void 0 : _a.find(
+    (account) => Boolean(account.type === "wallet" && account.address && account.delegated)
+  ));
+  const isDisplay = !!walletToDelegate;
+  const onDelegate = async () => {
+    console.log(walletToDelegate, isAlreadyDelegated);
+    if (isAlreadyDelegated) return;
+    if (walletToDelegate && walletToDelegate.address) {
+      console.log(isAlreadyDelegated, walletToDelegate.address);
+      await delegateWallet({ address: walletToDelegate.address, chainType: "solana" });
+    }
+  };
+  const onRevoke = async () => {
+    if (!isAlreadyDelegated) return;
+    await revokeWallets();
+  };
+  const option = isDisplay ? isAlreadyDelegated ? "REVOKE" : "DELEGATE" : null;
+  return {
+    option,
+    onDelegate,
+    onRevoke
   };
 };
 
@@ -255,6 +286,7 @@ function WalletConnectButton({
   const { user, authenticated, logout, exportWallet, loginType } = useBoomWallet();
   const userWalletAddress = (_a = user == null ? void 0 : user.wallet) == null ? void 0 : _a.address;
   const balance = useSolanaBalance(userWalletAddress || "");
+  const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   if (!user || !authenticated)
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
@@ -289,7 +321,15 @@ function WalletConnectButton({
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "privy-dropdown-content", children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { className: "dropdown-item", onClick: logout, children: "Logout" }),
-        loginType === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { className: "dropdown-item", onClick: exportWallet, children: "Export Wallet" })
+        loginType === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { className: "dropdown-item", onClick: exportWallet, children: "Export Wallet" }),
+        loginType === "EMAIL" && option && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
+          {
+            className: "dropdown-item",
+            onClick: option === "DELEGATE" ? onDelegate : onRevoke,
+            children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"
+          }
+        )
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("style", { children: `
