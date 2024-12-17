@@ -2,6 +2,7 @@
 import { Buffer as Buffer2 } from "buffer";
 
 // src/BoomWalletProvider.tsx
+import { useCallback, useMemo } from "react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 
@@ -23,19 +24,22 @@ var SOLANA_CHAIN = {
   testnet: false,
   rpcUrls: {
     default: {
-      http: [SOLANA_MAINNET_CLUSTER.rpcUrl],
-      webSocket: [SOLANA_MAINNET_CLUSTER.rpcUrl]
+      http: [SOLANA_MAINNET_CLUSTER.rpcUrl]
     }
   }
 };
 
 // src/BoomWalletProvider.tsx
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { jsx } from "react/jsx-runtime";
 function BoomWalletProvider({ appId, children }) {
-  const solanaConnectors = toSolanaWalletConnectors({
-    // By default, shouldAutoConnect is enabled
-    shouldAutoConnect: false
-  });
+  const onError = useCallback((error) => {
+    console.error(error);
+  }, []);
+  const wallets = useMemo(() => {
+    return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+  }, []);
   return /* @__PURE__ */ jsx(
     PrivyProvider,
     {
@@ -64,22 +68,26 @@ function BoomWalletProvider({ appId, children }) {
         },
         externalWallets: {
           solana: {
-            connectors: solanaConnectors
+            connectors: toSolanaWalletConnectors({
+              // By default, shouldAutoConnect is enabled
+              shouldAutoConnect: true
+            })
           }
         },
         embeddedWallets: {
-          // createOnLogin: "all-users",
-          // showWalletUIs: false,
-          // createOnLogin: 'off',
-          // requireUserPasswordOnCreate: false,
+          createOnLogin: "off",
+          showWalletUIs: false,
+          // Overrides the value of "Add confirmation modals" you set in the Privy Dashboard
+          requireUserPasswordOnCreate: false
         },
         mfa: {
+          // 多重身份验证（Multi-Factor Authentication）
           noPromptOnMfaRequired: false
         },
         supportedChains: [SOLANA_CHAIN],
         solanaClusters: [SOLANA_MAINNET_CLUSTER]
       },
-      children
+      children: /* @__PURE__ */ jsx(ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ jsx(WalletProvider, { wallets, onError, autoConnect: true, children }) })
     }
   );
 }
@@ -89,16 +97,68 @@ import {
   useDelegatedActions,
   usePrivy,
   useSendSolanaTransaction,
-  useSignMessage,
   useSolanaWallets
 } from "@privy-io/react-auth";
-import { useEffect } from "react";
+import { useEffect, useMemo as useMemo2 } from "react";
 import bs58 from "bs58";
-var useBoomWallet = () => {
-  var _a;
+import { useWallet } from "@solana/wallet-adapter-react";
+var useExternalWallet = () => {
+  const {
+    connected,
+    connecting,
+    disconnect,
+    disconnecting,
+    publicKey,
+    select,
+    wallet,
+    wallets,
+    sendTransaction
+  } = useWallet();
+  console.log(
+    "\u{1F680} ~ CustomWalletButton ~ connect:",
+    connected,
+    publicKey,
+    publicKey == null ? void 0 : publicKey.toString(),
+    wallet
+  );
+  const { buttonState, label } = useMemo2(() => {
+    let buttonState2;
+    if (connecting) {
+      buttonState2 = "connecting";
+    } else if (connected) {
+      buttonState2 = "connected";
+    } else if (disconnecting) {
+      buttonState2 = "disconnecting";
+    } else if (wallet) {
+      buttonState2 = "has-wallet";
+    } else {
+      buttonState2 = "no-wallet";
+    }
+    let label2;
+    switch (buttonState2) {
+      case "connected":
+        label2 = "Disconnect";
+        break;
+      case "connecting":
+        label2 = "Connecting";
+        break;
+      case "disconnecting":
+        label2 = "Disconnecting";
+        break;
+      case "has-wallet":
+        label2 = "Connect";
+        break;
+      case "no-wallet":
+        label2 = "Select Wallet";
+        break;
+    }
+    return { buttonState: buttonState2, label: label2 };
+  }, [connecting, connected, disconnecting, wallet]);
+  return { buttonState, label };
+};
+var usePrivyEmbeddedWallet = () => {
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
   const { sendSolanaTransaction } = useSendSolanaTransaction();
-  const { signMessage: signMessageByPrivy } = useSignMessage();
   const {
     ready: readySolanaWallets,
     wallets: embeddedSolanaWallets,
@@ -121,64 +181,53 @@ var useBoomWallet = () => {
     }
   }, [userEmbeddedWallet, authenticated]);
   console.log("user", user);
-  console.log("solanaWallets", userEmbeddedWallet, user == null ? void 0 : user.wallet);
-  let diff = void 0;
-  if (loginType === "EMAIL") {
-    const signMessage = async (message) => {
-      const messageBuffer = new TextEncoder().encode(message);
-      const signature = await (userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.signMessage(messageBuffer));
-      if (!signature) {
-        console.warn("Failed to sign message");
-        return null;
-      }
-      const base58Signature = bs58.encode(signature);
-      const hexSignature = Buffer.from(signature).toString("hex");
-      return {
-        signature: base58Signature,
-        // base58 格式
-        hexSignature
-        // hex 格式
-      };
+  console.log(
+    "solanaWallets",
+    userEmbeddedWallet,
+    user == null ? void 0 : user.wallet,
+    readySolanaWallets,
+    authenticated,
+    userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.isConnected()
+  );
+  const signMessage = async (message) => {
+    const messageBuffer = new TextEncoder().encode(message);
+    const signature = await (userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.signMessage(messageBuffer));
+    if (!signature) {
+      console.warn("Failed to sign message");
+      return null;
+    }
+    const base58Signature = bs58.encode(signature);
+    const hexSignature = Buffer.from(signature).toString("hex");
+    console.log("signMessage success", base58Signature, hexSignature);
+    return {
+      signature: base58Signature,
+      // base58 格式
+      hexSignature
+      // hex 格式
     };
-    diff = {
-      user: {
-        id: user == null ? void 0 : user.id,
-        wallet: user == null ? void 0 : user.wallet,
-        //这个时候 user?.wallet 和 userEmbeddedWallet 应该是一样的
-        email: user == null ? void 0 : user.email,
-        linkedAccounts: user == null ? void 0 : user.linkedAccounts
-      },
-      loginType: "EMAIL",
-      signMessage,
-      sendTransaction: sendSolanaTransaction,
-      exportWallet
-    };
-  } else {
-    diff = {
-      user: {
-        id: user == null ? void 0 : user.id,
-        wallet: user == null ? void 0 : user.wallet,
-        email: user == null ? void 0 : user.email,
-        // 钱包登录时 email 为 undefined
-        linkedAccounts: user == null ? void 0 : user.linkedAccounts
-      },
-      loginType: "WALLET",
-      signMessage: (message) => {
-        console.warn("signMessage not supported");
-        return Promise.resolve(null);
-      },
-      //todo
-      exportWallet: void 0,
-      sendTransaction: (_a = window == null ? void 0 : window.solana) == null ? void 0 : _a.signAndSendTransaction
-    };
-  }
+  };
   return {
-    // 公共属性和方法
+    user: {
+      id: user == null ? void 0 : user.id,
+      wallet: userEmbeddedWallet,
+      //这个时候 user?.wallet 和 userEmbeddedWallet 应该是一样的
+      email: user == null ? void 0 : user.email,
+      linkedAccounts: user == null ? void 0 : user.linkedAccounts
+    },
+    loginType: "EMAIL",
+    signMessage,
+    sendTransaction: userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.sendTransaction,
+    // sendTransaction: sendSolanaTransaction,
+    exportWallet,
     authenticated,
     login,
-    logout,
-    ...diff
+    logout
   };
+};
+var useBoomWallet = () => {
+  const privyEmbeddedWallet = usePrivyEmbeddedWallet();
+  const externalWallet = useExternalWallet();
+  return { ...privyEmbeddedWallet, ...externalWallet };
 };
 var useBoomWalletDelegate = () => {
   var _a;
@@ -223,6 +272,7 @@ var useSolanaBalance = (address) => {
     try {
       const publicKey = new PublicKey(address2);
       const balance2 = await connection.getBalance(publicKey);
+      console.log(`Balance of ${address2}: ${balance2 / 1e9} SOL`);
       return balance2;
     } catch (error) {
       console.error("Failed to get balance:", error);

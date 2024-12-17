@@ -20,7 +20,6 @@ export const SOLANA_CHAIN = {
     rpcUrls: {
         default: {
             http: [SOLANA_MAINNET_CLUSTER.rpcUrl],
-            webSocket: [SOLANA_MAINNET_CLUSTER.rpcUrl],
         },
     },
 } as const;
