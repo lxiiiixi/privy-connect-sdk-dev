@@ -2,7 +2,7 @@ import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
 import { useBoomWallet, useBoomWalletDelegate, useExternalWallet } from "./useBoomWallet";
 import { useState } from "react";
-import { Wallet } from "@solana/wallet-adapter-react";
+import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -18,6 +18,7 @@ export default function WalletConnectButton({
     className?: string;
 }) {
     const boomWallet = useBoomWallet();
+    console.log("🚀 ~ boomWallet:", boomWallet);
     const userWalletAddress = boomWallet?.walletAddress;
     const balance = useSolanaBalance(userWalletAddress || "");
 
@@ -27,7 +28,7 @@ export default function WalletConnectButton({
 
     const [isOpen, setIsOpen] = useState(false);
 
-    if (!boomWallet?.isConnected)
+    if (!boomWallet || !boomWallet?.isConnected)
         return (
             <>
                 <ConnectWalletModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
@@ -53,6 +54,8 @@ export default function WalletConnectButton({
             </>
         );
 
+    console.log(boomWallet.disconnect);
+
     return (
         <>
             <div className="privy-wallet-dropdown">
@@ -60,7 +63,7 @@ export default function WalletConnectButton({
                     ({(balance / 1e9).toFixed(2)} SOL) {formatAddress(userWalletAddress)}
                 </div>
                 <div className="privy-dropdown-content">
-                    <button className="dropdown-item" onClick={logout}>
+                    <button className="dropdown-item" onClick={boomWallet.disconnect}>
                         Logout
                     </button>
                     {boomWallet.type === "EMAIL" && (
@@ -68,7 +71,7 @@ export default function WalletConnectButton({
                             Export Wallet
                         </button>
                     )}
-                    {boomWallet.type === "WALLET" && option && (
+                    {boomWallet.type === "EMAIL" && option && (
                         <button
                             className="dropdown-item"
                             onClick={option === "DELEGATE" ? onDelegate : onRevoke}
@@ -185,10 +188,7 @@ function Modal({
 }
 
 function ExternalWalletList() {
-    const externalWallet = useExternalWallet();
-
-    if (!externalWallet) return null;
-    const { wallets, select } = externalWallet;
+    const { wallets, select } = useWallet();
 
     return (
         <div>

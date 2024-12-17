@@ -60,6 +60,7 @@ type ExternalWalletType = {
     wallet: AdapterWallet;
     wallets: AdapterWallet[];
     select: (walletName: WalletName | null) => void;
+    disconnect: () => void;
 };
 export const useExternalWallet: () => ExternalWalletType | null = () => {
     const {
@@ -80,7 +81,8 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
         connected,
         publicKey,
         publicKey?.toString(),
-        wallet
+        wallet,
+        wallets
     );
 
     const { buttonState, label } = useMemo(() => {
@@ -119,7 +121,7 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
 
     if (!wallet) return null;
 
-    return { buttonState, label, wallets, select, wallet };
+    return { buttonState, label, wallets, select, wallet, disconnect };
 };
 
 const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -209,6 +211,7 @@ export const useBoomWallet: () => any = () => {
             isConnected: privyEmbeddedWallet.authenticated,
             walletAddress: privyEmbeddedWallet.user.wallet?.address,
             exportWallet: privyEmbeddedWallet.exportWallet,
+            disconnect: privyEmbeddedWallet.logout,
         };
     }
     if (externalWallet?.wallet) {
@@ -217,14 +220,15 @@ export const useBoomWallet: () => any = () => {
             isConnected: externalWallet.buttonState === "connected",
             walletAddress: externalWallet.wallets[0]?.adapter.publicKey?.toString(),
             exportWallet: undefined,
+            disconnect: externalWallet.disconnect,
         };
     }
     return null;
 };
 
 export const useBoomWalletDelegate = () => {
-    const { user } = useBoomWallet();
-    const wallet = user?.wallet;
+    const privyEmbeddedWallet = usePrivyEmbeddedWallet();
+    const wallet = privyEmbeddedWallet?.user?.wallet;
 
     const { delegateWallet, revokeWallets } = useDelegatedActions();
 
@@ -232,8 +236,8 @@ export const useBoomWalletDelegate = () => {
     const walletToDelegate = wallet?.walletClientType === "privy" ? wallet : undefined;
 
     // Check if the wallet to delegate by inspecting the user's linked accounts
-    const isAlreadyDelegated = !!user?.linkedAccounts?.find(
-        (account: WalletWithMetadata): account is WalletWithMetadata =>
+    const isAlreadyDelegated = !!privyEmbeddedWallet.user?.linkedAccounts?.find(
+        (account: LinkedAccountWithMetadata): account is WalletWithMetadata =>
             Boolean(account.type === "wallet" && account.address && account.delegated)
     );
 

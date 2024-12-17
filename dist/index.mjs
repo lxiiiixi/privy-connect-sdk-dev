@@ -113,7 +113,8 @@ var useExternalWallet = () => {
     connected,
     publicKey,
     publicKey == null ? void 0 : publicKey.toString(),
-    wallet
+    wallet,
+    wallets
   );
   const { buttonState, label } = useMemo2(() => {
     let buttonState2;
@@ -149,7 +150,7 @@ var useExternalWallet = () => {
     return { buttonState: buttonState2, label: label2 };
   }, [connecting, connected, disconnecting, wallet]);
   if (!wallet) return null;
-  return { buttonState, label, wallets, select, wallet };
+  return { buttonState, label, wallets, select, wallet, disconnect };
 };
 var usePrivyEmbeddedWallet = () => {
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
@@ -228,7 +229,8 @@ var useBoomWallet = () => {
       type: "EMAIL",
       isConnected: privyEmbeddedWallet.authenticated,
       walletAddress: (_a = privyEmbeddedWallet.user.wallet) == null ? void 0 : _a.address,
-      exportWallet: privyEmbeddedWallet.exportWallet
+      exportWallet: privyEmbeddedWallet.exportWallet,
+      disconnect: privyEmbeddedWallet.logout
     };
   }
   if (externalWallet == null ? void 0 : externalWallet.wallet) {
@@ -236,18 +238,19 @@ var useBoomWallet = () => {
       type: "WALLET",
       isConnected: externalWallet.buttonState === "connected",
       walletAddress: (_c = (_b = externalWallet.wallets[0]) == null ? void 0 : _b.adapter.publicKey) == null ? void 0 : _c.toString(),
-      exportWallet: void 0
+      exportWallet: void 0,
+      disconnect: externalWallet.disconnect
     };
   }
   return null;
 };
 var useBoomWalletDelegate = () => {
-  var _a;
-  const { user } = useBoomWallet();
-  const wallet = user == null ? void 0 : user.wallet;
+  var _a, _b, _c;
+  const privyEmbeddedWallet = usePrivyEmbeddedWallet();
+  const wallet = (_a = privyEmbeddedWallet == null ? void 0 : privyEmbeddedWallet.user) == null ? void 0 : _a.wallet;
   const { delegateWallet, revokeWallets } = useDelegatedActions();
   const walletToDelegate = (wallet == null ? void 0 : wallet.walletClientType) === "privy" ? wallet : void 0;
-  const isAlreadyDelegated = !!((_a = user == null ? void 0 : user.linkedAccounts) == null ? void 0 : _a.find(
+  const isAlreadyDelegated = !!((_c = (_b = privyEmbeddedWallet.user) == null ? void 0 : _b.linkedAccounts) == null ? void 0 : _c.find(
     (account) => Boolean(account.type === "wallet" && account.address && account.delegated)
   ));
   const isDisplay = !!walletToDelegate;
@@ -301,6 +304,7 @@ var useSolanaBalance = (address) => {
 
 // src/WalletConnectButton.tsx
 import { useState as useState2 } from "react";
+import { useWallet as useWallet2 } from "@solana/wallet-adapter-react";
 import { Fragment, jsx as jsx2, jsxs } from "react/jsx-runtime";
 var formatAddress = (address) => {
   if (!address) return "";
@@ -312,12 +316,13 @@ function WalletConnectButton({
   className
 }) {
   const boomWallet = useBoomWallet();
+  console.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const { logout } = usePrivy2();
   const [isOpen, setIsOpen] = useState2(false);
-  if (!(boomWallet == null ? void 0 : boomWallet.isConnected))
+  if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx2(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),
       /* @__PURE__ */ jsx2(
@@ -342,6 +347,7 @@ function WalletConnectButton({
 }
         ` })
     ] });
+  console.log(boomWallet.disconnect);
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs("div", { className: "privy-wallet-dropdown", children: [
       /* @__PURE__ */ jsxs("div", { className: "privy-user-info", children: [
@@ -351,9 +357,9 @@ function WalletConnectButton({
         formatAddress(userWalletAddress)
       ] }),
       /* @__PURE__ */ jsxs("div", { className: "privy-dropdown-content", children: [
-        /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: logout, children: "Logout" }),
+        /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: boomWallet.disconnect, children: "Logout" }),
         boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
-        boomWallet.type === "WALLET" && option && /* @__PURE__ */ jsx2(
+        boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx2(
           "button",
           {
             className: "dropdown-item",
@@ -455,9 +461,7 @@ function Modal({
   ] });
 }
 function ExternalWalletList() {
-  const externalWallet = useExternalWallet();
-  if (!externalWallet) return null;
-  const { wallets, select } = externalWallet;
+  const { wallets, select } = useWallet2();
   return /* @__PURE__ */ jsx2("div", { children: wallets.map((wallet) => /* @__PURE__ */ jsxs(
     "button",
     {
