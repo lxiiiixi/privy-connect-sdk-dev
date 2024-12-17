@@ -8,7 +8,6 @@ import {
     useDelegatedActions,
     useSolanaWallets,
 } from "@privy-io/react-auth";
-import { SendTransactionFunction } from "../useBoomWallet";
 // import bs58 from 'bs58'
 // import { useEffect, useState } from 'react'
 
@@ -113,7 +112,7 @@ async function executeTransaction(swapTransaction: string, connection: Connectio
 
 export const buy = async (
     userWalletAddress: string,
-    sendTransaction: SendTransactionFunction,
+    sendTransaction: any,
     connection: Connection
 ) => {
     if (!userWalletAddress) return;

@@ -1,6 +1,6 @@
 import { buy } from "./lib/buy";
 import { connection } from "./solana";
-import { useBoomWallet } from "./useBoomWallet";
+import { useBoomWallet } from "./wallets/useBoomWallet";
 
 export default function useBoomTransactions() {
     const { user, sendTransaction } = useBoomWallet();

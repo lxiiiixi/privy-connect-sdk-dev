@@ -17,11 +17,6 @@ import { useEffect, useMemo } from "react";
 import bs58 from "bs58";
 import { Connection, TransactionSignature } from "@solana/web3.js";
 import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
-import {
-    useWallet,
-    Wallet as AdapterWallet,
-    WalletContextState,
-} from "@solana/wallet-adapter-react";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -56,78 +51,7 @@ export type PrivyWallet = {
     sendTransaction?: any; // 发送交易
 };
 
-// https://docs.privy.io/guide/react/wallets/usage/solana/
-type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" | "no-wallet";
-type ExternalWalletType = {
-    buttonState: ButtonState;
-    label: string;
-} & WalletContextState;
-export const useExternalWallet: () => ExternalWalletType | null = () => {
-    const walletState = useWallet();
-    const {
-        autoConnect,
-        connected,
-        connecting,
-        disconnect,
-        disconnecting,
-        publicKey,
-        select,
-        wallet,
-        wallets,
-        sendTransaction,
-    } = walletState;
-
-    // connect 和 select 的区别？
-
-    console.log(
-        "🚀 ~ CustomWalletButton ~ connect:",
-        connected,
-        publicKey,
-        publicKey?.toString(),
-        wallet,
-        wallets
-    );
-
-    const { buttonState, label } = useMemo(() => {
-        let buttonState: ButtonState;
-        if (connecting) {
-            buttonState = "connecting";
-        } else if (connected) {
-            buttonState = "connected";
-        } else if (disconnecting) {
-            buttonState = "disconnecting";
-        } else if (wallet) {
-            buttonState = "has-wallet";
-        } else {
-            buttonState = "no-wallet";
-        }
-        let label;
-        switch (buttonState) {
-            case "connected":
-                label = "Disconnect";
-                break;
-            case "connecting":
-                label = "Connecting";
-                break;
-            case "disconnecting":
-                label = "Disconnecting";
-                break;
-            case "has-wallet":
-                label = "Connect";
-                break;
-            case "no-wallet":
-                label = "Select Wallet";
-                break;
-        }
-        return { buttonState, label };
-    }, [connecting, connected, disconnecting, wallet]);
-
-    if (!wallet) return null;
-
-    return { ...walletState, buttonState, label, wallets, select, wallet, disconnect, publicKey };
-};
-
-const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
+export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
     const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
     const { sendSolanaTransaction } = useSendSolanaTransaction();
 
@@ -203,30 +127,6 @@ const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         login,
         logout,
     };
-};
-
-export const useBoomWallet: () => any = () => {
-    const privyEmbeddedWallet = usePrivyEmbeddedWallet();
-    const externalWallet = useExternalWallet();
-    if (privyEmbeddedWallet.user.wallet) {
-        return {
-            type: "EMAIL",
-            isConnected: privyEmbeddedWallet.authenticated,
-            walletAddress: privyEmbeddedWallet.user.wallet?.address,
-            exportWallet: privyEmbeddedWallet.exportWallet,
-            disconnect: privyEmbeddedWallet.logout,
-        };
-    }
-    if (externalWallet?.wallet) {
-        return {
-            type: "WALLET",
-            isConnected: externalWallet.buttonState === "connected",
-            walletAddress: externalWallet.publicKey?.toString(),
-            exportWallet: undefined,
-            disconnect: externalWallet.disconnect,
-        };
-    }
-    return null;
 };
 
 export const useBoomWalletDelegate = () => {

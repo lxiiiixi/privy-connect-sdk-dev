@@ -86,18 +86,11 @@ function BoomWalletProvider({ appId, children }) {
   );
 }
 
-// src/useBoomWallet.tsx
-import {
-  useDelegatedActions,
-  usePrivy,
-  useSendSolanaTransaction,
-  useSolanaWallets
-} from "@privy-io/react-auth";
-import { useEffect, useMemo as useMemo2 } from "react";
-import bs58 from "bs58";
+// src/wallets/useExternalWallet.ts
 import {
   useWallet
 } from "@solana/wallet-adapter-react";
+import { useMemo as useMemo2 } from "react";
 var useExternalWallet = () => {
   const walletState = useWallet();
   const {
@@ -156,6 +149,16 @@ var useExternalWallet = () => {
   if (!wallet) return null;
   return { ...walletState, buttonState, label, wallets, select, wallet, disconnect, publicKey };
 };
+
+// src/wallets/usePrivyEmbeddedWallet.tsx
+import {
+  useDelegatedActions,
+  usePrivy,
+  useSendSolanaTransaction,
+  useSolanaWallets
+} from "@privy-io/react-auth";
+import { useEffect } from "react";
+import bs58 from "bs58";
 var usePrivyEmbeddedWallet = () => {
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
   const { sendSolanaTransaction } = useSendSolanaTransaction();
@@ -224,30 +227,6 @@ var usePrivyEmbeddedWallet = () => {
     logout
   };
 };
-var useBoomWallet = () => {
-  var _a, _b;
-  const privyEmbeddedWallet = usePrivyEmbeddedWallet();
-  const externalWallet = useExternalWallet();
-  if (privyEmbeddedWallet.user.wallet) {
-    return {
-      type: "EMAIL",
-      isConnected: privyEmbeddedWallet.authenticated,
-      walletAddress: (_a = privyEmbeddedWallet.user.wallet) == null ? void 0 : _a.address,
-      exportWallet: privyEmbeddedWallet.exportWallet,
-      disconnect: privyEmbeddedWallet.logout
-    };
-  }
-  if (externalWallet == null ? void 0 : externalWallet.wallet) {
-    return {
-      type: "WALLET",
-      isConnected: externalWallet.buttonState === "connected",
-      walletAddress: (_b = externalWallet.publicKey) == null ? void 0 : _b.toString(),
-      exportWallet: void 0,
-      disconnect: externalWallet.disconnect
-    };
-  }
-  return null;
-};
 var useBoomWalletDelegate = () => {
   var _a, _b, _c;
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
@@ -276,6 +255,32 @@ var useBoomWalletDelegate = () => {
     onDelegate,
     onRevoke
   };
+};
+
+// src/wallets/useBoomWallet.tsx
+var useBoomWallet = () => {
+  var _a, _b;
+  const privyEmbeddedWallet = usePrivyEmbeddedWallet();
+  const externalWallet = useExternalWallet();
+  if (privyEmbeddedWallet.user.wallet) {
+    return {
+      type: "EMAIL",
+      isConnected: privyEmbeddedWallet.authenticated,
+      walletAddress: (_a = privyEmbeddedWallet.user.wallet) == null ? void 0 : _a.address,
+      exportWallet: privyEmbeddedWallet.exportWallet,
+      disconnect: privyEmbeddedWallet.logout
+    };
+  }
+  if (externalWallet == null ? void 0 : externalWallet.wallet) {
+    return {
+      type: "WALLET",
+      isConnected: externalWallet.buttonState === "connected",
+      walletAddress: (_b = externalWallet.publicKey) == null ? void 0 : _b.toString(),
+      exportWallet: void 0,
+      disconnect: externalWallet.disconnect
+    };
+  }
+  return null;
 };
 
 // src/WalletConnectButton.tsx

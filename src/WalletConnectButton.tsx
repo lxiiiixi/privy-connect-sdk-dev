@@ -1,8 +1,9 @@
 import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
-import { useBoomWallet, useBoomWalletDelegate, useExternalWallet } from "./useBoomWallet";
+import { useBoomWallet } from "./wallets/useBoomWallet";
 import { useState } from "react";
 import { useWallet, Wallet } from "@solana/wallet-adapter-react";
+import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
