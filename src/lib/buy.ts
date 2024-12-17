@@ -110,7 +110,7 @@ async function executeTransaction(swapTransaction: string, connection: Connectio
     }
 }
 
-export const buy = async (
+export const buyTokenBySol = async (
     userWalletAddress: string,
     sendTransaction: any,
     connection: Connection
@@ -118,6 +118,7 @@ export const buy = async (
     if (!userWalletAddress) return;
     if (!sendTransaction) return;
     if (!connection) return;
+    console.log("参数有效");
 
     console.time("✅ 所有流程完成!");
 

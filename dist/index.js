@@ -32,7 +32,6 @@ var src_exports = {};
 __export(src_exports, {
   BoomWalletProvider: () => BoomWalletProvider,
   WalletConnectButton: () => WalletConnectButton,
-  useBoomTransactions: () => useBoomTransactions,
   useBoomWallet: () => useBoomWallet
 });
 module.exports = __toCommonJS(src_exports);
@@ -125,7 +124,106 @@ function BoomWalletProvider({ appId, children }) {
 
 // src/wallets/useExternalWallet.ts
 var import_wallet_adapter_react2 = require("@solana/wallet-adapter-react");
+
+// src/lib/buy.ts
+var import_web3 = require("@solana/web3.js");
+var import_cross_fetch = __toESM(require("cross-fetch"));
+async function fetchQuote(inputMint, outputMint, amount, slippageBps, excludeDexes = []) {
+  try {
+    console.log("\u{1F680} \u6B63\u5728\u8C03\u7528api\u83B7\u53D6\u62A5\u4EF7 \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
+    const excludeDexesParam = excludeDexes.length > 0 ? `&excludeDexes=${excludeDexes.join(",")}` : "";
+    const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}${excludeDexesParam}`;
+    const response = await (0, import_cross_fetch.default)(quoteUrl);
+    if (!response.ok) {
+      throw new Error(`\u83B7\u53D6\u62A5\u4EF7\u5931\u8D25\uFF0CHTTP \u72B6\u6001\u7801: ${response.status}`);
+    }
+    const quote = await response.json();
+    console.log("\u2705 \u83B7\u53D6\u62A5\u4EF7\u6210\u529F:", quote);
+    return quote;
+  } catch (error) {
+    console.error("\u274C \u83B7\u53D6\u62A5\u4EF7\u5931\u8D25:", error.message);
+    throw error;
+  }
+}
+async function fetchSwapTransaction(quoteResponse, userPublicKey) {
+  try {
+    console.log("\u{1F680} \u6B63\u5728\u83B7\u53D6\u4EA4\u6362\u4EA4\u6613...");
+    const swapUrl = "https://quote-api.jup.ag/v6/swap";
+    const response = await (0, import_cross_fetch.default)(swapUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        quoteResponse,
+        userPublicKey,
+        wrapAndUnwrapSol: true
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`\u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u5931\u8D25\uFF0CHTTP \u72B6\u6001\u7801: ${response.status}`);
+    }
+    const { swapTransaction } = await response.json();
+    console.log("\u2705 \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u6210\u529F", swapTransaction);
+    return swapTransaction;
+  } catch (error) {
+    console.error("\u274C \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u5931\u8D25:", error.message);
+    throw error;
+  }
+}
+var buyTokenBySol = async (userWalletAddress, sendTransaction, connection2) => {
+  if (!userWalletAddress) return;
+  if (!sendTransaction) return;
+  if (!connection2) return;
+  console.log("\u53C2\u6570\u6709\u6548");
+  console.time("\u2705 \u6240\u6709\u6D41\u7A0B\u5B8C\u6210!");
+  const inputMint = "So11111111111111111111111111111111111111112";
+  const outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  const amount = 1e7;
+  const slippageBps = 50;
+  console.log("\u{1F4A1} \u5F00\u59CB\u4EA4\u6613\u6D41\u7A0B \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
+  console.time("\u23F1\uFE0F \u83B7\u53D6\u62A5\u4EF7\u8017\u65F6");
+  const quote = await fetchQuote(inputMint, outputMint, amount, slippageBps);
+  console.timeEnd("\u23F1\uFE0F \u83B7\u53D6\u62A5\u4EF7\u8017\u65F6");
+  console.time("\u23F1\uFE0F \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u8017\u65F6");
+  const swapTransaction = await fetchSwapTransaction(quote, userWalletAddress);
+  console.timeEnd("\u23F1\uFE0F \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u8017\u65F6");
+  console.log("\u{1F680} \u5F00\u59CB\u53CD\u5E8F\u5217\u5316\u4EA4\u6613 \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
+  console.time("\u23F1\uFE0F \u53CD\u5E8F\u5217\u5316\u8017\u65F6");
+  const swapTransactionBuf = Buffer.from(swapTransaction, "base64");
+  const transaction = import_web3.VersionedTransaction.deserialize(swapTransactionBuf);
+  console.timeEnd("\u23F1\uFE0F \u53CD\u5E8F\u5217\u5316\u8017\u65F6");
+  console.time("\u23F1\uFE0F \u53D1\u9001\u4EA4\u6613\u8017\u65F6");
+  const res = await sendTransaction(transaction, connection2);
+  console.timeEnd("\u23F1\uFE0F \u53D1\u9001\u4EA4\u6613\u8017\u65F6");
+  console.log("\u{1F680} ~ Buy ~ res:", res);
+  console.timeEnd("\u2705 \u6240\u6709\u6D41\u7A0B\u5B8C\u6210!");
+};
+
+// src/solana.ts
+var import_web32 = require("@solana/web3.js");
 var import_react2 = require("react");
+var connection = new import_web32.Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
+var useSolanaBalance = (address) => {
+  const [balance, setBalance] = (0, import_react2.useState)(0);
+  const getBalance = async (address2) => {
+    try {
+      const publicKey = new import_web32.PublicKey(address2);
+      const balance2 = await connection.getBalance(publicKey);
+      console.log(`Balance of ${address2}: ${balance2 / 1e9} SOL`);
+      return balance2;
+    } catch (error) {
+      console.error("Failed to get balance:", error);
+      return 0;
+    }
+  };
+  (0, import_react2.useEffect)(() => {
+    if (!!address) {
+      getBalance(address).then(setBalance);
+    }
+  }, [address]);
+  return balance;
+};
+
+// src/wallets/useExternalWallet.ts
 var useExternalWallet = () => {
   const walletState = (0, import_wallet_adapter_react2.useWallet)();
   const {
@@ -148,41 +246,24 @@ var useExternalWallet = () => {
     wallet,
     wallets
   );
-  const { buttonState, label } = (0, import_react2.useMemo)(() => {
-    let buttonState2;
-    if (connecting) {
-      buttonState2 = "connecting";
-    } else if (connected) {
-      buttonState2 = "connected";
-    } else if (disconnecting) {
-      buttonState2 = "disconnecting";
-    } else if (wallet) {
-      buttonState2 = "has-wallet";
-    } else {
-      buttonState2 = "no-wallet";
-    }
-    let label2;
-    switch (buttonState2) {
-      case "connected":
-        label2 = "Disconnect";
-        break;
-      case "connecting":
-        label2 = "Connecting";
-        break;
-      case "disconnecting":
-        label2 = "Disconnecting";
-        break;
-      case "has-wallet":
-        label2 = "Connect";
-        break;
-      case "no-wallet":
-        label2 = "Select Wallet";
-        break;
-    }
-    return { buttonState: buttonState2, label: label2 };
-  }, [connecting, connected, disconnecting, wallet]);
   if (!wallet) return null;
-  return { ...walletState, buttonState, label, wallets, select, wallet, disconnect, publicKey };
+  const buy = async () => {
+    if (!(publicKey == null ? void 0 : publicKey.toString()) || !sendTransaction || !connection) return;
+    console.log("\u6267\u884C\u4EA4\u6613");
+    const signature = await buyTokenBySol(publicKey == null ? void 0 : publicKey.toString(), sendTransaction, connection);
+    return signature;
+  };
+  return {
+    ...walletState,
+    wallets,
+    select,
+    wallet,
+    disconnect,
+    publicKey,
+    sendTransactions: {
+      buy
+    }
+  };
 };
 
 // src/wallets/usePrivyEmbeddedWallet.tsx
@@ -239,6 +320,15 @@ var usePrivyEmbeddedWallet = () => {
       // hex 格式
     };
   };
+  const buy = async () => {
+    if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return;
+    const signature = await buyTokenBySol(
+      userEmbeddedWallet.address,
+      userEmbeddedWallet.sendTransaction,
+      connection
+    );
+    return signature;
+  };
   return {
     user: {
       id: user == null ? void 0 : user.id,
@@ -254,7 +344,10 @@ var usePrivyEmbeddedWallet = () => {
     exportWallet,
     authenticated,
     login,
-    logout
+    logout,
+    sendTransactions: {
+      buy
+    }
   };
 };
 var useBoomWalletDelegate = () => {
@@ -298,16 +391,18 @@ var useBoomWallet = () => {
       isConnected: privyEmbeddedWallet.authenticated,
       walletAddress: (_a = privyEmbeddedWallet.user.wallet) == null ? void 0 : _a.address,
       exportWallet: privyEmbeddedWallet.exportWallet,
-      disconnect: privyEmbeddedWallet.logout
+      disconnect: privyEmbeddedWallet.logout,
+      sendTransactions: privyEmbeddedWallet.sendTransactions
     };
   }
   if (externalWallet == null ? void 0 : externalWallet.wallet) {
     return {
       type: "WALLET",
-      isConnected: externalWallet.buttonState === "connected",
+      isConnected: externalWallet.connected,
       walletAddress: (_b = externalWallet.publicKey) == null ? void 0 : _b.toString(),
       exportWallet: void 0,
-      disconnect: externalWallet.disconnect
+      disconnect: externalWallet.disconnect,
+      sendTransactions: externalWallet.sendTransactions
     };
   }
   return null;
@@ -315,34 +410,7 @@ var useBoomWallet = () => {
 
 // src/WalletConnectButton.tsx
 var import_react_auth3 = require("@privy-io/react-auth");
-
-// src/solana.ts
-var import_web3 = require("@solana/web3.js");
 var import_react4 = require("react");
-var connection = new import_web3.Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
-var useSolanaBalance = (address) => {
-  const [balance, setBalance] = (0, import_react4.useState)(0);
-  const getBalance = async (address2) => {
-    try {
-      const publicKey = new import_web3.PublicKey(address2);
-      const balance2 = await connection.getBalance(publicKey);
-      console.log(`Balance of ${address2}: ${balance2 / 1e9} SOL`);
-      return balance2;
-    } catch (error) {
-      console.error("Failed to get balance:", error);
-      return 0;
-    }
-  };
-  (0, import_react4.useEffect)(() => {
-    if (!!address) {
-      getBalance(address).then(setBalance);
-    }
-  }, [address]);
-  return balance;
-};
-
-// src/WalletConnectButton.tsx
-var import_react5 = require("react");
 var import_wallet_adapter_react3 = require("@solana/wallet-adapter-react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var formatAddress = (address) => {
@@ -359,7 +427,7 @@ function WalletConnectButton({
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
-  const [isOpen, setIsOpen] = (0, import_react5.useState)(false);
+  const [isOpen, setIsOpen] = (0, import_react4.useState)(false);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),
@@ -532,7 +600,7 @@ function ExternalWalletList() {
   ] });
 }
 function PrivyLogin({ onClose }) {
-  const [email, setEmail] = (0, import_react5.useState)("");
+  const [email, setEmail] = (0, import_react4.useState)("");
   const { login } = (0, import_react_auth3.useLogin)({
     onComplete: () => onClose()
   });
@@ -613,90 +681,6 @@ function ConnectWalletModal({ isOpen, onClose }) {
   ] });
 }
 
-// src/lib/buy.ts
-var import_web32 = require("@solana/web3.js");
-var import_cross_fetch = __toESM(require("cross-fetch"));
-async function fetchQuote(inputMint, outputMint, amount, slippageBps, excludeDexes = []) {
-  try {
-    console.log("\u{1F680} \u6B63\u5728\u8C03\u7528api\u83B7\u53D6\u62A5\u4EF7 \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
-    const excludeDexesParam = excludeDexes.length > 0 ? `&excludeDexes=${excludeDexes.join(",")}` : "";
-    const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}${excludeDexesParam}`;
-    const response = await (0, import_cross_fetch.default)(quoteUrl);
-    if (!response.ok) {
-      throw new Error(`\u83B7\u53D6\u62A5\u4EF7\u5931\u8D25\uFF0CHTTP \u72B6\u6001\u7801: ${response.status}`);
-    }
-    const quote = await response.json();
-    console.log("\u2705 \u83B7\u53D6\u62A5\u4EF7\u6210\u529F:", quote);
-    return quote;
-  } catch (error) {
-    console.error("\u274C \u83B7\u53D6\u62A5\u4EF7\u5931\u8D25:", error.message);
-    throw error;
-  }
-}
-async function fetchSwapTransaction(quoteResponse, userPublicKey) {
-  try {
-    console.log("\u{1F680} \u6B63\u5728\u83B7\u53D6\u4EA4\u6362\u4EA4\u6613...");
-    const swapUrl = "https://quote-api.jup.ag/v6/swap";
-    const response = await (0, import_cross_fetch.default)(swapUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        quoteResponse,
-        userPublicKey,
-        wrapAndUnwrapSol: true
-      })
-    });
-    if (!response.ok) {
-      throw new Error(`\u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u5931\u8D25\uFF0CHTTP \u72B6\u6001\u7801: ${response.status}`);
-    }
-    const { swapTransaction } = await response.json();
-    console.log("\u2705 \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u6210\u529F", swapTransaction);
-    return swapTransaction;
-  } catch (error) {
-    console.error("\u274C \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u5931\u8D25:", error.message);
-    throw error;
-  }
-}
-var buy = async (userWalletAddress, sendTransaction, connection2) => {
-  if (!userWalletAddress) return;
-  if (!sendTransaction) return;
-  if (!connection2) return;
-  console.time("\u2705 \u6240\u6709\u6D41\u7A0B\u5B8C\u6210!");
-  const inputMint = "So11111111111111111111111111111111111111112";
-  const outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-  const amount = 1e7;
-  const slippageBps = 50;
-  console.log("\u{1F4A1} \u5F00\u59CB\u4EA4\u6613\u6D41\u7A0B \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
-  console.time("\u23F1\uFE0F \u83B7\u53D6\u62A5\u4EF7\u8017\u65F6");
-  const quote = await fetchQuote(inputMint, outputMint, amount, slippageBps);
-  console.timeEnd("\u23F1\uFE0F \u83B7\u53D6\u62A5\u4EF7\u8017\u65F6");
-  console.time("\u23F1\uFE0F \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u8017\u65F6");
-  const swapTransaction = await fetchSwapTransaction(quote, userWalletAddress);
-  console.timeEnd("\u23F1\uFE0F \u83B7\u53D6\u4EA4\u6362\u4EA4\u6613\u8017\u65F6");
-  console.log("\u{1F680} \u5F00\u59CB\u53CD\u5E8F\u5217\u5316\u4EA4\u6613 \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014");
-  console.time("\u23F1\uFE0F \u53CD\u5E8F\u5217\u5316\u8017\u65F6");
-  const swapTransactionBuf = Buffer.from(swapTransaction, "base64");
-  const transaction = import_web32.VersionedTransaction.deserialize(swapTransactionBuf);
-  console.timeEnd("\u23F1\uFE0F \u53CD\u5E8F\u5217\u5316\u8017\u65F6");
-  console.time("\u23F1\uFE0F \u53D1\u9001\u4EA4\u6613\u8017\u65F6");
-  const res = await sendTransaction(transaction, connection2);
-  console.timeEnd("\u23F1\uFE0F \u53D1\u9001\u4EA4\u6613\u8017\u65F6");
-  console.log("\u{1F680} ~ Buy ~ res:", res);
-  console.timeEnd("\u2705 \u6240\u6709\u6D41\u7A0B\u5B8C\u6210!");
-};
-
-// src/useTransactions.tsx
-function useBoomTransactions() {
-  const { user, sendTransaction } = useBoomWallet();
-  const wallet = user == null ? void 0 : user.wallet;
-  const sendBuyTransaction = async () => {
-    if (!(wallet == null ? void 0 : wallet.address) || !sendTransaction || !connection) return;
-    const transaction = await buy(wallet == null ? void 0 : wallet.address, sendTransaction, connection);
-    console.log("\u{1F680} ~ sendBuyTransaction ~ transaction:", transaction);
-  };
-  return { sendBuyTransaction };
-}
-
 // src/index.ts
 if (typeof window !== "undefined") {
   window.Buffer = import_buffer.Buffer;
@@ -705,6 +689,5 @@ if (typeof window !== "undefined") {
 0 && (module.exports = {
   BoomWalletProvider,
   WalletConnectButton,
-  useBoomTransactions,
   useBoomWallet
 });

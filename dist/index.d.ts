@@ -14,8 +14,4 @@ declare function WalletConnectButton({ onComplete, className, }: {
     className?: string;
 }): react_jsx_runtime.JSX.Element;
 
-declare function useBoomTransactions(): {
-    sendBuyTransaction: () => Promise<void>;
-};
-
-export { BoomWalletProvider, WalletConnectButton, useBoomTransactions, useBoomWallet };
+export { BoomWalletProvider, WalletConnectButton, useBoomWallet };

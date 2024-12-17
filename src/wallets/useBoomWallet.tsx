@@ -11,15 +11,17 @@ export const useBoomWallet: () => any = () => {
             walletAddress: privyEmbeddedWallet.user.wallet?.address,
             exportWallet: privyEmbeddedWallet.exportWallet,
             disconnect: privyEmbeddedWallet.logout,
+            sendTransactions: privyEmbeddedWallet.sendTransactions,
         };
     }
     if (externalWallet?.wallet) {
         return {
             type: "WALLET",
-            isConnected: externalWallet.buttonState === "connected",
+            isConnected: externalWallet.connected,
             walletAddress: externalWallet.publicKey?.toString(),
             exportWallet: undefined,
             disconnect: externalWallet.disconnect,
+            sendTransactions: externalWallet.sendTransactions,
         };
     }
     return null;

@@ -17,6 +17,8 @@ import { useEffect, useMemo } from "react";
 import bs58 from "bs58";
 import { Connection, TransactionSignature } from "@solana/web3.js";
 import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
+import { buyTokenBySol } from "../lib/buy";
+import { connection } from "../solana";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -49,6 +51,9 @@ export type PrivyWallet = {
     exportWallet?: () => void; // 导出钱包
     signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
     sendTransaction?: any; // 发送交易
+    sendTransactions: {
+        buy: (transaction: any) => Promise<void>;
+    };
 };
 
 export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -110,6 +115,15 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
             hexSignature, // hex 格式
         };
     };
+    const buy = async () => {
+        if (!userEmbeddedWallet?.address) return;
+        const signature = await buyTokenBySol(
+            userEmbeddedWallet.address,
+            userEmbeddedWallet.sendTransaction,
+            connection
+        );
+        return signature;
+    };
 
     return {
         user: {
@@ -126,6 +140,9 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         authenticated,
         login,
         logout,
+        sendTransactions: {
+            buy,
+        },
     };
 };
 

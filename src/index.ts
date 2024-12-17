@@ -7,4 +7,3 @@ if (typeof window !== "undefined") {
 export { default as BoomWalletProvider } from "./BoomWalletProvider";
 export { useBoomWallet } from "./wallets/useBoomWallet";
 export { default as WalletConnectButton } from "./WalletConnectButton";
-export { default as useBoomTransactions } from "./useTransactions";

@@ -7,7 +7,8 @@ function App() {
 
     // const { sendBuyTransaction } = useBoomTransactions();
 
-    console.log("useBoomWallet", useBoomWallet());
+    const boomWallet = useBoomWallet();
+    console.log("🚀 ~ App ~ boomWallet:", boomWallet);
 
     return (
         <>
@@ -17,6 +18,16 @@ function App() {
                     className="privy-wallet-connect-button"
                 />
                 <hr />
+                {boomWallet && (
+                    <button
+                        className="btn"
+                        onClick={async () => {
+                            await boomWallet.sendTransactions.buy();
+                        }}
+                    >
+                        Buy usdc by 0.01 SOL
+                    </button>
+                )}
                 {/* <details>
                     <summary className="mt-6 font-bold uppercase text-sm text-gray-600 cursor-pointer">
                         User object
