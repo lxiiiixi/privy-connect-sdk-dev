@@ -24,8 +24,6 @@ export default function WalletConnectButton({
 
     const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
-    const { logout } = usePrivy();
-
     const [isOpen, setIsOpen] = useState(false);
 
     if (!boomWallet || !boomWallet?.isConnected)
@@ -53,8 +51,6 @@ export default function WalletConnectButton({
         `}</style>
             </>
         );
-
-    console.log(boomWallet.disconnect);
 
     return (
         <>
@@ -177,9 +173,9 @@ function Modal({
                 .modal-content {
                     background-color: white;
                     padding: 20px;
-                    border-radius: 8px;
+                    border-radius: 12px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    max-width: 500px;
+                    max-width: 400px;
                     width: 100%;
                 }
             `}</style>
@@ -198,29 +194,105 @@ function ExternalWalletList() {
                     onClick={() => {
                         select(wallet.adapter.name);
                     }}
+                    className="wallet-list-item"
                 >
-                    <img src={wallet.adapter.icon} alt={wallet.adapter.name} width={40} />
+                    <img src={wallet.adapter.icon} alt={wallet.adapter.name} width={30} />
                     {wallet.adapter.name}
                 </button>
             ))}
+            <style>{`
+                .wallet-list-item {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 12px;
+                    color: #09090b;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin: 8px 0;
+                }
+            `}</style>
         </div>
     );
 }
-function ConnectWalletModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function PrivyLogin({ onClose }: { onClose: () => void }) {
+    const [email, setEmail] = useState("");
     const { login } = useLogin({
         onComplete: () => onClose(),
     });
     return (
+        <>
+            <div className="email-form">
+                <input
+                    type="email"
+                    placeholder="your@email.com"
+                    id="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                />
+                <button
+                    type="submit"
+                    onClick={() => {
+                        login({
+                            type: "email",
+                            prefill: {
+                                type: "email",
+                                value: email,
+                            },
+                        });
+                    }}
+                >
+                    submit
+                </button>
+            </div>
+            <style>{`
+.email-form {
+    display: flex;
+    align-items: center;
+    padding: 0px 10px;
+    border-radius: 10px;
+    border: 1px solid #FCD535;
+    margin: 10px 0;
+}
+
+.email-form input[type="email"] {
+    flex-grow: 1; /* Make input expand to fill space */
+    padding: 6px;
+    margin-right: 10px; /* Space between input and button */
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ccc; /* Light grey text color */
+    font-size: 16px; /* Size of the text */
+}
+
+.email-form button {
+    padding: 10px 10px;
+    color: #FCD535;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; /* Pointer on hover */
+    font-size: 16px;
+    transition: color 0.3s ease; /* Smooth transition for hover effect */
+    background: transparent;
+}
+
+.email-form button:hover {
+    color: #fac800;
+}
+
+        `}</style>
+        </>
+    );
+}
+function ConnectWalletModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <h4>Login</h4>
-            <button
-                onClick={() => {
-                    onClose();
-                    login();
-                }}
-            >
-                Login by Email
-            </button>
+            <PrivyLogin onClose={onClose} />
             <hr />
             <ExternalWalletList />
         </Modal>

@@ -95,9 +95,13 @@ import {
 } from "@privy-io/react-auth";
 import { useEffect, useMemo as useMemo2 } from "react";
 import bs58 from "bs58";
-import { useWallet } from "@solana/wallet-adapter-react";
+import {
+  useWallet
+} from "@solana/wallet-adapter-react";
 var useExternalWallet = () => {
+  const walletState = useWallet();
   const {
+    autoConnect,
     connected,
     connecting,
     disconnect,
@@ -107,7 +111,7 @@ var useExternalWallet = () => {
     wallet,
     wallets,
     sendTransaction
-  } = useWallet();
+  } = walletState;
   console.log(
     "\u{1F680} ~ CustomWalletButton ~ connect:",
     connected,
@@ -150,7 +154,7 @@ var useExternalWallet = () => {
     return { buttonState: buttonState2, label: label2 };
   }, [connecting, connected, disconnecting, wallet]);
   if (!wallet) return null;
-  return { buttonState, label, wallets, select, wallet, disconnect };
+  return { ...walletState, buttonState, label, wallets, select, wallet, disconnect, publicKey };
 };
 var usePrivyEmbeddedWallet = () => {
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
@@ -176,9 +180,9 @@ var usePrivyEmbeddedWallet = () => {
       console.warn(error);
     }
   }, [userEmbeddedWallet, authenticated]);
-  console.log("user", user);
   console.log(
     "solanaWallets",
+    user,
     userEmbeddedWallet,
     user == null ? void 0 : user.wallet,
     readySolanaWallets,
@@ -221,7 +225,7 @@ var usePrivyEmbeddedWallet = () => {
   };
 };
 var useBoomWallet = () => {
-  var _a, _b, _c;
+  var _a, _b;
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
   const externalWallet = useExternalWallet();
   if (privyEmbeddedWallet.user.wallet) {
@@ -237,7 +241,7 @@ var useBoomWallet = () => {
     return {
       type: "WALLET",
       isConnected: externalWallet.buttonState === "connected",
-      walletAddress: (_c = (_b = externalWallet.wallets[0]) == null ? void 0 : _b.adapter.publicKey) == null ? void 0 : _c.toString(),
+      walletAddress: (_b = externalWallet.publicKey) == null ? void 0 : _b.toString(),
       exportWallet: void 0,
       disconnect: externalWallet.disconnect
     };
@@ -275,7 +279,7 @@ var useBoomWalletDelegate = () => {
 };
 
 // src/WalletConnectButton.tsx
-import { useLogin, usePrivy as usePrivy2 } from "@privy-io/react-auth";
+import { useLogin } from "@privy-io/react-auth";
 
 // src/solana.ts
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -320,7 +324,6 @@ function WalletConnectButton({
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
-  const { logout } = usePrivy2();
   const [isOpen, setIsOpen] = useState2(false);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -347,7 +350,6 @@ function WalletConnectButton({
 }
         ` })
     ] });
-  console.log(boomWallet.disconnect);
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs("div", { className: "privy-wallet-dropdown", children: [
       /* @__PURE__ */ jsxs("div", { className: "privy-user-info", children: [
@@ -452,9 +454,9 @@ function Modal({
                 .modal-content {
                     background-color: white;
                     padding: 20px;
-                    border-radius: 8px;
+                    border-radius: 12px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    max-width: 500px;
+                    max-width: 400px;
                     width: 100%;
                 }
             ` })
@@ -462,36 +464,115 @@ function Modal({
 }
 function ExternalWalletList() {
   const { wallets, select } = useWallet2();
-  return /* @__PURE__ */ jsx2("div", { children: wallets.map((wallet) => /* @__PURE__ */ jsxs(
-    "button",
-    {
-      onClick: () => {
-        select(wallet.adapter.name);
-      },
-      children: [
-        /* @__PURE__ */ jsx2("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 40 }),
-        wallet.adapter.name
-      ]
-    },
-    wallet.adapter.name
-  )) });
-}
-function ConnectWalletModal({ isOpen, onClose }) {
-  const { login } = useLogin({
-    onComplete: () => onClose()
-  });
-  return /* @__PURE__ */ jsxs(Modal, { isOpen, onClose, children: [
-    /* @__PURE__ */ jsx2("h4", { children: "Login" }),
-    /* @__PURE__ */ jsx2(
+  return /* @__PURE__ */ jsxs("div", { children: [
+    wallets.map((wallet) => /* @__PURE__ */ jsxs(
       "button",
       {
         onClick: () => {
-          onClose();
-          login();
+          select(wallet.adapter.name);
         },
-        children: "Login by Email"
-      }
-    ),
+        className: "wallet-list-item",
+        children: [
+          /* @__PURE__ */ jsx2("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 30 }),
+          wallet.adapter.name
+        ]
+      },
+      wallet.adapter.name
+    )),
+    /* @__PURE__ */ jsx2("style", { children: `
+                .wallet-list-item {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 12px;
+                    color: #09090b;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin: 8px 0;
+                }
+            ` })
+  ] });
+}
+function PrivyLogin({ onClose }) {
+  const [email, setEmail] = useState2("");
+  const { login } = useLogin({
+    onComplete: () => onClose()
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs("div", { className: "email-form", children: [
+      /* @__PURE__ */ jsx2(
+        "input",
+        {
+          type: "email",
+          placeholder: "your@email.com",
+          id: "email",
+          value: email,
+          onChange: (e) => setEmail(e.target.value)
+        }
+      ),
+      /* @__PURE__ */ jsx2(
+        "button",
+        {
+          type: "submit",
+          onClick: () => {
+            login({
+              type: "email",
+              prefill: {
+                type: "email",
+                value: email
+              }
+            });
+          },
+          children: "submit"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx2("style", { children: `
+.email-form {
+    display: flex;
+    align-items: center;
+    padding: 0px 10px;
+    border-radius: 10px;
+    border: 1px solid #FCD535;
+    margin: 10px 0;
+}
+
+.email-form input[type="email"] {
+    flex-grow: 1; /* Make input expand to fill space */
+    padding: 6px;
+    margin-right: 10px; /* Space between input and button */
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ccc; /* Light grey text color */
+    font-size: 16px; /* Size of the text */
+}
+
+.email-form button {
+    padding: 10px 10px;
+    color: #FCD535;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; /* Pointer on hover */
+    font-size: 16px;
+    transition: color 0.3s ease; /* Smooth transition for hover effect */
+    background: transparent;
+}
+
+.email-form button:hover {
+    color: #fac800;
+}
+
+        ` })
+  ] });
+}
+function ConnectWalletModal({ isOpen, onClose }) {
+  return /* @__PURE__ */ jsxs(Modal, { isOpen, onClose, children: [
+    /* @__PURE__ */ jsx2("h4", { children: "Login" }),
+    /* @__PURE__ */ jsx2(PrivyLogin, { onClose }),
     /* @__PURE__ */ jsx2("hr", {}),
     /* @__PURE__ */ jsx2(ExternalWalletList, {})
   ] });

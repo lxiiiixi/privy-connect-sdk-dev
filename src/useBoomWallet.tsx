@@ -17,7 +17,11 @@ import { useEffect, useMemo } from "react";
 import bs58 from "bs58";
 import { Connection, TransactionSignature } from "@solana/web3.js";
 import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
-import { useWallet, Wallet as AdapterWallet } from "@solana/wallet-adapter-react";
+import {
+    useWallet,
+    Wallet as AdapterWallet,
+    WalletContextState,
+} from "@solana/wallet-adapter-react";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -57,13 +61,11 @@ type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" |
 type ExternalWalletType = {
     buttonState: ButtonState;
     label: string;
-    wallet: AdapterWallet;
-    wallets: AdapterWallet[];
-    select: (walletName: WalletName | null) => void;
-    disconnect: () => void;
-};
+} & WalletContextState;
 export const useExternalWallet: () => ExternalWalletType | null = () => {
+    const walletState = useWallet();
     const {
+        autoConnect,
         connected,
         connecting,
         disconnect,
@@ -73,7 +75,8 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
         wallet,
         wallets,
         sendTransaction,
-    } = useWallet();
+    } = walletState;
+
     // connect 和 select 的区别？
 
     console.log(
@@ -121,7 +124,7 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
 
     if (!wallet) return null;
 
-    return { buttonState, label, wallets, select, wallet, disconnect };
+    return { ...walletState, buttonState, label, wallets, select, wallet, disconnect, publicKey };
 };
 
 const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -156,9 +159,9 @@ const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         }
     }, [userEmbeddedWallet, authenticated]);
 
-    console.log("user", user);
     console.log(
         "solanaWallets",
+        user,
         userEmbeddedWallet,
         user?.wallet,
         readySolanaWallets,
@@ -218,7 +221,7 @@ export const useBoomWallet: () => any = () => {
         return {
             type: "WALLET",
             isConnected: externalWallet.buttonState === "connected",
-            walletAddress: externalWallet.wallets[0]?.adapter.publicKey?.toString(),
+            walletAddress: externalWallet.publicKey?.toString(),
             exportWallet: undefined,
             disconnect: externalWallet.disconnect,
         };
