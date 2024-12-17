@@ -15,9 +15,9 @@ export default function BoomWalletProvider({ appId, children }: BoomWalletProvid
     const onError = useCallback((error: WalletError) => {
         console.error(error);
     }, []);
-    const wallets = useMemo(() => {
-        return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
-    }, []);
+    // const wallets = useMemo(() => {
+    //     return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+    // }, []);
 
     // https://docs.privy.io/guide/react/wallets/external/
     return (
@@ -64,7 +64,7 @@ export default function BoomWalletProvider({ appId, children }: BoomWalletProvid
             }}
         >
             <ConnectionProvider endpoint={SOLANA_MAINNET_CLUSTER.rpcUrl}>
-                <WalletProvider wallets={wallets} onError={onError} autoConnect={true}>
+                <WalletProvider wallets={[]} onError={onError} autoConnect={true}>
                     {children}
                 </WalletProvider>
             </ConnectionProvider>

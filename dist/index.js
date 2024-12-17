@@ -67,15 +67,11 @@ var SOLANA_CHAIN = {
 };
 
 // src/BoomWalletProvider.tsx
-var import_wallet_adapter_wallets = require("@solana/wallet-adapter-wallets");
 var import_wallet_adapter_react = require("@solana/wallet-adapter-react");
 var import_jsx_runtime = require("react/jsx-runtime");
 function BoomWalletProvider({ appId, children }) {
   const onError = (0, import_react.useCallback)((error) => {
     console.error(error);
-  }, []);
-  const wallets = (0, import_react.useMemo)(() => {
-    return [new import_wallet_adapter_wallets.PhantomWalletAdapter(), new import_wallet_adapter_wallets.SolflareWalletAdapter()];
   }, []);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     import_react_auth.PrivyProvider,
@@ -124,7 +120,7 @@ function BoomWalletProvider({ appId, children }) {
         supportedChains: [SOLANA_CHAIN],
         solanaClusters: [SOLANA_MAINNET_CLUSTER]
       },
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.WalletProvider, { wallets, onError, autoConnect: true, children }) })
+      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.WalletProvider, { wallets: [], onError, autoConnect: true, children }) })
     }
   );
 }
@@ -186,7 +182,7 @@ var useExternalWallet = () => {
     }
     return { buttonState: buttonState2, label: label2 };
   }, [connecting, connected, disconnecting, wallet]);
-  return { buttonState, label };
+  return { buttonState, label, wallets, select };
 };
 var usePrivyEmbeddedWallet = () => {
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = (0, import_react_auth2.usePrivy)();
@@ -320,6 +316,7 @@ var useSolanaBalance = (address) => {
 };
 
 // src/WalletConnectButton.tsx
+var import_react4 = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var formatAddress = (address) => {
   if (!address) return "";
@@ -338,13 +335,15 @@ function WalletConnectButton({
   const userWalletAddress = (_a = user == null ? void 0 : user.wallet) == null ? void 0 : _a.address;
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
+  const [isOpen, setIsOpen] = (0, import_react4.useState)(false);
   if (!user || !authenticated)
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "button",
         {
           className: `privy-wallet-connect-button wallet-connect-base ${className}`,
-          onClick: login,
+          onClick: () => setIsOpen(true),
           children: "Connect Wallet"
         }
       ),
@@ -439,6 +438,63 @@ function WalletConnectButton({
                 background-color: #f5f5f5;
             }
         ` })
+  ] });
+}
+function Modal({
+  isOpen,
+  onClose,
+  children
+}) {
+  if (!isOpen) return null;
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "modal-overlay", onClick: onClose, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), children }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("style", { children: `
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                }
+
+                .modal-content {
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    max-width: 500px;
+                    width: 100%;
+                }
+            ` })
+  ] });
+}
+function ConnectWalletModal({ isOpen, onClose }) {
+  const { wallets, select } = useExternalWallet();
+  const { login } = (0, import_react_auth3.useLogin)({
+    onComplete: () => onClose()
+  });
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(Modal, { isOpen, onClose, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { children: "Login" }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: login, children: "Login by Email" }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("hr", {}),
+    wallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+      "button",
+      {
+        onClick: () => {
+          select(wallet.adapter.name);
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 40 }),
+          wallet.adapter.name
+        ]
+      },
+      wallet.adapter.name
+    ))
   ] });
 }
 

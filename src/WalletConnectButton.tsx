@@ -1,6 +1,8 @@
 import { useLogin } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
-import { useBoomWallet, useBoomWalletDelegate } from "./useBoomWallet";
+import { useBoomWallet, useBoomWalletDelegate, useExternalWallet } from "./useBoomWallet";
+import { useState } from "react";
+import { Wallet } from "@solana/wallet-adapter-react";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -24,12 +26,16 @@ export default function WalletConnectButton({
 
     const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
+    const [isOpen, setIsOpen] = useState(false);
+
     if (!user || !authenticated)
         return (
             <>
+                <ConnectWalletModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
                 <button
                     className={`privy-wallet-connect-button wallet-connect-base ${className}`}
-                    onClick={login}
+                    // onClick={login}
+                    onClick={() => setIsOpen(true)}
                 >
                     Connect Wallet
                 </button>
@@ -131,5 +137,76 @@ export default function WalletConnectButton({
             }
         `}</style>
         </>
+    );
+}
+
+function Modal({
+    isOpen,
+    onClose,
+    children,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+}) {
+    if (!isOpen) return null; // 如果 Modal 没有打开，则不渲染
+
+    return (
+        <>
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal-content" onClick={e => e.stopPropagation()}>
+                    {children}
+                </div>
+            </div>
+
+            <style>{`
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                }
+
+                .modal-content {
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    max-width: 500px;
+                    width: 100%;
+                }
+            `}</style>
+        </>
+    );
+}
+
+function ConnectWalletModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    const { wallets, select } = useExternalWallet();
+    const { login } = useLogin({
+        onComplete: () => onClose(),
+    });
+    return (
+        <Modal isOpen={isOpen} onClose={onClose}>
+            <h4>Login</h4>
+            <button onClick={login}>Login by Email</button>
+            <hr />
+            {wallets.map((wallet: Wallet) => (
+                <button
+                    key={wallet.adapter.name}
+                    onClick={() => {
+                        select(wallet.adapter.name);
+                    }}
+                >
+                    <img src={wallet.adapter.icon} alt={wallet.adapter.name} width={40} />
+                    {wallet.adapter.name}
+                </button>
+            ))}
+        </Modal>
     );
 }

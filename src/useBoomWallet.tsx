@@ -54,7 +54,7 @@ export type PrivyWallet = {
 
 // https://docs.privy.io/guide/react/wallets/usage/solana/
 type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" | "no-wallet";
-const useExternalWallet = () => {
+export const useExternalWallet = () => {
     const {
         connected,
         connecting,
@@ -110,7 +110,7 @@ const useExternalWallet = () => {
         return { buttonState, label };
     }, [connecting, connected, disconnecting, wallet]);
 
-    return { buttonState, label };
+    return { buttonState, label, wallets, select };
 };
 
 const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
