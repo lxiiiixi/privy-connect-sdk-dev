@@ -30,26 +30,27 @@ export default function BoomWalletProvider({ appId, children }: BoomWalletProvid
                     logo: undefined,
                     landingHeader: "Connect wallet",
                     showWalletLoginFirst: false, // 是否有限展示钱包链接的方式
-                    // loginMessage: "Welcome to the app",
-                    walletChainType: "solana-only", // 展示支持链的钱包类型
-                    walletList: ["phantom", "metamask", "okx_wallet", "detected_wallets"], // 可以选择的钱包列表 WalletListEntry
+                    loginMessage: "Welcome to the app",
+                    // walletChainType: "solana-only", // 展示支持链的钱包类型
+                    // walletList: ["phantom", "metamask", "okx_wallet", "detected_wallets"], // 可以选择的钱包列表 WalletListEntry
                     // 'metamask' | 'coinbase_wallet' | 'rainbow' | 'phantom' | 'zerion' | 'cryptocom' | 'uniswap' | 'okx_wallet' | 'universal_profile'
                 },
                 // Display email and wallet as login methods
-                loginMethods: ["email", "wallet"],
+                // loginMethods: ["email", "wallet"],
+                loginMethods: ["email"],
                 fundingMethodConfig: {
                     moonpay: {
                         useSandbox: true,
                     },
                 },
-                externalWallets: {
-                    solana: {
-                        connectors: toSolanaWalletConnectors({
-                            // By default, shouldAutoConnect is enabled
-                            shouldAutoConnect: true,
-                        }),
-                    },
-                },
+                // externalWallets: {
+                //     solana: {
+                //         connectors: toSolanaWalletConnectors({
+                //             // By default, shouldAutoConnect is enabled
+                //             shouldAutoConnect: true,
+                //         }),
+                //     },
+                // },
                 embeddedWallets: {
                     createOnLogin: "off",
                     showWalletUIs: false, // Overrides the value of "Add confirmation modals" you set in the Privy Dashboard

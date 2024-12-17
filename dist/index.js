@@ -41,7 +41,6 @@ var import_buffer = require("buffer");
 // src/BoomWalletProvider.tsx
 var import_react = require("react");
 var import_react_auth = require("@privy-io/react-auth");
-var import_solana = require("@privy-io/react-auth/solana");
 
 // src/constant.ts
 var SOLANA_MAINNET_RPC_URL = "https://rpc-mainnet.solanatracker.io/?api_key=72759b5d-df4b-461b-9a1d-4ab2abc30ad4";
@@ -85,28 +84,27 @@ function BoomWalletProvider({ appId, children }) {
           landingHeader: "Connect wallet",
           showWalletLoginFirst: false,
           // 是否有限展示钱包链接的方式
-          // loginMessage: "Welcome to the app",
-          walletChainType: "solana-only",
-          // 展示支持链的钱包类型
-          walletList: ["phantom", "metamask", "okx_wallet", "detected_wallets"]
-          // 可以选择的钱包列表 WalletListEntry
+          loginMessage: "Welcome to the app"
+          // walletChainType: "solana-only", // 展示支持链的钱包类型
+          // walletList: ["phantom", "metamask", "okx_wallet", "detected_wallets"], // 可以选择的钱包列表 WalletListEntry
           // 'metamask' | 'coinbase_wallet' | 'rainbow' | 'phantom' | 'zerion' | 'cryptocom' | 'uniswap' | 'okx_wallet' | 'universal_profile'
         },
         // Display email and wallet as login methods
-        loginMethods: ["email", "wallet"],
+        // loginMethods: ["email", "wallet"],
+        loginMethods: ["email"],
         fundingMethodConfig: {
           moonpay: {
             useSandbox: true
           }
         },
-        externalWallets: {
-          solana: {
-            connectors: (0, import_solana.toSolanaWalletConnectors)({
-              // By default, shouldAutoConnect is enabled
-              shouldAutoConnect: true
-            })
-          }
-        },
+        // externalWallets: {
+        //     solana: {
+        //         connectors: toSolanaWalletConnectors({
+        //             // By default, shouldAutoConnect is enabled
+        //             shouldAutoConnect: true,
+        //         }),
+        //     },
+        // },
         embeddedWallets: {
           createOnLogin: "off",
           showWalletUIs: false,
