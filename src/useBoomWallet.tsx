@@ -16,8 +16,8 @@ import {
 import { useEffect, useMemo } from "react";
 import bs58 from "bs58";
 import { Connection, TransactionSignature } from "@solana/web3.js";
-import { SendTransactionOptions } from "@solana/wallet-adapter-base";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
+import { useWallet, Wallet as AdapterWallet } from "@solana/wallet-adapter-react";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -54,7 +54,14 @@ export type PrivyWallet = {
 
 // https://docs.privy.io/guide/react/wallets/usage/solana/
 type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" | "no-wallet";
-export const useExternalWallet = () => {
+type ExternalWalletType = {
+    buttonState: ButtonState;
+    label: string;
+    wallet: AdapterWallet;
+    wallets: AdapterWallet[];
+    select: (walletName: WalletName | null) => void;
+};
+export const useExternalWallet: () => ExternalWalletType | null = () => {
     const {
         connected,
         connecting,
@@ -110,7 +117,9 @@ export const useExternalWallet = () => {
         return { buttonState, label };
     }, [connecting, connected, disconnecting, wallet]);
 
-    return { buttonState, label, wallets, select };
+    if (!wallet) return null;
+
+    return { buttonState, label, wallets, select, wallet };
 };
 
 const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -194,7 +203,23 @@ const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
 export const useBoomWallet: () => any = () => {
     const privyEmbeddedWallet = usePrivyEmbeddedWallet();
     const externalWallet = useExternalWallet();
-    return { ...privyEmbeddedWallet, ...externalWallet };
+    if (privyEmbeddedWallet.user.wallet) {
+        return {
+            type: "EMAIL",
+            isConnected: privyEmbeddedWallet.authenticated,
+            walletAddress: privyEmbeddedWallet.user.wallet?.address,
+            exportWallet: privyEmbeddedWallet.exportWallet,
+        };
+    }
+    if (externalWallet?.wallet) {
+        return {
+            type: "WALLET",
+            isConnected: externalWallet.buttonState === "connected",
+            walletAddress: externalWallet.wallets[0]?.adapter.publicKey?.toString(),
+            exportWallet: undefined,
+        };
+    }
+    return null;
 };
 
 export const useBoomWalletDelegate = () => {

@@ -1,11 +1,13 @@
 import "./App.css";
-import { WalletConnectButton, useBoomTransactions, useBoomWallet } from "boom-wallet-sdk";
+import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
 
 function App() {
-    const { user, signMessage, loginType } = useBoomWallet();
-    console.log("🚀 ~ App ~ user:", user, user.wallet);
+    // const { user, signMessage, loginType } = useBoomWallet();
+    // console.log("🚀 ~ App ~ user:", user, user.wallet);
 
-    const { sendBuyTransaction } = useBoomTransactions();
+    // const { sendBuyTransaction } = useBoomTransactions();
+
+    console.log("useBoomWallet", useBoomWallet());
 
     return (
         <>
@@ -15,7 +17,7 @@ function App() {
                     className="privy-wallet-connect-button"
                 />
                 <hr />
-                <details>
+                {/* <details>
                     <summary className="mt-6 font-bold uppercase text-sm text-gray-600 cursor-pointer">
                         User object
                     </summary>
@@ -76,7 +78,7 @@ function App() {
                             </button>
                         </div>
                     </div>
-                )}
+                )} */}
             </div>
         </>
     );

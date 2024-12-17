@@ -180,7 +180,8 @@ var useExternalWallet = () => {
     }
     return { buttonState: buttonState2, label: label2 };
   }, [connecting, connected, disconnecting, wallet]);
-  return { buttonState, label, wallets, select };
+  if (!wallet) return null;
+  return { buttonState, label, wallets, select, wallet };
 };
 var usePrivyEmbeddedWallet = () => {
   const { user, ready: readyUser, authenticated, login, connectWallet, logout } = (0, import_react_auth2.usePrivy)();
@@ -251,9 +252,26 @@ var usePrivyEmbeddedWallet = () => {
   };
 };
 var useBoomWallet = () => {
+  var _a, _b, _c;
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
   const externalWallet = useExternalWallet();
-  return { ...privyEmbeddedWallet, ...externalWallet };
+  if (privyEmbeddedWallet.user.wallet) {
+    return {
+      type: "EMAIL",
+      isConnected: privyEmbeddedWallet.authenticated,
+      walletAddress: (_a = privyEmbeddedWallet.user.wallet) == null ? void 0 : _a.address,
+      exportWallet: privyEmbeddedWallet.exportWallet
+    };
+  }
+  if (externalWallet == null ? void 0 : externalWallet.wallet) {
+    return {
+      type: "WALLET",
+      isConnected: externalWallet.buttonState === "connected",
+      walletAddress: (_c = (_b = externalWallet.wallets[0]) == null ? void 0 : _b.adapter.publicKey) == null ? void 0 : _c.toString(),
+      exportWallet: void 0
+    };
+  }
+  return null;
 };
 var useBoomWalletDelegate = () => {
   var _a;
@@ -325,16 +343,13 @@ function WalletConnectButton({
   onComplete,
   className
 }) {
-  var _a;
-  const { login } = (0, import_react_auth3.useLogin)({
-    onComplete: () => onComplete == null ? void 0 : onComplete()
-  });
-  const { user, authenticated, logout, exportWallet, loginType } = useBoomWallet();
-  const userWalletAddress = (_a = user == null ? void 0 : user.wallet) == null ? void 0 : _a.address;
+  const boomWallet = useBoomWallet();
+  const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
+  const { logout } = (0, import_react_auth3.usePrivy)();
   const [isOpen, setIsOpen] = (0, import_react4.useState)(false);
-  if (!user || !authenticated)
+  if (!(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
@@ -369,8 +384,8 @@ function WalletConnectButton({
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "privy-dropdown-content", children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { className: "dropdown-item", onClick: logout, children: "Logout" }),
-        loginType === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { className: "dropdown-item", onClick: exportWallet, children: "Export Wallet" }),
-        loginType === "EMAIL" && option && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        boomWallet.type === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { className: "dropdown-item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
+        boomWallet.type === "WALLET" && option && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
           "button",
           {
             className: "dropdown-item",
@@ -471,28 +486,42 @@ function Modal({
             ` })
   ] });
 }
+function ExternalWalletList() {
+  const externalWallet = useExternalWallet();
+  if (!externalWallet) return null;
+  const { wallets, select } = externalWallet;
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { children: wallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+    "button",
+    {
+      onClick: () => {
+        select(wallet.adapter.name);
+      },
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 40 }),
+        wallet.adapter.name
+      ]
+    },
+    wallet.adapter.name
+  )) });
+}
 function ConnectWalletModal({ isOpen, onClose }) {
-  const { wallets, select } = useExternalWallet();
   const { login } = (0, import_react_auth3.useLogin)({
     onComplete: () => onClose()
   });
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(Modal, { isOpen, onClose, children: [
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { children: "Login" }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: login, children: "Login by Email" }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("hr", {}),
-    wallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       "button",
       {
         onClick: () => {
-          select(wallet.adapter.name);
+          onClose();
+          login();
         },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 40 }),
-          wallet.adapter.name
-        ]
-      },
-      wallet.adapter.name
-    ))
+        children: "Login by Email"
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("hr", {}),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ExternalWalletList, {})
   ] });
 }
 
