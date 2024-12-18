@@ -219,7 +219,6 @@ var useExternalWallet = () => {
   if (!wallet) return null;
   const buy = async () => {
     if (!(publicKey == null ? void 0 : publicKey.toString()) || !sendTransaction || !connection) return;
-    console.log("\u6267\u884C\u4EA4\u6613");
     const signature = await buyTokenBySol(publicKey == null ? void 0 : publicKey.toString(), sendTransaction, connection);
     return signature;
   };
@@ -230,9 +229,7 @@ var useExternalWallet = () => {
     wallet,
     disconnect,
     publicKey,
-    sendTransactions: {
-      buy
-    }
+    buy
   };
 };
 
@@ -296,7 +293,7 @@ var usePrivyEmbeddedWallet = () => {
     };
   };
   const buy = async () => {
-    if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return;
+    if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return "";
     const signature = await buyTokenBySol(
       userEmbeddedWallet.address,
       userEmbeddedWallet.sendTransaction,
@@ -320,9 +317,7 @@ var usePrivyEmbeddedWallet = () => {
     authenticated,
     login,
     logout,
-    sendTransactions: {
-      buy
-    }
+    buy
   };
 };
 var useBoomWalletDelegate = () => {
@@ -361,26 +356,43 @@ var useBoomWallet = () => {
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
   const externalWallet = useExternalWallet();
   if (privyEmbeddedWallet.user.wallet) {
+    const { buy, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
     return {
       type: "EMAIL",
-      isConnected: privyEmbeddedWallet.authenticated,
-      walletAddress: (_a = privyEmbeddedWallet.user.wallet) == null ? void 0 : _a.address,
-      exportWallet: privyEmbeddedWallet.exportWallet,
-      disconnect: privyEmbeddedWallet.logout,
-      sendTransactions: privyEmbeddedWallet.sendTransactions
+      email: (_a = user.email) == null ? void 0 : _a.address,
+      isConnected: authenticated,
+      walletAddress: (_b = user.wallet) == null ? void 0 : _b.address,
+      exportWallet,
+      disconnect: logout,
+      transactions: {
+        buy: () => buy()
+      }
     };
   }
   if (externalWallet == null ? void 0 : externalWallet.wallet) {
+    const { buy, disconnect, publicKey } = externalWallet;
     return {
       type: "WALLET",
+      email: void 0,
       isConnected: externalWallet.connected,
-      walletAddress: (_b = externalWallet.publicKey) == null ? void 0 : _b.toString(),
+      walletAddress: publicKey == null ? void 0 : publicKey.toString(),
       exportWallet: void 0,
-      disconnect: externalWallet.disconnect,
-      sendTransactions: externalWallet.sendTransactions
+      disconnect,
+      transactions: {
+        buy: () => externalWallet.buy()
+      }
     };
   }
-  return null;
+  return {
+    type: "NONE",
+    isConnected: false,
+    walletAddress: "",
+    exportWallet: void 0,
+    disconnect: void 0,
+    transactions: {
+      buy: () => Promise.resolve("")
+    }
+  };
 };
 
 // src/WalletConnectButton.tsx
@@ -410,99 +422,28 @@ function WalletConnectButton({ className }) {
           onClick: () => setIsOpen(true),
           children: "Connect Wallet"
         }
-      ),
-      /* @__PURE__ */ jsx2("style", { children: `
-    .privy-wallet-connect-button {
-    background-color: #fcd535;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 24px;
-    font-weight: 500;
-    color: #09090b;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 24px;
-}
-        ` })
+      )
     ] });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs("div", { className: "privy-wallet-dropdown", children: [
-      /* @__PURE__ */ jsxs("div", { className: "privy-user-info", children: [
-        "(",
-        (balance / 1e9).toFixed(2),
-        " SOL) ",
-        formatAddress(userWalletAddress)
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "privy-dropdown-content", children: [
-        /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: boomWallet.disconnect, children: "Logout" }),
-        boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
-        boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx2(
-          "button",
-          {
-            className: "dropdown-item",
-            onClick: option === "DELEGATE" ? onDelegate : onRevoke,
-            children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"
-          }
-        )
-      ] })
+  return /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "privy-wallet-dropdown", children: [
+    /* @__PURE__ */ jsxs("div", { className: "privy-user-info", children: [
+      "(",
+      (balance / 1e9).toFixed(2),
+      " SOL) ",
+      formatAddress(userWalletAddress)
     ] }),
-    /* @__PURE__ */ jsx2("style", { children: `
-            .privy-user-info{
-                background-color: #fcd535;
-                border: none;
-                border-radius: 12px;
-                padding: 12px 24px;
-                font-weight: 500;
-                color: #09090b;
-                cursor: pointer;
-                font-size: 16px;
-                line-height: 24px;
-            }
-                
-            .privy-wallet-dropdown {
-                position: relative;
-                display: inline-block;
-            }
-
-            .privy-user-info {
-                cursor: pointer;
-                padding: 8px 16px;
-                border-radius: 8px;
-            }
-
-            .privy-dropdown-content {
-                display: none;
-                position: absolute;
-                top: 100%;
-                right: 0;
-                background-color: white;
-                min-width: 160px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                border-radius: 8px;
-                padding: 8px;
-                z-index: 1000;
-            }
-
-            .privy-wallet-dropdown:hover .privy-dropdown-content {
-                display: block;
-            }
-
-            .dropdown-item {
-                display: block;
-                width: 100%;
-                padding: 8px 16px;
-                border: none;
-                background: none;
-                text-align: left;
-                cursor: pointer;
-                border-radius: 8px;
-            }
-
-            .dropdown-item:hover {
-                background-color: #f5f5f5;
-            }
-        ` })
-  ] });
+    /* @__PURE__ */ jsxs("div", { className: "privy-dropdown-content", children: [
+      /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: boomWallet.disconnect, children: "Logout" }),
+      boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx2("button", { className: "dropdown-item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
+      boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx2(
+        "button",
+        {
+          className: "dropdown-item",
+          onClick: option === "DELEGATE" ? onDelegate : onRevoke,
+          children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"
+        }
+      )
+    ] })
+  ] }) });
 }
 function Modal({
   isOpen,
@@ -510,138 +451,58 @@ function Modal({
   children
 }) {
   if (!isOpen) return null;
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx2("div", { className: "modal-overlay", onClick: onClose, children: /* @__PURE__ */ jsx2("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), children }) }),
-    /* @__PURE__ */ jsx2("style", { children: `
-                .modal-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 10000;
-                }
-
-                .modal-content {
-                    background-color: white;
-                    padding: 20px;
-                    border-radius: 12px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    max-width: 400px;
-                    width: 100%;
-                }
-            ` })
-  ] });
+  return /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsx2("div", { className: "modal-overlay", onClick: onClose, children: /* @__PURE__ */ jsx2("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), children }) }) });
 }
 function ExternalWalletList() {
   const { wallets, select } = useWallet2();
-  return /* @__PURE__ */ jsxs("div", { children: [
-    wallets.map((wallet) => /* @__PURE__ */ jsxs(
-      "button",
-      {
-        onClick: () => {
-          select(wallet.adapter.name);
-        },
-        className: "wallet-list-item",
-        children: [
-          /* @__PURE__ */ jsx2("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 30 }),
-          wallet.adapter.name
-        ]
+  return /* @__PURE__ */ jsx2("div", { children: wallets.map((wallet) => /* @__PURE__ */ jsxs(
+    "button",
+    {
+      onClick: () => {
+        select(wallet.adapter.name);
       },
-      wallet.adapter.name
-    )),
-    /* @__PURE__ */ jsx2("style", { children: `
-                .wallet-list-item {
-                    width: 100%;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    border: none;
-                    border-radius: 12px;
-                    padding: 12px;
-                    color: #09090b;
-                    cursor: pointer;
-                    font-size: 16px;
-                    margin: 8px 0;
-                }
-            ` })
-  ] });
+      className: "wallet-list-item",
+      children: [
+        /* @__PURE__ */ jsx2("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 30 }),
+        wallet.adapter.name
+      ]
+    },
+    wallet.adapter.name
+  )) });
 }
 function PrivyLogin({ onClose }) {
   const [email, setEmail] = useState2("");
   const { login } = useLogin({
     onComplete: () => onClose()
   });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs("div", { className: "email-form", children: [
-      /* @__PURE__ */ jsx2(
-        "input",
-        {
-          type: "email",
-          placeholder: "your@email.com",
-          id: "email",
-          value: email,
-          onChange: (e) => setEmail(e.target.value)
-        }
-      ),
-      /* @__PURE__ */ jsx2(
-        "button",
-        {
-          type: "submit",
-          onClick: () => {
-            login({
+  return /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "email-form", children: [
+    /* @__PURE__ */ jsx2(
+      "input",
+      {
+        type: "email",
+        placeholder: "your@email.com",
+        id: "email",
+        value: email,
+        onChange: (e) => setEmail(e.target.value)
+      }
+    ),
+    /* @__PURE__ */ jsx2(
+      "button",
+      {
+        type: "submit",
+        onClick: () => {
+          login({
+            type: "email",
+            prefill: {
               type: "email",
-              prefill: {
-                type: "email",
-                value: email
-              }
-            });
-          },
-          children: "submit"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsx2("style", { children: `
-.email-form {
-    display: flex;
-    align-items: center;
-    padding: 0px 10px;
-    border-radius: 10px;
-    border: 1px solid #FCD535;
-    margin: 10px 0;
-}
-
-.email-form input[type="email"] {
-    flex-grow: 1; /* Make input expand to fill space */
-    padding: 6px;
-    margin-right: 10px; /* Space between input and button */
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #ccc; /* Light grey text color */
-    font-size: 16px; /* Size of the text */
-}
-
-.email-form button {
-    padding: 10px 10px;
-    color: #FCD535;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer; /* Pointer on hover */
-    font-size: 16px;
-    transition: color 0.3s ease; /* Smooth transition for hover effect */
-    background: transparent;
-}
-
-.email-form button:hover {
-    color: #fac800;
-}
-        ` })
-  ] });
+              value: email
+            }
+          });
+        },
+        children: "submit"
+      }
+    )
+  ] }) });
 }
 function ConnectWalletModal({ isOpen, onClose }) {
   return /* @__PURE__ */ jsxs(Modal, { isOpen, onClose, children: [

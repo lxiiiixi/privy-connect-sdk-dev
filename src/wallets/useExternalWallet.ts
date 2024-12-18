@@ -10,9 +10,7 @@ import { connection } from "../solana";
 // https://docs.privy.io/guide/react/wallets/usage/solana/
 type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" | "no-wallet";
 type ExternalWalletType = {
-    sendTransactions: {
-        buy: (transaction: any) => Promise<void>;
-    };
+    buy: () => Promise<void | string>;
 } & WalletContextState;
 export const useExternalWallet: () => ExternalWalletType | null = () => {
     const walletState = useWallet();
@@ -44,7 +42,6 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
 
     const buy = async () => {
         if (!publicKey?.toString() || !sendTransaction || !connection) return;
-        console.log("执行交易");
         const signature = await buyTokenBySol(publicKey?.toString(), sendTransaction, connection);
         return signature;
     };
@@ -56,8 +53,6 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
         wallet,
         disconnect,
         publicKey,
-        sendTransactions: {
-            buy,
-        },
+        buy,
     };
 };

@@ -51,9 +51,7 @@ export type PrivyWallet = {
     exportWallet?: () => void; // 导出钱包
     signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
     sendTransaction?: any; // 发送交易
-    sendTransactions: {
-        buy: (transaction: any) => Promise<void>;
-    };
+    buy: () => Promise<void | "">; // 购买 usdc
 };
 
 export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -116,7 +114,7 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         };
     };
     const buy = async () => {
-        if (!userEmbeddedWallet?.address) return;
+        if (!userEmbeddedWallet?.address) return "";
         const signature = await buyTokenBySol(
             userEmbeddedWallet.address,
             userEmbeddedWallet.sendTransaction,
@@ -140,9 +138,7 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         authenticated,
         login,
         logout,
-        sendTransactions: {
-            buy,
-        },
+        buy,
     };
 };
 

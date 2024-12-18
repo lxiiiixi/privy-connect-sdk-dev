@@ -1,28 +1,57 @@
 import { useExternalWallet } from "./useExternalWallet";
 import { usePrivyEmbeddedWallet } from "./usePrivyEmbeddedWallet";
 
-export const useBoomWallet: () => any = () => {
+type BoomWallet = {
+    type: "EMAIL" | "WALLET" | "NONE";
+    email?: string;
+    isConnected: boolean;
+    walletAddress?: string;
+    transactions: {
+        buy: () => void;
+    };
+    exportWallet?: () => void;
+    disconnect?: () => void;
+};
+
+export const useBoomWallet: () => BoomWallet = () => {
     const privyEmbeddedWallet = usePrivyEmbeddedWallet();
     const externalWallet = useExternalWallet();
     if (privyEmbeddedWallet.user.wallet) {
+        const { buy, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
         return {
             type: "EMAIL",
-            isConnected: privyEmbeddedWallet.authenticated,
-            walletAddress: privyEmbeddedWallet.user.wallet?.address,
-            exportWallet: privyEmbeddedWallet.exportWallet,
-            disconnect: privyEmbeddedWallet.logout,
-            sendTransactions: privyEmbeddedWallet.sendTransactions,
+            email: user.email?.address,
+            isConnected: authenticated,
+            walletAddress: user.wallet?.address,
+            exportWallet: exportWallet,
+            disconnect: logout,
+            transactions: {
+                buy: () => buy(),
+            },
         };
     }
     if (externalWallet?.wallet) {
+        const { buy, disconnect, publicKey } = externalWallet;
         return {
             type: "WALLET",
+            email: undefined,
             isConnected: externalWallet.connected,
-            walletAddress: externalWallet.publicKey?.toString(),
+            walletAddress: publicKey?.toString(),
             exportWallet: undefined,
-            disconnect: externalWallet.disconnect,
-            sendTransactions: externalWallet.sendTransactions,
+            disconnect: disconnect,
+            transactions: {
+                buy: () => externalWallet.buy(),
+            },
         };
     }
-    return null;
+    return {
+        type: "NONE",
+        isConnected: false,
+        walletAddress: "",
+        exportWallet: undefined,
+        disconnect: undefined,
+        transactions: {
+            buy: () => Promise.resolve(""),
+        },
+    };
 };

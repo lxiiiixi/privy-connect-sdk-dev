@@ -7,7 +7,18 @@ interface BoomWalletProviderProps {
 }
 declare function BoomWalletProvider({ appId, children }: BoomWalletProviderProps): react_jsx_runtime.JSX.Element;
 
-declare const useBoomWallet: () => any;
+type BoomWallet = {
+    type: "EMAIL" | "WALLET" | "NONE";
+    email?: string;
+    isConnected: boolean;
+    walletAddress?: string;
+    transactions: {
+        buy: () => void;
+    };
+    exportWallet?: () => void;
+    disconnect?: () => void;
+};
+declare const useBoomWallet: () => BoomWallet;
 
 declare function WalletConnectButton({ className }: {
     className?: string;
