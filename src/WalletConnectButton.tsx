@@ -1,4 +1,4 @@
-import { useLogin, usePrivy } from "@privy-io/react-auth";
+import { useLogin } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
 import { useBoomWallet } from "./wallets/useBoomWallet";
 import { useState } from "react";
@@ -11,13 +11,7 @@ const formatAddress = (address?: string) => {
     return `${address.slice(0, 3)}...${address.slice(-4)}`;
 };
 
-export default function WalletConnectButton({
-    onComplete,
-    className,
-}: {
-    onComplete?: () => void;
-    className?: string;
-}) {
+export default function WalletConnectButton({ className }: { className?: string }) {
     const boomWallet = useBoomWallet();
     console.log("🚀 ~ boomWallet:", boomWallet);
     const userWalletAddress = boomWallet?.walletAddress;
@@ -32,7 +26,7 @@ export default function WalletConnectButton({
             <>
                 <ConnectWalletModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
                 <button
-                    className={`privy-wallet-connect-button wallet-connect-base ${className}`}
+                    className={`privy-wallet-connect-button wallet-connect-base ${className}  red-button`}
                     onClick={() => setIsOpen(true)}
                 >
                     Connect Wallet
@@ -284,7 +278,6 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
 .email-form button:hover {
     color: #fac800;
 }
-
         `}</style>
         </>
     );

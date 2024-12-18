@@ -2,7 +2,7 @@
 import { Buffer as Buffer2 } from "buffer";
 
 // src/BoomWalletProvider.tsx
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { PrivyProvider } from "@privy-io/react-auth";
 
 // src/constant.ts
@@ -29,11 +29,15 @@ var SOLANA_CHAIN = {
 };
 
 // src/BoomWalletProvider.tsx
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { jsx } from "react/jsx-runtime";
 function BoomWalletProvider({ appId, children }) {
   const onError = useCallback((error) => {
     console.error(error);
+  }, []);
+  const wallets = useMemo(() => {
+    return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
   }, []);
   return /* @__PURE__ */ jsx(
     PrivyProvider,
@@ -81,7 +85,7 @@ function BoomWalletProvider({ appId, children }) {
         supportedChains: [SOLANA_CHAIN],
         solanaClusters: [SOLANA_MAINNET_CLUSTER]
       },
-      children: /* @__PURE__ */ jsx(ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ jsx(WalletProvider, { wallets: [], onError, autoConnect: true, children }) })
+      children: /* @__PURE__ */ jsx(ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ jsx(WalletProvider, { wallets, onError, autoConnect: true, children }) })
     }
   );
 }
@@ -389,10 +393,7 @@ var formatAddress = (address) => {
   if (address.length <= 10) return address;
   return `${address.slice(0, 3)}...${address.slice(-4)}`;
 };
-function WalletConnectButton({
-  onComplete,
-  className
-}) {
+function WalletConnectButton({ className }) {
   const boomWallet = useBoomWallet();
   console.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
@@ -405,7 +406,7 @@ function WalletConnectButton({
       /* @__PURE__ */ jsx2(
         "button",
         {
-          className: `privy-wallet-connect-button wallet-connect-base ${className}`,
+          className: `privy-wallet-connect-button wallet-connect-base ${className}  red-button`,
           onClick: () => setIsOpen(true),
           children: "Connect Wallet"
         }
@@ -639,7 +640,6 @@ function PrivyLogin({ onClose }) {
 .email-form button:hover {
     color: #fac800;
 }
-
         ` })
   ] });
 }
@@ -655,6 +655,12 @@ function ConnectWalletModal({ isOpen, onClose }) {
 // src/index.ts
 if (typeof window !== "undefined") {
   window.Buffer = Buffer2;
+}
+if (typeof window !== "undefined") {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "node_modules/boom-wallet-sdk/dist/index.css";
+  document.head.appendChild(link);
 }
 export {
   BoomWalletProvider,

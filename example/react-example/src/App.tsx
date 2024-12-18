@@ -13,10 +13,7 @@ function App() {
     return (
         <>
             <div className="space-y-4">
-                <WalletConnectButton
-                    onComplete={() => {}}
-                    className="privy-wallet-connect-button"
-                />
+                <WalletConnectButton className="privy-wallet-connect-button" />
                 <hr />
                 {boomWallet && (
                     <button

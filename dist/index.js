@@ -65,11 +65,15 @@ var SOLANA_CHAIN = {
 };
 
 // src/BoomWalletProvider.tsx
+var import_wallet_adapter_wallets = require("@solana/wallet-adapter-wallets");
 var import_wallet_adapter_react = require("@solana/wallet-adapter-react");
 var import_jsx_runtime = require("react/jsx-runtime");
 function BoomWalletProvider({ appId, children }) {
   const onError = (0, import_react.useCallback)((error) => {
     console.error(error);
+  }, []);
+  const wallets = (0, import_react.useMemo)(() => {
+    return [new import_wallet_adapter_wallets.PhantomWalletAdapter(), new import_wallet_adapter_wallets.SolflareWalletAdapter()];
   }, []);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     import_react_auth.PrivyProvider,
@@ -117,7 +121,7 @@ function BoomWalletProvider({ appId, children }) {
         supportedChains: [SOLANA_CHAIN],
         solanaClusters: [SOLANA_MAINNET_CLUSTER]
       },
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.WalletProvider, { wallets: [], onError, autoConnect: true, children }) })
+      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.ConnectionProvider, { endpoint: SOLANA_MAINNET_CLUSTER.rpcUrl, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_wallet_adapter_react.WalletProvider, { wallets, onError, autoConnect: true, children }) })
     }
   );
 }
@@ -418,10 +422,7 @@ var formatAddress = (address) => {
   if (address.length <= 10) return address;
   return `${address.slice(0, 3)}...${address.slice(-4)}`;
 };
-function WalletConnectButton({
-  onComplete,
-  className
-}) {
+function WalletConnectButton({ className }) {
   const boomWallet = useBoomWallet();
   console.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
@@ -434,7 +435,7 @@ function WalletConnectButton({
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "button",
         {
-          className: `privy-wallet-connect-button wallet-connect-base ${className}`,
+          className: `privy-wallet-connect-button wallet-connect-base ${className}  red-button`,
           onClick: () => setIsOpen(true),
           children: "Connect Wallet"
         }
@@ -668,7 +669,6 @@ function PrivyLogin({ onClose }) {
 .email-form button:hover {
     color: #fac800;
 }
-
         ` })
   ] });
 }
@@ -684,6 +684,12 @@ function ConnectWalletModal({ isOpen, onClose }) {
 // src/index.ts
 if (typeof window !== "undefined") {
   window.Buffer = import_buffer.Buffer;
+}
+if (typeof window !== "undefined") {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "node_modules/boom-wallet-sdk/dist/index.css";
+  document.head.appendChild(link);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

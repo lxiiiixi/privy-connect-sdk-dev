@@ -9,8 +9,7 @@ declare function BoomWalletProvider({ appId, children }: BoomWalletProviderProps
 
 declare const useBoomWallet: () => any;
 
-declare function WalletConnectButton({ onComplete, className, }: {
-    onComplete?: () => void;
+declare function WalletConnectButton({ className }: {
     className?: string;
 }): react_jsx_runtime.JSX.Element;
 
