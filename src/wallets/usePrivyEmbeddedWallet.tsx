@@ -17,8 +17,8 @@ import { useEffect, useMemo } from "react";
 import bs58 from "bs58";
 import { Connection, TransactionSignature } from "@solana/web3.js";
 import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
-import { buyTokenBySol } from "../lib/buy";
 import { connection } from "../solana";
+import API_REQUEST from "../request";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -51,11 +51,20 @@ export type PrivyWallet = {
     exportWallet?: () => void; // 导出钱包
     signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
     sendTransaction?: any; // 发送交易
-    buy: () => Promise<void | "">; // 购买 usdc
+    buy: any; // 购买 usdc
 };
 
 export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
-    const { user, ready: readyUser, authenticated, login, connectWallet, logout } = usePrivy();
+    const {
+        user,
+        ready: readyUser,
+        authenticated,
+        login,
+        connectWallet,
+        logout,
+        getAccessToken,
+    } = usePrivy();
+
     const { sendSolanaTransaction } = useSendSolanaTransaction();
 
     // useSolanaWallets 目前只支持 embeddedWallet
@@ -115,12 +124,18 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
     };
     const buy = async () => {
         if (!userEmbeddedWallet?.address) return "";
-        const signature = await buyTokenBySol(
-            userEmbeddedWallet.address,
-            userEmbeddedWallet.sendTransaction,
-            connection
-        );
-        return signature;
+        const accessToken = await getAccessToken();
+        console.log("🚀 ~ buy ~ accessToken:", accessToken);
+        const amount = 0.1 * 1e9; // 0.1 SOL in lamports decimals-9
+        const res = await API_REQUEST.getTransaction({
+            userPublicKey: userEmbeddedWallet.address,
+            inputToken: "So11111111111111111111111111111111111111112", // sol
+            outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // 购买 usdc
+            amount: amount.toString(),
+            slippage: 50, // 滑点
+        });
+        console.log(res);
+        return res;
     };
 
     return {

@@ -20,7 +20,6 @@ export default function WalletConnectButton({ className }: { className?: string 
     const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
     const [isOpen, setIsOpen] = useState(false);
-    console.log("🚀 ~ WalletConnectButton ~ isOpen:", isOpen);
 
     useEffect(() => {
         // 已经连接的状态下保证modal关闭
