@@ -397,7 +397,7 @@ var useBoomWallet = () => {
 
 // src/WalletConnectButton.tsx
 import { useLogin } from "@privy-io/react-auth";
-import { useState as useState2 } from "react";
+import { useEffect as useEffect3, useState as useState2 } from "react";
 import { useWallet as useWallet2 } from "@solana/wallet-adapter-react";
 import { Fragment, jsx as jsx2, jsxs } from "react/jsx-runtime";
 var formatAddress = (address) => {
@@ -412,6 +412,12 @@ function WalletConnectButton({ className }) {
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const [isOpen, setIsOpen] = useState2(false);
+  console.log("\u{1F680} ~ WalletConnectButton ~ isOpen:", isOpen);
+  useEffect3(() => {
+    if (boomWallet == null ? void 0 : boomWallet.walletAddress) {
+      setIsOpen(false);
+    }
+  }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx2(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),

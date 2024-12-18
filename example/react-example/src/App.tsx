@@ -4,6 +4,8 @@ import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
 function App() {
     const { walletAddress, type, transactions, email } = useBoomWallet();
 
+    console.log("useBoomWallet", useBoomWallet());
+
     return (
         <>
             <div className="space-y-4">

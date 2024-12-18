@@ -2,8 +2,8 @@ import { useExternalWallet } from "./useExternalWallet";
 import { usePrivyEmbeddedWallet } from "./usePrivyEmbeddedWallet";
 
 type BoomWallet = {
-    type: "EMAIL" | "WALLET" | "NONE";
-    email?: string;
+    type: "EMAIL" | "WALLET" | "NONE"; // 登录类型,NONE时表示未登录
+    email?: string; // 邮箱（邮箱登录时才有）
     isConnected: boolean;
     walletAddress?: string;
     transactions: {

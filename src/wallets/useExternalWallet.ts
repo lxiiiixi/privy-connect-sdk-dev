@@ -40,6 +40,8 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
 
     if (!wallet) return null;
 
+    // https://github.com/anza-xyz/wallet-adapter/blob/master/APP.md
+
     const buy = async () => {
         if (!publicKey?.toString() || !sendTransaction || !connection) return;
         const signature = await buyTokenBySol(publicKey?.toString(), sendTransaction, connection);

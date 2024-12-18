@@ -441,6 +441,12 @@ function WalletConnectButton({ className }) {
   const balance = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const [isOpen, setIsOpen] = (0, import_react4.useState)(false);
+  console.log("\u{1F680} ~ WalletConnectButton ~ isOpen:", isOpen);
+  (0, import_react4.useEffect)(() => {
+    if (boomWallet == null ? void 0 : boomWallet.walletAddress) {
+      setIsOpen(false);
+    }
+  }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),

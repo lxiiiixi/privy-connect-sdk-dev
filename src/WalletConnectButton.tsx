@@ -1,7 +1,7 @@
 import { useLogin } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
 import { useBoomWallet } from "./wallets/useBoomWallet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 
@@ -20,6 +20,14 @@ export default function WalletConnectButton({ className }: { className?: string 
     const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
     const [isOpen, setIsOpen] = useState(false);
+    console.log("🚀 ~ WalletConnectButton ~ isOpen:", isOpen);
+
+    useEffect(() => {
+        // 已经连接的状态下保证modal关闭
+        if (boomWallet?.walletAddress) {
+            setIsOpen(false);
+        }
+    }, [boomWallet?.walletAddress]);
 
     if (!boomWallet || !boomWallet?.isConnected)
         return (
