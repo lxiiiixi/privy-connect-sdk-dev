@@ -6,7 +6,10 @@ import { BoomWalletProvider } from "boom-wallet-sdk";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <BoomWalletProvider appId={import.meta.env.VITE_BOOM_APP_ID || "cm485ehd706mjjqspwtpqlo74"}>
+        <BoomWalletProvider
+            appId={import.meta.env.VITE_BOOM_APP_ID} // || "cm485ehd706mjjqspwtpqlo74"
+            clientId={import.meta.env.VITE_BOOM_CLIENT_ID}
+        >
             <App />
         </BoomWalletProvider>
     </StrictMode>

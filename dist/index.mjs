@@ -29,20 +29,21 @@ var SOLANA_CHAIN = {
 };
 
 // src/BoomWalletProvider.tsx
-import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { jsx } from "react/jsx-runtime";
-function BoomWalletProvider({ appId, children }) {
+function BoomWalletProvider({ appId, clientId, children }) {
   const onError = useCallback((error) => {
     console.error(error);
   }, []);
   const wallets = useMemo(() => {
-    return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+    return [new SolflareWalletAdapter()];
   }, []);
   return /* @__PURE__ */ jsx(
     PrivyProvider,
     {
       appId,
+      clientId,
       config: {
         appearance: {
           accentColor: "#FCD535",
@@ -479,7 +480,8 @@ function ExternalWalletList() {
 function PrivyLogin({ onClose }) {
   const [email, setEmail] = useState2("");
   const { login } = useLogin({
-    onComplete: () => onClose()
+    onComplete: () => {
+    }
   });
   return /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "email-form", children: [
     /* @__PURE__ */ jsx2(
@@ -497,6 +499,7 @@ function PrivyLogin({ onClose }) {
       {
         type: "submit",
         onClick: () => {
+          onClose();
           login({
             type: "email",
             prefill: {

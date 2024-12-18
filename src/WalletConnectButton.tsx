@@ -116,7 +116,7 @@ function ExternalWalletList() {
 function PrivyLogin({ onClose }: { onClose: () => void }) {
     const [email, setEmail] = useState("");
     const { login } = useLogin({
-        onComplete: () => onClose(),
+        onComplete: () => {},
     });
     return (
         <>
@@ -131,6 +131,7 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
                 <button
                     type="submit"
                     onClick={() => {
+                        onClose();
                         login({
                             type: "email",
                             prefill: {

@@ -11,7 +11,10 @@ import { BoomWalletProvider } from "boom-wallet-sdk";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <BoomWalletProvider appId={process.env.REACT_APP_BOOM_APP_ID}>
+        <BoomWalletProvider
+            appId={import.meta.env.VITE_BOOM_APP_ID}
+            clientId={import.meta.env.VITE_BOOM_CLIENT_ID}
+        >
             <App />
         </BoomWalletProvider>
     </StrictMode>

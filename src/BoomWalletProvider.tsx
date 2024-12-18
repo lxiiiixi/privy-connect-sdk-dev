@@ -8,21 +8,23 @@ import { WalletError } from "@solana/wallet-adapter-base";
 
 export interface BoomWalletProviderProps {
     appId: string;
+    clientId: string;
     children: React.ReactNode;
 }
 
-export default function BoomWalletProvider({ appId, children }: BoomWalletProviderProps) {
+export default function BoomWalletProvider({ appId, clientId, children }: BoomWalletProviderProps) {
     const onError = useCallback((error: WalletError) => {
         console.error(error);
     }, []);
     const wallets = useMemo(() => {
-        return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+        return [new SolflareWalletAdapter()];
     }, []);
 
     // https://docs.privy.io/guide/react/wallets/external/
     return (
         <PrivyProvider
             appId={appId}
+            clientId={clientId}
             config={{
                 appearance: {
                     accentColor: "#FCD535",

@@ -3,9 +3,10 @@ import React from 'react';
 
 interface BoomWalletProviderProps {
     appId: string;
+    clientId: string;
     children: React.ReactNode;
 }
-declare function BoomWalletProvider({ appId, children }: BoomWalletProviderProps): react_jsx_runtime.JSX.Element;
+declare function BoomWalletProvider({ appId, clientId, children }: BoomWalletProviderProps): react_jsx_runtime.JSX.Element;
 
 type BoomWallet = {
     type: "EMAIL" | "WALLET" | "NONE";

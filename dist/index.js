@@ -68,17 +68,18 @@ var SOLANA_CHAIN = {
 var import_wallet_adapter_wallets = require("@solana/wallet-adapter-wallets");
 var import_wallet_adapter_react = require("@solana/wallet-adapter-react");
 var import_jsx_runtime = require("react/jsx-runtime");
-function BoomWalletProvider({ appId, children }) {
+function BoomWalletProvider({ appId, clientId, children }) {
   const onError = (0, import_react.useCallback)((error) => {
     console.error(error);
   }, []);
   const wallets = (0, import_react.useMemo)(() => {
-    return [new import_wallet_adapter_wallets.PhantomWalletAdapter(), new import_wallet_adapter_wallets.SolflareWalletAdapter()];
+    return [new import_wallet_adapter_wallets.SolflareWalletAdapter()];
   }, []);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     import_react_auth.PrivyProvider,
     {
       appId,
+      clientId,
       config: {
         appearance: {
           accentColor: "#FCD535",
@@ -508,7 +509,8 @@ function ExternalWalletList() {
 function PrivyLogin({ onClose }) {
   const [email, setEmail] = (0, import_react4.useState)("");
   const { login } = (0, import_react_auth3.useLogin)({
-    onComplete: () => onClose()
+    onComplete: () => {
+    }
   });
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "email-form", children: [
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
@@ -526,6 +528,7 @@ function PrivyLogin({ onClose }) {
       {
         type: "submit",
         onClick: () => {
+          onClose();
           login({
             type: "email",
             prefill: {
