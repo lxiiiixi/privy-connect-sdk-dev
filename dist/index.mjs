@@ -133,18 +133,6 @@ var instance = axios.create({
   timeout: 1e4
   // 10s
 });
-instance.interceptors.request.use(
-  (config) => {
-    const token = "";
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  () => {
-    throw new Error("Request Error");
-  }
-);
 instance.interceptors.response.use(
   (response) => {
     return response;
@@ -155,7 +143,11 @@ instance.interceptors.response.use(
   }
 );
 var API_REQUEST = {
-  getTransaction: (payload) => instance.post("/privy/jupiter/transaction", payload)
+  getTransaction: (payload, accessToken) => instance.post("/privy/jupiter/transaction", payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
 };
 var request_default = API_REQUEST;
 
@@ -283,18 +275,20 @@ var usePrivyEmbeddedWallet = () => {
   const buy = async () => {
     if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return "";
     const accessToken = await getAccessToken();
-    console.log("\u{1F680} ~ buy ~ accessToken:", accessToken);
     const amount = 0.1 * 1e9;
-    const res = await request_default.getTransaction({
-      userPublicKey: userEmbeddedWallet.address,
-      inputToken: "So11111111111111111111111111111111111111112",
-      // sol
-      outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      // 购买 usdc
-      amount: amount.toString(),
-      slippage: 50
-      // 滑点
-    });
+    const res = await request_default.getTransaction(
+      {
+        userPublicKey: userEmbeddedWallet.address,
+        inputToken: "So11111111111111111111111111111111111111112",
+        // sol
+        outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        // 购买 usdc
+        amount: amount.toString(),
+        slippage: 50
+        // 滑点
+      },
+      accessToken != null ? accessToken : void 0
+    );
     console.log(res);
     return res;
   };

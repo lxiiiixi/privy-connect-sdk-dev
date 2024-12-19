@@ -125,15 +125,17 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
     const buy = async () => {
         if (!userEmbeddedWallet?.address) return "";
         const accessToken = await getAccessToken();
-        console.log("🚀 ~ buy ~ accessToken:", accessToken);
         const amount = 0.1 * 1e9; // 0.1 SOL in lamports decimals-9
-        const res = await API_REQUEST.getTransaction({
-            userPublicKey: userEmbeddedWallet.address,
-            inputToken: "So11111111111111111111111111111111111111112", // sol
-            outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // 购买 usdc
-            amount: amount.toString(),
-            slippage: 50, // 滑点
-        });
+        const res = await API_REQUEST.getTransaction(
+            {
+                userPublicKey: userEmbeddedWallet.address,
+                inputToken: "So11111111111111111111111111111111111111112", // sol
+                outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // 购买 usdc
+                amount: amount.toString(),
+                slippage: 50, // 滑点
+            },
+            accessToken ?? undefined
+        );
         console.log(res);
         return res;
     };

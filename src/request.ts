@@ -1,3 +1,4 @@
+import { getAccessToken } from "@privy-io/react-auth";
 import axios from "axios";
 
 const headers = {
@@ -11,22 +12,6 @@ const instance = axios.create({
     timeout: 10000, // 10s
 });
 
-// interceptors
-instance.interceptors.request.use(
-    config => {
-        // do something before request is sent
-        const token = ""; // 拿哪个token？
-        if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-        }
-        // config.headers["Authorization"] = `Bearer ${"19b7501d-6baf-4724-ae9e-b8fa7792ec45"}`;
-        return config;
-    },
-    () => {
-        // do something with request error
-        throw new Error("Request Error");
-    }
-);
 instance.interceptors.response.use(
     response => {
         // handle response data
@@ -40,13 +25,21 @@ instance.interceptors.response.use(
 );
 
 const API_REQUEST = {
-    getTransaction: (payload: {
-        userPublicKey: string;
-        inputToken: string;
-        outputToken: string;
-        amount: string;
-        slippage: number;
-    }) => instance.post("/privy/jupiter/transaction", payload),
+    getTransaction: (
+        payload: {
+            userPublicKey: string;
+            inputToken: string;
+            outputToken: string;
+            amount: string;
+            slippage: number;
+        },
+        accessToken?: string
+    ) =>
+        instance.post("/privy/jupiter/transaction", payload, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        }),
 };
 
 export default API_REQUEST;
