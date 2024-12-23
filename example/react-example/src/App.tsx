@@ -3,9 +3,7 @@ import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
 import { Trade } from "./Trade";
 
 function App() {
-    const { walletAddress, type, transactions, email } = useBoomWallet();
-
-    console.log("useBoomWallet", useBoomWallet());
+    const { walletAddress, type, email } = useBoomWallet();
 
     return (
         <>

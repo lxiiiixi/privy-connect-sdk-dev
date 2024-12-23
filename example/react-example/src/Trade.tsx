@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useBoomWallet } from "../../../dist";
 
 const Slippages = [30, 50, 100];
 
 export const Trade: React.FC = () => {
+    const { transactions } = useBoomWallet();
+
     const [type, setType] = useState<"buy" | "sell">("buy");
     const [slippage, setSlippage] = useState(50);
     const [amount, setAmount] = useState("");
@@ -11,6 +14,12 @@ export const Trade: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Trade submitted:", { type, slippage, amount, token });
+        transactions.trade({
+            tokenAddress: token,
+            amountIn: Number(amount),
+            op: type === "buy" ? "BUY" : "SELL",
+            slippage: slippage,
+        });
     };
 
     return (
@@ -34,6 +43,23 @@ export const Trade: React.FC = () => {
                 </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label
+                        htmlFor="token"
+                        className="block text-sm font-medium text-gray-700 mb-1 text-left"
+                    >
+                        Token
+                    </label>
+                    <input
+                        id="token"
+                        type="text"
+                        value={token}
+                        onChange={e => setToken(e.target.value)}
+                        placeholder={`Enter token to ${type}`}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    />
+                </div>
                 <div>
                     <label
                         htmlFor="amount"
@@ -70,23 +96,7 @@ export const Trade: React.FC = () => {
                         ))}
                     </div>
                 </div>
-                <div>
-                    <label
-                        htmlFor="token"
-                        className="block text-sm font-medium text-gray-700 mb-1 text-left"
-                    >
-                        Token
-                    </label>
-                    <input
-                        id="token"
-                        type="text"
-                        value={token}
-                        onChange={e => setToken(e.target.value)}
-                        placeholder={`Enter token to ${type}`}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                    />
-                </div>
+
                 <button
                     type="submit"
                     className="w-full py-2 px-4 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"

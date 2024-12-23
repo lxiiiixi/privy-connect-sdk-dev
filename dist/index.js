@@ -187,7 +187,42 @@ var API_REQUEST = {
 var request_default = API_REQUEST;
 
 // src/wallets/useExternalWallet.ts
+var import_web33 = require("@solana/web3.js");
+
+// src/tokens.ts
 var import_web32 = require("@solana/web3.js");
+var Token = class {
+  constructor(address, name, symbol, decimals, chainId) {
+    this.address = address;
+    this.name = name;
+    this.symbol = symbol;
+    this.decimals = decimals;
+    this.chainId = chainId;
+  }
+  parseAmount(amount) {
+    return amount * 10 ** this.decimals;
+  }
+  formatAmount(amount) {
+    return amount / 10 ** this.decimals;
+  }
+};
+var TOKENS = {
+  SOL: new Token(
+    "So11111111111111111111111111111111111111112",
+    "Solana",
+    "SOL",
+    import_web32.LAMPORTS_PER_SOL,
+    101
+  ),
+  USDC: new Token("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "USDC", "USDC", 6, 101)
+};
+var getTokenByAddress = (address) => {
+  return Object.values(TOKENS).find(
+    (token) => token.address.toLowerCase() === address.toLowerCase()
+  );
+};
+
+// src/wallets/useExternalWallet.ts
 var useExternalWallet = () => {
   const walletState = (0, import_wallet_adapter_react2.useWallet)();
   const {
@@ -212,17 +247,23 @@ var useExternalWallet = () => {
   );
   if (!wallet) return null;
   const trade = async (payload) => {
-    const { inputToken, outputToken, amountIn, slippage } = payload;
+    const { tokenAddress, amountIn, op, slippage } = payload;
+    const SolToken = TOKENS.SOL;
+    const OpToken = getTokenByAddress(tokenAddress);
+    if (!OpToken) {
+      throw new Error("Token not found");
+    }
+    const [tokenIn, tokenOut] = op === "BUY" ? [SolToken.address, OpToken.address] : [OpToken.address, SolToken.address];
     if (!(publicKey == null ? void 0 : publicKey.toString()) || !sendTransaction || !connection) return;
     const res = await request_default.getTransaction({
       userPublicKey: publicKey == null ? void 0 : publicKey.toString(),
-      inputToken,
-      outputToken,
-      amount: amountIn.toString(),
+      inputToken: tokenIn,
+      outputToken: tokenOut,
+      amount: (amountIn * 10 ** OpToken.decimals).toString(),
       slippage: slippage || 50
     });
     const swapTransactionBuf = Buffer.from(res.data, "base64");
-    const transaction = import_web32.VersionedTransaction.deserialize(swapTransactionBuf);
+    const transaction = import_web33.VersionedTransaction.deserialize(swapTransactionBuf);
     const signature = await sendTransaction(transaction, connection);
     return signature;
   };
@@ -307,15 +348,22 @@ var usePrivyEmbeddedWallet = () => {
     };
   };
   const trade = async (payload) => {
-    const { inputToken, outputToken, amountIn, slippage } = payload;
+    const { tokenAddress, amountIn, op, slippage } = payload;
+    const SolToken = TOKENS.SOL;
+    const OpToken = getTokenByAddress(tokenAddress);
+    if (!OpToken) {
+      throw new Error("Token not found");
+    }
+    const [tokenIn, tokenOut] = op === "BUY" ? [SolToken.address, OpToken.address] : [OpToken.address, SolToken.address];
+    if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return "";
     if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return "";
     const accessToken = await getAccessToken();
     const res = await request_default.sendDelegateTransaction(
       {
         userPublicKey: userEmbeddedWallet.address,
-        inputToken,
-        outputToken,
-        amount: amountIn.toString(),
+        inputToken: tokenIn,
+        outputToken: tokenOut,
+        amount: (amountIn * 10 ** OpToken.decimals).toString(),
         slippage: slippage || 50
       },
       accessToken != null ? accessToken : void 0

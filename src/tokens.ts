@@ -33,3 +33,9 @@ export const TOKENS = {
     ),
     USDC: new Token("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "USDC", "USDC", 6, 101),
 };
+
+export const getTokenByAddress = (address: string) => {
+    return Object.values(TOKENS).find(
+        token => token.address.toLowerCase() === address.toLowerCase()
+    );
+};
