@@ -15,7 +15,7 @@ export default function WalletConnectButton({ className }: { className?: string 
     const boomWallet = useBoomWallet();
     console.log("🚀 ~ boomWallet:", boomWallet);
     const userWalletAddress = boomWallet?.walletAddress;
-    const balance = useSolanaBalance(userWalletAddress || "");
+    const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
 
     const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
@@ -44,8 +44,8 @@ export default function WalletConnectButton({ className }: { className?: string 
     return (
         <>
             <div className="privy-wallet-dropdown">
-                <div className="privy-user-info">
-                    ({(balance / 1e9).toFixed(2)} SOL) {formatAddress(userWalletAddress)}
+                <div className="privy-user-info" onClick={fetchUpdateBalance}>
+                    ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
                 </div>
                 <div className="privy-dropdown-content">
                     <button className="dropdown-item" onClick={boomWallet.disconnect}>

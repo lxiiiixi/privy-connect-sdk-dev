@@ -9,7 +9,7 @@ export const connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 export const useSolanaBalance = (address: string) => {
     const [balance, setBalance] = useState(0);
 
-    const getBalance = async (address: string) => {
+    const fetchUpdateBalance = async () => {
         try {
             const publicKey = new PublicKey(address);
             const balance = await connection.getBalance(publicKey);
@@ -24,13 +24,9 @@ export const useSolanaBalance = (address: string) => {
 
     useEffect(() => {
         if (!!address) {
-            getBalance(address).then(setBalance);
+            fetchUpdateBalance().then(setBalance);
         }
     }, [address]);
 
-    return balance;
+    return { balance, fetchUpdateBalance };
 };
-
-export const useSolanaSignMessage = (address: string) => {};
-
-export const useSolanaSendTransaction = (address: string) => {};

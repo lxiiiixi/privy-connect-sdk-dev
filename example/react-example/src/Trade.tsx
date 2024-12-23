@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useBoomWallet } from "../../../dist";
 import { getTokenByAddress, getTokenBySymbol } from "./tokens";
 
+const Multiplier = 10 ** 6;
 const Slippages = [30, 50, 100];
 
 export const Trade: React.FC = () => {
@@ -22,10 +23,15 @@ export const Trade: React.FC = () => {
             throw new Error("Token not found");
         }
 
+        const tradeAmount = (
+            (BigInt(Number(amount) * Multiplier) * BigInt(10 ** InputToken.decimals)) /
+            BigInt(Multiplier)
+        ).toString();
+
         transactions.trade({
-            inputTokenAddress: inputToken,
-            outputTokenAddress: outputToken,
-            amountIn: amount,
+            inputTokenAddress: InputToken.address,
+            outputTokenAddress: OutputToken.address,
+            amountIn: tradeAmount,
             slippage: slippage,
         });
     };

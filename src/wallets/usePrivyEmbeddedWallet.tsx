@@ -66,8 +66,6 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         getAccessToken,
     } = usePrivy();
 
-    const { sendSolanaTransaction } = useSendSolanaTransaction();
-
     // useSolanaWallets 目前只支持 embeddedWallet
     // 对我们目前的功能来说就是通过邮箱登录时的钱包
     const {

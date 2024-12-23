@@ -102,11 +102,11 @@ import { useEffect, useState } from "react";
 var connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 var useSolanaBalance = (address) => {
   const [balance, setBalance] = useState(0);
-  const getBalance = async (address2) => {
+  const fetchUpdateBalance = async () => {
     try {
-      const publicKey = new PublicKey(address2);
+      const publicKey = new PublicKey(address);
       const balance2 = await connection.getBalance(publicKey);
-      console.log(`Balance of ${address2}: ${balance2 / 1e9} SOL`);
+      console.log(`Balance of ${address}: ${balance2 / 1e9} SOL`);
       return balance2;
     } catch (error) {
       console.error("Failed to get balance:", error);
@@ -115,10 +115,10 @@ var useSolanaBalance = (address) => {
   };
   useEffect(() => {
     if (!!address) {
-      getBalance(address).then(setBalance);
+      fetchUpdateBalance().then(setBalance);
     }
   }, [address]);
-  return balance;
+  return { balance, fetchUpdateBalance };
 };
 
 // src/request.ts
@@ -126,7 +126,7 @@ import axios from "axios";
 var headers = {
   "Content-Type": "application/json"
 };
-var API_BASE_URL = "http://172.16.0.14:8001/";
+var API_BASE_URL = "http://localhost:8001/";
 var instance = axios.create({
   baseURL: API_BASE_URL,
   headers,
@@ -207,7 +207,6 @@ var useExternalWallet = () => {
 import {
   useDelegatedActions,
   usePrivy,
-  useSendSolanaTransaction,
   useSolanaWallets
 } from "@privy-io/react-auth";
 import { useEffect as useEffect2 } from "react";
@@ -222,7 +221,6 @@ var usePrivyEmbeddedWallet = () => {
     logout,
     getAccessToken
   } = usePrivy();
-  const { sendSolanaTransaction } = useSendSolanaTransaction();
   const {
     ready: readySolanaWallets,
     wallets: embeddedSolanaWallets,
@@ -402,7 +400,7 @@ function WalletConnectButton({ className }) {
   const boomWallet = useBoomWallet();
   console.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
-  const balance = useSolanaBalance(userWalletAddress || "");
+  const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const [isOpen, setIsOpen] = useState2(false);
   useEffect3(() => {
@@ -423,9 +421,9 @@ function WalletConnectButton({ className }) {
       )
     ] });
   return /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "privy-wallet-dropdown", children: [
-    /* @__PURE__ */ jsxs("div", { className: "privy-user-info", children: [
+    /* @__PURE__ */ jsxs("div", { className: "privy-user-info", onClick: fetchUpdateBalance, children: [
       "(",
-      (balance / 1e9).toFixed(2),
+      (balance / 1e9).toFixed(4),
       " SOL) ",
       formatAddress(userWalletAddress)
     ] }),
