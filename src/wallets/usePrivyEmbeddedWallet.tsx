@@ -19,7 +19,6 @@ import { Connection, TransactionSignature } from "@solana/web3.js";
 import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
 import { connection } from "../solana";
 import API_REQUEST from "../request";
-import { getTokenByAddress, TOKENS } from "../tokens";
 import { TradePayload } from "./useBoomWallet";
 
 export type LoginType = "EMAIL" | "WALLET";
@@ -133,28 +132,16 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         };
     };
     const trade = async (payload: TradePayload) => {
-        const { tokenAddress, amountIn, op, slippage } = payload;
+        const { inputTokenAddress, outputTokenAddress, amountIn, slippage } = payload;
 
-        const SolToken = TOKENS.SOL;
-        const OpToken = getTokenByAddress(tokenAddress);
-        if (!OpToken) {
-            throw new Error("Token not found");
-        }
-
-        const [tokenIn, tokenOut] =
-            op === "BUY"
-                ? [SolToken.address, OpToken.address]
-                : [OpToken.address, SolToken.address];
-
-        if (!userEmbeddedWallet?.address) return "";
         if (!userEmbeddedWallet?.address) return "";
         const accessToken = await getAccessToken();
         const res = await API_REQUEST.sendDelegateTransaction(
             {
                 userPublicKey: userEmbeddedWallet.address,
-                inputToken: tokenIn,
-                outputToken: tokenOut,
-                amount: (amountIn * 10 ** OpToken.decimals).toString(),
+                inputToken: inputTokenAddress,
+                outputToken: outputTokenAddress,
+                amount: amountIn,
                 slippage: slippage || 50,
             },
             accessToken ?? undefined

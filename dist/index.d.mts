@@ -9,9 +9,9 @@ interface BoomWalletProviderProps {
 declare function BoomWalletProvider({ appId, clientId, children }: BoomWalletProviderProps): react_jsx_runtime.JSX.Element;
 
 type TradePayload = {
-    tokenAddress: string;
-    amountIn: number;
-    op: "BUY" | "SELL";
+    inputTokenAddress: string;
+    outputTokenAddress: string;
+    amountIn: string;
     slippage?: number;
 };
 type BoomWallet = {

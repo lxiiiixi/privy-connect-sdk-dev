@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useBoomWallet } from "../../../dist";
+import { getTokenByAddress, TOKENS } from "./tokens";
 
 const Slippages = [30, 50, 100];
 
@@ -14,10 +15,22 @@ export const Trade: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Trade submitted:", { type, slippage, amount, token });
+
+        const SolToken = TOKENS.SOL;
+        const OpToken = getTokenByAddress(token);
+        if (!OpToken) {
+            throw new Error("Token not found");
+        }
+
+        const [tokenIn, tokenOut] =
+            type === "buy"
+                ? [SolToken.address, OpToken.address]
+                : [OpToken.address, SolToken.address];
+
         transactions.trade({
-            tokenAddress: token,
-            amountIn: Number(amount),
-            op: type === "buy" ? "BUY" : "SELL",
+            inputTokenAddress: tokenIn,
+            outputTokenAddress: tokenOut,
+            amountIn: amount,
             slippage: slippage,
         });
     };

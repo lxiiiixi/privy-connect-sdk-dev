@@ -2,9 +2,9 @@ import { useExternalWallet } from "./useExternalWallet";
 import { usePrivyEmbeddedWallet } from "./usePrivyEmbeddedWallet";
 
 export type TradePayload = {
-    tokenAddress: string; // 买或者卖的token地址
-    amountIn: number; // 还没处理精度的
-    op: "BUY" | "SELL";
+    inputTokenAddress: string; // 买
+    outputTokenAddress: string; // 卖
+    amountIn: string; // 需要精度处理之后的数据
     slippage?: number;
 };
 
