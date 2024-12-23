@@ -1,13 +1,20 @@
 import { useExternalWallet } from "./useExternalWallet";
 import { usePrivyEmbeddedWallet } from "./usePrivyEmbeddedWallet";
 
+export type TradePayload = {
+    inputToken: string;
+    outputToken: string;
+    amountIn: number;
+    slippage?: number;
+};
+
 type BoomWallet = {
     type: "EMAIL" | "WALLET" | "NONE"; // 登录类型,NONE时表示未登录
     email?: string; // 邮箱（邮箱登录时才有）
     isConnected: boolean;
     walletAddress?: string;
     transactions: {
-        buy: () => void;
+        trade: (payload: TradePayload) => Promise<string>;
     };
     exportWallet?: () => void;
     disconnect?: () => void;
@@ -17,7 +24,7 @@ export const useBoomWallet: () => BoomWallet = () => {
     const privyEmbeddedWallet = usePrivyEmbeddedWallet();
     const externalWallet = useExternalWallet();
     if (privyEmbeddedWallet.user.wallet) {
-        const { buy, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
+        const { trade, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
         return {
             type: "EMAIL",
             email: user.email?.address,
@@ -26,12 +33,12 @@ export const useBoomWallet: () => BoomWallet = () => {
             exportWallet: exportWallet,
             disconnect: logout,
             transactions: {
-                buy: () => buy(),
+                trade: (payload: TradePayload) => trade(payload),
             },
         };
     }
     if (externalWallet?.wallet) {
-        const { buy, disconnect, publicKey } = externalWallet;
+        const { trade, disconnect, publicKey } = externalWallet;
         return {
             type: "WALLET",
             email: undefined,
@@ -40,7 +47,7 @@ export const useBoomWallet: () => BoomWallet = () => {
             exportWallet: undefined,
             disconnect: disconnect,
             transactions: {
-                buy: () => externalWallet.buy(),
+                trade: (payload: TradePayload) => trade(payload),
             },
         };
     }
@@ -51,7 +58,7 @@ export const useBoomWallet: () => BoomWallet = () => {
         exportWallet: undefined,
         disconnect: undefined,
         transactions: {
-            buy: () => Promise.resolve(""),
+            trade: () => Promise.resolve(""),
         },
     };
 };

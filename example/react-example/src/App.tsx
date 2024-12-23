@@ -1,5 +1,6 @@
 import "./App.css";
 import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
+import { Trade } from "./Trade";
 
 function App() {
     const { walletAddress, type, transactions, email } = useBoomWallet();
@@ -29,16 +30,7 @@ function App() {
                     </div>
                 </div>
                 <hr />
-                {transactions.buy && (
-                    <button
-                        className="btn"
-                        onClick={async () => {
-                            await transactions.buy();
-                        }}
-                    >
-                        Buy usdc by 0.01 SOL
-                    </button>
-                )}
+                {walletAddress && <Trade />}
             </div>
         </>
     );

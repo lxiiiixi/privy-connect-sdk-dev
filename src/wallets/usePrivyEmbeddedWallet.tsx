@@ -19,6 +19,8 @@ import { Connection, TransactionSignature } from "@solana/web3.js";
 import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base";
 import { connection } from "../solana";
 import API_REQUEST from "../request";
+import { TOKENS } from "../tokens";
+import { TradePayload } from "./useBoomWallet";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -51,7 +53,7 @@ export type PrivyWallet = {
     exportWallet?: () => void; // 导出钱包
     signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
     sendTransaction?: any; // 发送交易
-    buy: any; // 购买 usdc
+    trade: any; // 购买 usdc
 };
 
 export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -95,6 +97,14 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         }
     }, [userEmbeddedWallet, authenticated]);
 
+    useEffect(() => {
+        const getToken = async () => {
+            const accessToken = await getAccessToken();
+            console.log("accessToken", accessToken);
+        };
+        getToken();
+    }, []);
+
     console.log(
         "solanaWallets",
         user,
@@ -122,17 +132,17 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
             hexSignature, // hex 格式
         };
     };
-    const buy = async () => {
+    const trade = async (payload: TradePayload) => {
+        const { inputToken, outputToken, amountIn, slippage } = payload;
         if (!userEmbeddedWallet?.address) return "";
         const accessToken = await getAccessToken();
-        const amount = 0.1 * 1e9; // 0.1 SOL in lamports decimals-9
-        const res = await API_REQUEST.getTransaction(
+        const res = await API_REQUEST.sendDelegateTransaction(
             {
                 userPublicKey: userEmbeddedWallet.address,
-                inputToken: "So11111111111111111111111111111111111111112", // sol
-                outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // 购买 usdc
-                amount: amount.toString(),
-                slippage: 50, // 滑点
+                inputToken: inputToken,
+                outputToken: outputToken,
+                amount: amountIn.toString(),
+                slippage: slippage || 50,
             },
             accessToken ?? undefined
         );
@@ -155,7 +165,7 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         authenticated,
         login,
         logout,
-        buy,
+        trade,
     };
 };
 

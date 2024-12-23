@@ -130,8 +130,8 @@ var API_BASE_URL = "http://localhost:8001/";
 var instance = axios.create({
   baseURL: API_BASE_URL,
   headers,
-  timeout: 1e4
-  // 10s
+  timeout: 1e5
+  // 100s
 });
 instance.interceptors.response.use(
   (response) => {
@@ -143,7 +143,8 @@ instance.interceptors.response.use(
   }
 );
 var API_REQUEST = {
-  getTransaction: (payload, accessToken) => instance.post("/privy/jupiter/transaction", payload, {
+  getTransaction: (payload) => instance.post("/privy/jupiter/transaction", payload),
+  sendDelegateTransaction: (payload, accessToken) => instance.post("/privy/jupiter/sendTransaction", payload, {
     headers: {
       Authorization: `Bearer ${accessToken}`
     }
@@ -176,18 +177,15 @@ var useExternalWallet = () => {
     wallets
   );
   if (!wallet) return null;
-  const buy = async () => {
+  const trade = async (payload) => {
+    const { inputToken, outputToken, amountIn, slippage } = payload;
     if (!(publicKey == null ? void 0 : publicKey.toString()) || !sendTransaction || !connection) return;
-    const amount = 0.01 * 1e9;
     const res = await request_default.getTransaction({
       userPublicKey: publicKey == null ? void 0 : publicKey.toString(),
-      inputToken: "So11111111111111111111111111111111111111112",
-      // sol
-      outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      // 购买 usdc
-      amount: amount.toString(),
-      slippage: 50
-      // 滑点
+      inputToken,
+      outputToken,
+      amount: amountIn.toString(),
+      slippage: slippage || 50
     });
     const swapTransactionBuf = Buffer.from(res.data, "base64");
     const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
@@ -201,7 +199,7 @@ var useExternalWallet = () => {
     wallet,
     disconnect,
     publicKey,
-    buy
+    trade
   };
 };
 
@@ -246,6 +244,13 @@ var usePrivyEmbeddedWallet = () => {
       console.warn(error);
     }
   }, [userEmbeddedWallet, authenticated]);
+  useEffect2(() => {
+    const getToken = async () => {
+      const accessToken = await getAccessToken();
+      console.log("accessToken", accessToken);
+    };
+    getToken();
+  }, []);
   console.log(
     "solanaWallets",
     user,
@@ -272,20 +277,17 @@ var usePrivyEmbeddedWallet = () => {
       // hex 格式
     };
   };
-  const buy = async () => {
+  const trade = async (payload) => {
+    const { inputToken, outputToken, amountIn, slippage } = payload;
     if (!(userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.address)) return "";
     const accessToken = await getAccessToken();
-    const amount = 0.1 * 1e9;
-    const res = await request_default.getTransaction(
+    const res = await request_default.sendDelegateTransaction(
       {
         userPublicKey: userEmbeddedWallet.address,
-        inputToken: "So11111111111111111111111111111111111111112",
-        // sol
-        outputToken: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        // 购买 usdc
-        amount: amount.toString(),
-        slippage: 50
-        // 滑点
+        inputToken,
+        outputToken,
+        amount: amountIn.toString(),
+        slippage: slippage || 50
       },
       accessToken != null ? accessToken : void 0
     );
@@ -308,7 +310,7 @@ var usePrivyEmbeddedWallet = () => {
     authenticated,
     login,
     logout,
-    buy
+    trade
   };
 };
 var useBoomWalletDelegate = () => {
@@ -347,7 +349,7 @@ var useBoomWallet = () => {
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
   const externalWallet = useExternalWallet();
   if (privyEmbeddedWallet.user.wallet) {
-    const { buy, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
+    const { trade, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
     return {
       type: "EMAIL",
       email: (_a = user.email) == null ? void 0 : _a.address,
@@ -356,12 +358,12 @@ var useBoomWallet = () => {
       exportWallet,
       disconnect: logout,
       transactions: {
-        buy: () => buy()
+        trade: (payload) => trade(payload)
       }
     };
   }
   if (externalWallet == null ? void 0 : externalWallet.wallet) {
-    const { buy, disconnect, publicKey } = externalWallet;
+    const { trade, disconnect, publicKey } = externalWallet;
     return {
       type: "WALLET",
       email: void 0,
@@ -370,7 +372,7 @@ var useBoomWallet = () => {
       exportWallet: void 0,
       disconnect,
       transactions: {
-        buy: () => externalWallet.buy()
+        trade: (payload) => trade(payload)
       }
     };
   }
@@ -381,7 +383,7 @@ var useBoomWallet = () => {
     exportWallet: void 0,
     disconnect: void 0,
     transactions: {
-      buy: () => Promise.resolve("")
+      trade: () => Promise.resolve("")
     }
   };
 };

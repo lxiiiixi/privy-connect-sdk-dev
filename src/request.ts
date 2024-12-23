@@ -9,7 +9,7 @@ const API_BASE_URL = "http://localhost:8001/";
 const instance = axios.create({
     baseURL: API_BASE_URL,
     headers,
-    timeout: 10000, // 10s
+    timeout: 100000, // 100s
 });
 
 instance.interceptors.response.use(
@@ -24,18 +24,19 @@ instance.interceptors.response.use(
     }
 );
 
+type TransactionPayload = {
+    userPublicKey: string;
+    inputToken: string;
+    outputToken: string;
+    amount: string;
+    slippage: number;
+};
+
 const API_REQUEST = {
-    getTransaction: (
-        payload: {
-            userPublicKey: string;
-            inputToken: string;
-            outputToken: string;
-            amount: string;
-            slippage: number;
-        },
-        accessToken?: string
-    ) =>
-        instance.post("/privy/jupiter/transaction", payload, {
+    getTransaction: (payload: TransactionPayload) =>
+        instance.post("/privy/jupiter/transaction", payload),
+    sendDelegateTransaction: (payload: TransactionPayload, accessToken?: string) =>
+        instance.post("/privy/jupiter/sendTransaction", payload, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },

@@ -8,13 +8,19 @@ interface BoomWalletProviderProps {
 }
 declare function BoomWalletProvider({ appId, clientId, children }: BoomWalletProviderProps): react_jsx_runtime.JSX.Element;
 
+type TradePayload = {
+    inputToken: string;
+    outputToken: string;
+    amountIn: number;
+    slippage?: number;
+};
 type BoomWallet = {
     type: "EMAIL" | "WALLET" | "NONE";
     email?: string;
     isConnected: boolean;
     walletAddress?: string;
     transactions: {
-        buy: () => void;
+        trade: (payload: TradePayload) => Promise<string>;
     };
     exportWallet?: () => void;
     disconnect?: () => void;
