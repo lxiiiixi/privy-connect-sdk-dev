@@ -1,35 +1,30 @@
 import React, { useState } from "react";
 import { useBoomWallet } from "../../../dist";
-import { getTokenByAddress, TOKENS } from "./tokens";
+import { getTokenByAddress, getTokenBySymbol } from "./tokens";
 
 const Slippages = [30, 50, 100];
 
 export const Trade: React.FC = () => {
     const { transactions } = useBoomWallet();
 
-    const [type, setType] = useState<"buy" | "sell">("buy");
     const [slippage, setSlippage] = useState(50);
     const [amount, setAmount] = useState("");
-    const [token, setToken] = useState("");
+    const [inputToken, setInputToken] = useState("");
+    const [outputToken, setOutputToken] = useState("");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Trade submitted:", { type, slippage, amount, token });
+        console.log("Trade submitted:", { slippage, amount, inputToken, outputToken });
 
-        const SolToken = TOKENS.SOL;
-        const OpToken = getTokenByAddress(token);
-        if (!OpToken) {
+        const InputToken = getTokenByAddress(inputToken) || getTokenBySymbol(inputToken);
+        const OutputToken = getTokenByAddress(outputToken) || getTokenBySymbol(outputToken);
+        if (!InputToken || !OutputToken) {
             throw new Error("Token not found");
         }
 
-        const [tokenIn, tokenOut] =
-            type === "buy"
-                ? [SolToken.address, OpToken.address]
-                : [OpToken.address, SolToken.address];
-
         transactions.trade({
-            inputTokenAddress: tokenIn,
-            outputTokenAddress: tokenOut,
+            inputTokenAddress: inputToken,
+            outputTokenAddress: outputToken,
             amountIn: amount,
             slippage: slippage,
         });
@@ -37,38 +32,37 @@ export const Trade: React.FC = () => {
 
     return (
         <div className="w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-md bg-yellow-500/10">
-            <div className="flex mb-4 rounded-lg overflow-hidden">
-                <button
-                    className={`flex-1 py-2 px-4 text-center ${
-                        type === "buy" ? "bg-yellow-400 text-white" : "bg-gray-200 text-gray-700"
-                    }`}
-                    onClick={() => setType("buy")}
-                >
-                    Buy
-                </button>
-                <button
-                    className={`flex-1 py-2 px-4 text-center ${
-                        type === "sell" ? "bg-yellow-400 text-white" : "bg-gray-200 text-gray-700"
-                    }`}
-                    onClick={() => setType("sell")}
-                >
-                    Sell
-                </button>
-            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label
                         htmlFor="token"
                         className="block text-sm font-medium text-gray-700 mb-1 text-left"
                     >
-                        Token
+                        Input Token
                     </label>
                     <input
-                        id="token"
+                        id="inputToken"
                         type="text"
-                        value={token}
-                        onChange={e => setToken(e.target.value)}
-                        placeholder={`Enter token to ${type}`}
+                        value={inputToken}
+                        onChange={e => setInputToken(e.target.value)}
+                        placeholder={`Enter token address or symbol to trade`}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    />
+                </div>
+                <div>
+                    <label
+                        htmlFor="token"
+                        className="block text-sm font-medium text-gray-700 mb-1 text-left"
+                    >
+                        Output Token
+                    </label>
+                    <input
+                        id="outputToken"
+                        type="text"
+                        value={outputToken}
+                        onChange={e => setOutputToken(e.target.value)}
+                        placeholder={`Enter token address or symbol to trade`}
                         required
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     />
@@ -114,7 +108,7 @@ export const Trade: React.FC = () => {
                     type="submit"
                     className="w-full py-2 px-4 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                 >
-                    Confirm {type.charAt(0).toUpperCase() + type.slice(1)}
+                    Confirm Trade
                 </button>
             </form>
         </div>

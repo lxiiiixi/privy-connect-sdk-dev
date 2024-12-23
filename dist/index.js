@@ -160,7 +160,7 @@ var import_axios = __toESM(require("axios"));
 var headers = {
   "Content-Type": "application/json"
 };
-var API_BASE_URL = "http://localhost:8001/";
+var API_BASE_URL = "http://172.16.0.14:8001/";
 var instance = import_axios.default.create({
   baseURL: API_BASE_URL,
   headers,
