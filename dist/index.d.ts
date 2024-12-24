@@ -27,8 +27,9 @@ type BoomWallet = {
 };
 declare const useBoomWallet: () => BoomWallet;
 
-declare function WalletConnectButton({ className }: {
+declare function WalletConnectButton({ className, hideConnectByWallets, }: {
     className?: string;
+    hideConnectByWallets?: boolean;
 }): react_jsx_runtime.JSX.Element;
 
 export { BoomWalletProvider, WalletConnectButton, useBoomWallet };

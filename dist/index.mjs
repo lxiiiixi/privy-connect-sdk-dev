@@ -396,7 +396,10 @@ var formatAddress = (address) => {
   if (address.length <= 10) return address;
   return `${address.slice(0, 3)}...${address.slice(-4)}`;
 };
-function WalletConnectButton({ className }) {
+function WalletConnectButton({
+  className,
+  hideConnectByWallets = false
+}) {
   const boomWallet = useBoomWallet();
   console.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
@@ -410,7 +413,14 @@ function WalletConnectButton({ className }) {
   }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx2(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),
+      /* @__PURE__ */ jsx2(
+        ConnectWalletModal,
+        {
+          isOpen,
+          onClose: () => setIsOpen(false),
+          hideConnectByWallets
+        }
+      ),
       /* @__PURE__ */ jsx2(
         "button",
         {
@@ -502,12 +512,16 @@ function PrivyLogin({ onClose }) {
     )
   ] }) });
 }
-function ConnectWalletModal({ isOpen, onClose }) {
+function ConnectWalletModal({
+  isOpen,
+  onClose,
+  hideConnectByWallets
+}) {
   return /* @__PURE__ */ jsxs(Modal, { isOpen, onClose, children: [
     /* @__PURE__ */ jsx2("h4", { children: "Login" }),
     /* @__PURE__ */ jsx2(PrivyLogin, { onClose }),
-    /* @__PURE__ */ jsx2("hr", {}),
-    /* @__PURE__ */ jsx2(ExternalWalletList, {})
+    !hideConnectByWallets && /* @__PURE__ */ jsx2("hr", {}),
+    !hideConnectByWallets && /* @__PURE__ */ jsx2(ExternalWalletList, {})
   ] });
 }
 

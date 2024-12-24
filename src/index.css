@@ -125,8 +125,17 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #ccc; /* Light grey text color */
+    color: #000000; /* Light grey text color */
     font-size: 16px; /* Size of the text */
+}
+
+.email-form input[type="email"]:focus {
+    background: transparent;
+    outline: none;
+}
+
+.email-form input[type="email"]:valid {
+    background: transparent; /* 有内容时保持背景透明 */
 }
 
 .email-form button {

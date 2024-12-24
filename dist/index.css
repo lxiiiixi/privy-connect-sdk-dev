@@ -112,8 +112,15 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #ccc;
+  color: #000000;
   font-size: 16px;
+}
+.email-form input[type=email]:focus {
+  background: transparent;
+  outline: none;
+}
+.email-form input[type=email]:valid {
+  background: transparent;
 }
 .email-form button {
   padding: 10px 10px;

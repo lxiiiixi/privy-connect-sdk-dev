@@ -11,7 +11,13 @@ const formatAddress = (address?: string) => {
     return `${address.slice(0, 3)}...${address.slice(-4)}`;
 };
 
-export default function WalletConnectButton({ className }: { className?: string }) {
+export default function WalletConnectButton({
+    className,
+    hideConnectByWallets = false,
+}: {
+    className?: string;
+    hideConnectByWallets?: boolean;
+}) {
     const boomWallet = useBoomWallet();
     console.log("🚀 ~ boomWallet:", boomWallet);
     const userWalletAddress = boomWallet?.walletAddress;
@@ -31,7 +37,11 @@ export default function WalletConnectButton({ className }: { className?: string 
     if (!boomWallet || !boomWallet?.isConnected)
         return (
             <>
-                <ConnectWalletModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+                <ConnectWalletModal
+                    isOpen={isOpen}
+                    onClose={() => setIsOpen(false)}
+                    hideConnectByWallets={hideConnectByWallets}
+                />
                 <button
                     className={`privy-wallet-connect-button wallet-connect-base ${className}  red-button`}
                     onClick={() => setIsOpen(true)}
@@ -146,13 +156,21 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
         </>
     );
 }
-function ConnectWalletModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function ConnectWalletModal({
+    isOpen,
+    onClose,
+    hideConnectByWallets,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    hideConnectByWallets: boolean;
+}) {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <h4>Login</h4>
             <PrivyLogin onClose={onClose} />
-            <hr />
-            <ExternalWalletList />
+            {!hideConnectByWallets && <hr />}
+            {!hideConnectByWallets && <ExternalWalletList />}
         </Modal>
     );
 }

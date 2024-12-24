@@ -426,7 +426,10 @@ var formatAddress = (address) => {
   if (address.length <= 10) return address;
   return `${address.slice(0, 3)}...${address.slice(-4)}`;
 };
-function WalletConnectButton({ className }) {
+function WalletConnectButton({
+  className,
+  hideConnectByWallets = false
+}) {
   const boomWallet = useBoomWallet();
   console.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
@@ -440,7 +443,14 @@ function WalletConnectButton({ className }) {
   }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ConnectWalletModal, { isOpen, onClose: () => setIsOpen(false) }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        ConnectWalletModal,
+        {
+          isOpen,
+          onClose: () => setIsOpen(false),
+          hideConnectByWallets
+        }
+      ),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "button",
         {
@@ -532,12 +542,16 @@ function PrivyLogin({ onClose }) {
     )
   ] }) });
 }
-function ConnectWalletModal({ isOpen, onClose }) {
+function ConnectWalletModal({
+  isOpen,
+  onClose,
+  hideConnectByWallets
+}) {
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(Modal, { isOpen, onClose, children: [
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { children: "Login" }),
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PrivyLogin, { onClose }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("hr", {}),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ExternalWalletList, {})
+    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("hr", {}),
+    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ExternalWalletList, {})
   ] });
 }
 
