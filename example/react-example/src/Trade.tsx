@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useBoomWallet } from "../../../dist";
 import { getTokenByAddress, getTokenBySymbol } from "./tokens";
+import { useBoomWallet } from "boom-wallet-sdk";
 
 const Multiplier = 10 ** 6;
 const Slippages = [30, 50, 100];

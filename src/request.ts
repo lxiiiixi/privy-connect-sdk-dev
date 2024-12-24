@@ -1,12 +1,13 @@
-import { getAccessToken } from "@privy-io/react-auth";
 import axios from "axios";
 import { logger } from "./utils";
 
 const headers = {
     "Content-Type": "application/json",
 };
-const API_BASE_URL = "http://localhost:8001/";
+// const API_BASE_URL = "http://localhost:8001/";
 // const API_BASE_URL = "http://172.16.0.14:8001/";
+const API_BASE_URL = "https://test.boom.meme/";
+
 const instance = axios.create({
     baseURL: API_BASE_URL,
     headers,
@@ -39,7 +40,7 @@ const API_REQUEST = {
     sendDelegateTransaction: (payload: TransactionPayload, accessToken?: string) =>
         instance.post("/privy/jupiter/sendTransaction", payload, {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
+                "privy-auth-token": `Bearer ${accessToken}`,
             },
         }),
 };

@@ -4,6 +4,7 @@ import { useBoomWallet } from "./wallets/useBoomWallet";
 import { useEffect, useState } from "react";
 import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
+import { logger } from "./utils";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -19,7 +20,7 @@ export default function WalletConnectButton({
     hideConnectByWallets?: boolean;
 }) {
     const boomWallet = useBoomWallet();
-    console.log("🚀 ~ boomWallet:", boomWallet);
+    logger.log("🚀 ~ boomWallet:", boomWallet);
     const userWalletAddress = boomWallet?.walletAddress;
     const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
 

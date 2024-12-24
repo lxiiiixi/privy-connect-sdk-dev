@@ -10,6 +10,8 @@ export const logger = (() => {
         log: (...messages: any[]) => {
             if (isDev) {
                 console.log(formatMessage("LOG"), messages);
+            } else {
+                console.debug(formatMessage("LOG"), messages);
             }
         },
         warn: (...messages: any[]) => {

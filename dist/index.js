@@ -145,6 +145,8 @@ var logger = (() => {
     log: (...messages) => {
       if (isDev) {
         console.log(formatMessage("LOG"), messages);
+      } else {
+        console.debug(formatMessage("LOG"), messages);
       }
     },
     warn: (...messages) => {
@@ -193,7 +195,7 @@ var import_axios = __toESM(require("axios"));
 var headers = {
   "Content-Type": "application/json"
 };
-var API_BASE_URL = "http://localhost:8001/";
+var API_BASE_URL = "https://test.boom.meme/";
 var instance = import_axios.default.create({
   baseURL: API_BASE_URL,
   headers,
@@ -213,7 +215,7 @@ var API_REQUEST = {
   getTransaction: (payload) => instance.post("/privy/jupiter/transaction", payload),
   sendDelegateTransaction: (payload, accessToken) => instance.post("/privy/jupiter/sendTransaction", payload, {
     headers: {
-      Authorization: `Bearer ${accessToken}`
+      "privy-auth-token": `Bearer ${accessToken}`
     }
   })
 };
@@ -464,7 +466,7 @@ function WalletConnectButton({
   hideConnectByWallets = false
 }) {
   const boomWallet = useBoomWallet();
-  console.log("\u{1F680} ~ boomWallet:", boomWallet);
+  logger.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
   const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
@@ -595,7 +597,7 @@ if (typeof window !== "undefined") {
 if (typeof window !== "undefined") {
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "node_modules/boom-wallet-sdk/dist/index.css";
+  link.href = "/node_modules/boom-wallet-sdk/dist/index.css";
   document.head.appendChild(link);
 }
 // Annotate the CommonJS export names for ESM import in node:
