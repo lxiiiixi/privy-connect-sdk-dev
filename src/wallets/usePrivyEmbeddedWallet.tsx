@@ -20,6 +20,7 @@ import { SendTransactionOptions, WalletName } from "@solana/wallet-adapter-base"
 import { connection } from "../solana";
 import API_REQUEST from "../request";
 import { TradePayload } from "./useBoomWallet";
+import { logger } from "../utils";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -87,22 +88,22 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         if (userEmbeddedWallet || user?.wallet) return; // 已经有钱包不创建
         if (loginType !== "EMAIL") return; // 邮箱登录时才创建
         try {
-            console.log("CreateWallet");
+            logger.log("CreateWallet");
             createWallet();
         } catch (error) {
-            console.warn(error);
+            logger.warn(error);
         }
     }, [userEmbeddedWallet, authenticated]);
 
     useEffect(() => {
         const getToken = async () => {
             const accessToken = await getAccessToken();
-            console.log("accessToken", accessToken);
+            logger.log("accessToken", accessToken);
         };
         getToken();
     }, []);
 
-    console.log(
+    logger.log(
         "solanaWallets",
         user,
         userEmbeddedWallet,
@@ -117,12 +118,12 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         const messageBuffer = new TextEncoder().encode(message);
         const signature = await userEmbeddedWallet?.signMessage(messageBuffer);
         if (!signature) {
-            console.warn("Failed to sign message");
+            logger.warn("Failed to sign message");
             return null;
         }
         const base58Signature = bs58.encode(signature);
         const hexSignature = Buffer.from(signature).toString("hex");
-        console.log("signMessage success", base58Signature, hexSignature);
+        logger.log("signMessage success", base58Signature, hexSignature);
 
         return {
             signature: base58Signature, // base58 格式
@@ -144,7 +145,7 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
             },
             accessToken ?? undefined
         );
-        console.log(res);
+        logger.log(res);
         return res;
     };
 
@@ -185,11 +186,11 @@ export const useBoomWalletDelegate = () => {
     const isDisplay = !!walletToDelegate; // 准备好了并且有可以代理调用的钱包
 
     const onDelegate = async () => {
-        console.log(walletToDelegate, isAlreadyDelegated);
+        logger.log(walletToDelegate, isAlreadyDelegated);
 
         if (isAlreadyDelegated) return; // Button is disabled to prevent this case
         if (walletToDelegate && walletToDelegate.address) {
-            console.log(isAlreadyDelegated, walletToDelegate.address);
+            logger.log(isAlreadyDelegated, walletToDelegate.address);
 
             await delegateWallet({ address: walletToDelegate.address, chainType: "solana" });
         }

@@ -7,6 +7,7 @@ import { connection } from "../solana";
 import API_REQUEST from "../request";
 import { VersionedTransaction } from "@solana/web3.js";
 import { TradePayload } from "./useBoomWallet";
+import { logger } from "../utils";
 
 // https://docs.privy.io/guide/react/wallets/usage/solana/
 type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" | "no-wallet";
@@ -30,7 +31,7 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
 
     // connect 和 select 的区别？
 
-    console.log(
+    logger.log(
         "🚀 ~ CustomWalletButton ~ connect:",
         connected,
         publicKey,

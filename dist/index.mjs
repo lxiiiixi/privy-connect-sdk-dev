@@ -99,6 +99,39 @@ import {
 // src/solana.ts
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useEffect, useState } from "react";
+
+// src/utils.ts
+var logger = (() => {
+  const isDev = process.env.NODE_ENV === "development";
+  const formatMessage = (level) => {
+    const timestamp = (/* @__PURE__ */ new Date()).toISOString();
+    return `[${timestamp}] [${level}]`;
+  };
+  return {
+    log: (...messages) => {
+      if (isDev) {
+        console.log(formatMessage("LOG"), messages);
+      }
+    },
+    warn: (...messages) => {
+      if (isDev) {
+        console.warn(formatMessage("WARN"), messages);
+      }
+    },
+    error: (...messages) => {
+      if (isDev) {
+        console.error(formatMessage("ERROR"), messages);
+      }
+    },
+    info: (...messages) => {
+      if (isDev) {
+        console.info(formatMessage("INFO"), messages);
+      }
+    }
+  };
+})();
+
+// src/solana.ts
 var connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 var useSolanaBalance = (address) => {
   const [balance, setBalance] = useState(0);
@@ -106,10 +139,10 @@ var useSolanaBalance = (address) => {
     try {
       const publicKey = new PublicKey(address);
       const balance2 = await connection.getBalance(publicKey);
-      console.log(`Balance of ${address}: ${balance2 / 1e9} SOL`);
+      logger.log(`Balance of ${address}: ${balance2 / 1e9} SOL`);
       return balance2;
     } catch (error) {
-      console.error("Failed to get balance:", error);
+      logger.error("Failed to get balance:", error);
       return 0;
     }
   };
@@ -138,7 +171,7 @@ instance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log("Request error:", error);
+    logger.error("Request error:", error);
     throw error;
   }
 );
@@ -168,7 +201,7 @@ var useExternalWallet = () => {
     wallets,
     sendTransaction
   } = walletState;
-  console.log(
+  logger.log(
     "\u{1F680} ~ CustomWalletButton ~ connect:",
     connected,
     publicKey,
@@ -236,20 +269,20 @@ var usePrivyEmbeddedWallet = () => {
     if (userEmbeddedWallet || (user == null ? void 0 : user.wallet)) return;
     if (loginType !== "EMAIL") return;
     try {
-      console.log("CreateWallet");
+      logger.log("CreateWallet");
       createWallet();
     } catch (error) {
-      console.warn(error);
+      logger.warn(error);
     }
   }, [userEmbeddedWallet, authenticated]);
   useEffect2(() => {
     const getToken = async () => {
       const accessToken = await getAccessToken();
-      console.log("accessToken", accessToken);
+      logger.log("accessToken", accessToken);
     };
     getToken();
   }, []);
-  console.log(
+  logger.log(
     "solanaWallets",
     user,
     userEmbeddedWallet,
@@ -262,12 +295,12 @@ var usePrivyEmbeddedWallet = () => {
     const messageBuffer = new TextEncoder().encode(message);
     const signature = await (userEmbeddedWallet == null ? void 0 : userEmbeddedWallet.signMessage(messageBuffer));
     if (!signature) {
-      console.warn("Failed to sign message");
+      logger.warn("Failed to sign message");
       return null;
     }
     const base58Signature = bs58.encode(signature);
     const hexSignature = Buffer.from(signature).toString("hex");
-    console.log("signMessage success", base58Signature, hexSignature);
+    logger.log("signMessage success", base58Signature, hexSignature);
     return {
       signature: base58Signature,
       // base58 格式
@@ -289,7 +322,7 @@ var usePrivyEmbeddedWallet = () => {
       },
       accessToken != null ? accessToken : void 0
     );
-    console.log(res);
+    logger.log(res);
     return res;
   };
   return {
@@ -322,10 +355,10 @@ var useBoomWalletDelegate = () => {
   ));
   const isDisplay = !!walletToDelegate;
   const onDelegate = async () => {
-    console.log(walletToDelegate, isAlreadyDelegated);
+    logger.log(walletToDelegate, isAlreadyDelegated);
     if (isAlreadyDelegated) return;
     if (walletToDelegate && walletToDelegate.address) {
-      console.log(isAlreadyDelegated, walletToDelegate.address);
+      logger.log(isAlreadyDelegated, walletToDelegate.address);
       await delegateWallet({ address: walletToDelegate.address, chainType: "solana" });
     }
   };

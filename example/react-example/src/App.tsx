@@ -8,10 +8,7 @@ function App() {
     return (
         <>
             <div className="space-y-4">
-                <WalletConnectButton
-                    className="privy-wallet-connect-button"
-                    hideConnectByWallets={true}
-                />
+                <WalletConnectButton className="privy-wallet-connect-button" />
                 <hr />
                 <div>
                     <h2 className="text-2xl font-bold my-3">User Info</h2>

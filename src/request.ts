@@ -1,5 +1,6 @@
 import { getAccessToken } from "@privy-io/react-auth";
 import axios from "axios";
+import { logger } from "./utils";
 
 const headers = {
     "Content-Type": "application/json",
@@ -19,7 +20,7 @@ instance.interceptors.response.use(
     },
     error => {
         // handle response error
-        console.log("Request error:", error);
+        logger.error("Request error:", error);
         throw error;
     }
 );
