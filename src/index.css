@@ -31,6 +31,7 @@
 }
 
 .boom_privy_button_container {
+    display: inline-block;
     font-family: "Poppins";
     color: var(--wallet-text-foreground-color);
 }
@@ -42,12 +43,17 @@
     border-radius: 12px;
     padding: 8px 16px;
     transition: background-color 0.15s ease;
-
-    font-weight: 500;
-    color: var(--wallet-text-color);
     cursor: pointer;
-    font-size: 14px;
-    line-height: 21px;
+
+    span {
+        font-weight: 500;
+        color: var(--wallet-text-color);
+        font-size: 16px;
+        line-height: 24px;
+    }
+    img {
+        display: none;
+    }
 
     &:hover {
         background-color: var(--wallet-primary-color-hover);
@@ -288,10 +294,64 @@
 /* 对于宽度小于 767px 的设备 */
 @media (max-width: 767px) {
     .privy_wallet_button {
-        padding: 8px 12px;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        font-size: 14px;
-        line-height: 21px;
+        span {
+            display: none;
+        }
+        img {
+            display: block;
+        }
+    }
+
+    .privy_login_submit_button {
+        padding: 12px 16px;
+    }
+
+    .modal_overlay {
+        .modal_content {
+            padding: 22px 22px;
+            border-radius: 12px;
+            width: 90%;
+            height: auto;
+
+            border: 1px solid var(--wallet-border-color);
+
+            .modal_title {
+                font-weight: 600;
+                font-size: 18px;
+                line-height: 27px;
+                padding-bottom: 8px;
+            }
+        }
+    }
+
+    .privy_wallet_list_container {
+        .privy_wallet_list_item {
+            .privy_wallet_list_item_name {
+                font-size: 12px;
+                line-height: 18px;
+            }
+        }
+
+        .privy_wallet_list_more {
+            grid-column: span 2;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 18px;
+            color: var(--wallet-text-muted-foreground-color);
+            text-decoration: underline;
+            text-decoration-thickness: 0.8px; /* 下划线粗细 */
+            text-underline-offset: 1.2px; /* 下划线距离 */
+            cursor: pointer;
+            margin: 12px 0 0 0;
+        }
     }
 }
 

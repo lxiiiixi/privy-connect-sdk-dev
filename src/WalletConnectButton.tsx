@@ -6,7 +6,7 @@ import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 import { logger } from "./utils";
 import Modal from "./componnets/Modal";
-import { src_email, src_privy_dark, src_secure } from "./assets";
+import { src_email, src_privy_dark, src_secure, src_wallet } from "./assets";
 import Divider from "./componnets/Divider";
 
 const formatAddress = (address?: string) => {
@@ -50,7 +50,8 @@ export default function WalletConnectButton({
                     className={`privy_wallet_button wallet-connect-base ${className}`}
                     onClick={() => setIsOpen(true)}
                 >
-                    Connect Wallet
+                    <span> Connect Wallet </span>
+                    <img src={src_wallet} alt="arrow_right" width={20} />
                 </button>
             </div>
         );
