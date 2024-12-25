@@ -912,7 +912,7 @@ if (typeof window !== "undefined") {
   const isDev = process.env.NODE_ENV === "development";
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = isDev ? "node_modules/boom-wallet-sdk/dist/index.css" : "https://cdn.jsdelivr.net/npm/boom-wallet-sdk/dist/index.css";
+  link.href = isDev ? "node_modules/boom-wallet-sdk/dist/index.css" : "https://cdn.jsdelivr.net/npm/boom-wallet-sdk@latest/dist/index.css";
   document.head.appendChild(link);
 }
 // Annotate the CommonJS export names for ESM import in node:

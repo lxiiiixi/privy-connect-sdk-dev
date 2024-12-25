@@ -4,9 +4,10 @@ export { default as BoomWalletProvider } from "./BoomWalletProvider";
 export { useBoomWallet } from "./wallets/useBoomWallet";
 export { default as WalletConnectButton } from "./WalletConnectButton";
 export { useSolanaBalance } from "./solana";
-
-export * from "./index.css";
 import "./index.css";
+
+// export * from "./index.css";
+// import "./index.css";
 
 if (typeof window !== "undefined") {
     window.Buffer = Buffer; // buffer Polyfill
@@ -18,6 +19,6 @@ if (typeof window !== "undefined") {
     link.rel = "stylesheet";
     link.href = isDev
         ? "node_modules/boom-wallet-sdk/dist/index.css"
-        : "https://cdn.jsdelivr.net/npm/boom-wallet-sdk/dist/index.css";
+        : "https://cdn.jsdelivr.net/npm/boom-wallet-sdk@latest/dist/index.css";
     document.head.appendChild(link);
 }
