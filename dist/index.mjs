@@ -422,7 +422,7 @@ var useBoomWallet = () => {
 };
 
 // src/WalletConnectButton.tsx
-import { useLogin } from "@privy-io/react-auth";
+import { useLogin, useLoginWithEmail } from "@privy-io/react-auth";
 import { useEffect as useEffect3, useState as useState2 } from "react";
 import { useWallet as useWallet2 } from "@solana/wallet-adapter-react";
 
@@ -584,6 +584,7 @@ function PrivyLogin({ onClose }) {
     onComplete: () => {
     }
   });
+  const { state, sendCode, loginWithCode } = useLoginWithEmail();
   return /* @__PURE__ */ jsxs2("div", { className: "privy_login_container", children: [
     /* @__PURE__ */ jsxs2("div", { className: "privy_login_title", children: [
       "Protected by ",

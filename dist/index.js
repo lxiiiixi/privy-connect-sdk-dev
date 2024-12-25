@@ -614,6 +614,7 @@ function PrivyLogin({ onClose }) {
     onComplete: () => {
     }
   });
+  const { state, sendCode, loginWithCode } = (0, import_react_auth3.useLoginWithEmail)();
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_login_container", children: [
     /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_login_title", children: [
       "Protected by ",

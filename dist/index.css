@@ -173,7 +173,7 @@
   border-radius: 12px;
   border: 1px solid var(--wallet-border-color);
   background-color: var(--wallet-bg-muted);
-  margin: 10px 0 26px 0;
+  margin: 14px 0 36px 0;
   transition: box-shadow 0.2s ease;
   &:focus-within {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) var(--wallet-primary-color);
@@ -194,7 +194,12 @@
     font-size: 16px;
   }
   input[type=email]:valid {
+    appearance: none;
     background: transparent;
+  }
+  input:-webkit-autofill {
+    background-color: transparent !important;
+    box-shadow: 0 0 0px 1000px var(--wallet-bg-muted) inset !important;
   }
 }
 .privy_wallet_list_container {

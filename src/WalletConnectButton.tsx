@@ -1,4 +1,4 @@
-import { useLogin } from "@privy-io/react-auth";
+import { useLogin, useLoginWithEmail } from "@privy-io/react-auth";
 import { useSolanaBalance } from "./solana";
 import { useBoomWallet } from "./wallets/useBoomWallet";
 import { useEffect, useState } from "react";
@@ -121,6 +121,9 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
     const { login } = useLogin({
         onComplete: () => {},
     });
+
+    const { state, sendCode, loginWithCode } = useLoginWithEmail();
+
     return (
         <div className="privy_login_container">
             <div className="privy_login_title">
@@ -144,6 +147,10 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
                 className="privy_login_submit_button"
                 type="submit"
                 onClick={() => {
+                    // loginWithCode({
+                    //     code: "000000",
+                    // });
+
                     onClose();
                     login({
                         type: "email",
