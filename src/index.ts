@@ -3,6 +3,8 @@ import { Buffer } from "buffer";
 export { default as BoomWalletProvider } from "./BoomWalletProvider";
 export { useBoomWallet } from "./wallets/useBoomWallet";
 export { default as WalletConnectButton } from "./WalletConnectButton";
+export { useSolanaBalance } from "./solana";
+
 export * from "./index.css";
 import "./index.css";
 

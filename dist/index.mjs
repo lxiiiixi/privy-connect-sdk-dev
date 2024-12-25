@@ -137,7 +137,7 @@ var logger = (() => {
 var connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 var useSolanaBalance = (address) => {
   const [balance, setBalance] = useState(0);
-  const fetchUpdateBalance = async () => {
+  const updateBalance = async () => {
     try {
       const publicKey = new PublicKey(address);
       const balance2 = await connection.getBalance(publicKey);
@@ -150,10 +150,10 @@ var useSolanaBalance = (address) => {
   };
   useEffect(() => {
     if (!!address) {
-      fetchUpdateBalance().then(setBalance);
+      updateBalance().then(setBalance);
     }
   }, [address]);
-  return { balance, fetchUpdateBalance };
+  return { balance, updateBalance };
 };
 
 // src/request.ts
@@ -703,7 +703,7 @@ function WalletConnectButton({
   const boomWallet = useBoomWallet();
   logger.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
-  const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
+  const { balance, updateBalance } = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const [isOpen, setIsOpen] = useState4(false);
   useEffect5(() => {
@@ -737,7 +737,7 @@ function WalletConnectButton({
     /* @__PURE__ */ jsx6(
       Selector_default,
       {
-        content: /* @__PURE__ */ jsxs4("div", { onClick: fetchUpdateBalance, children: [
+        content: /* @__PURE__ */ jsxs4("div", { onClick: updateBalance, children: [
           "(",
           (balance / 1e9).toFixed(4),
           " SOL) ",
@@ -887,5 +887,6 @@ if (typeof window !== "undefined") {
 export {
   BoomWalletProvider,
   WalletConnectButton,
-  useBoomWallet
+  useBoomWallet,
+  useSolanaBalance
 };

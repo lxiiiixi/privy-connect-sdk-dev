@@ -32,7 +32,8 @@ var src_exports = {};
 __export(src_exports, {
   BoomWalletProvider: () => BoomWalletProvider,
   WalletConnectButton: () => WalletConnectButton,
-  useBoomWallet: () => useBoomWallet
+  useBoomWallet: () => useBoomWallet,
+  useSolanaBalance: () => useSolanaBalance
 });
 module.exports = __toCommonJS(src_exports);
 var import_buffer = require("buffer");
@@ -171,7 +172,7 @@ var logger = (() => {
 var connection = new import_web3.Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 var useSolanaBalance = (address) => {
   const [balance, setBalance] = (0, import_react2.useState)(0);
-  const fetchUpdateBalance = async () => {
+  const updateBalance = async () => {
     try {
       const publicKey = new import_web3.PublicKey(address);
       const balance2 = await connection.getBalance(publicKey);
@@ -184,10 +185,10 @@ var useSolanaBalance = (address) => {
   };
   (0, import_react2.useEffect)(() => {
     if (!!address) {
-      fetchUpdateBalance().then(setBalance);
+      updateBalance().then(setBalance);
     }
   }, [address]);
-  return { balance, fetchUpdateBalance };
+  return { balance, updateBalance };
 };
 
 // src/request.ts
@@ -733,7 +734,7 @@ function WalletConnectButton({
   const boomWallet = useBoomWallet();
   logger.log("\u{1F680} ~ boomWallet:", boomWallet);
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
-  const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
+  const { balance, updateBalance } = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const [isOpen, setIsOpen] = (0, import_react6.useState)(false);
   (0, import_react6.useEffect)(() => {
@@ -767,7 +768,7 @@ function WalletConnectButton({
     /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
       Selector_default,
       {
-        content: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { onClick: fetchUpdateBalance, children: [
+        content: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { onClick: updateBalance, children: [
           "(",
           (balance / 1e9).toFixed(4),
           " SOL) ",
@@ -918,5 +919,6 @@ if (typeof window !== "undefined") {
 0 && (module.exports = {
   BoomWalletProvider,
   WalletConnectButton,
-  useBoomWallet
+  useBoomWallet,
+  useSolanaBalance
 });

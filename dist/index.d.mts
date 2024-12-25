@@ -32,4 +32,9 @@ declare function WalletConnectButton({ className, hideConnectByWallets, }: {
     hideConnectByWallets?: boolean;
 }): react_jsx_runtime.JSX.Element;
 
-export { BoomWalletProvider, WalletConnectButton, useBoomWallet };
+declare const useSolanaBalance: (address: string) => {
+    balance: number;
+    updateBalance: () => Promise<number>;
+};
+
+export { BoomWalletProvider, WalletConnectButton, useBoomWallet, useSolanaBalance };

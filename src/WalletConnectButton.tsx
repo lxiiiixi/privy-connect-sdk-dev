@@ -34,7 +34,7 @@ export default function WalletConnectButton({
     const boomWallet = useBoomWallet();
     logger.log("🚀 ~ boomWallet:", boomWallet);
     const userWalletAddress = boomWallet?.walletAddress;
-    const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
+    const { balance, updateBalance } = useSolanaBalance(userWalletAddress || "");
 
     const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
 
@@ -70,7 +70,7 @@ export default function WalletConnectButton({
             {/* pc */}
             <Select
                 content={
-                    <div onClick={fetchUpdateBalance}>
+                    <div onClick={updateBalance}>
                         ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
                     </div>
                 }
