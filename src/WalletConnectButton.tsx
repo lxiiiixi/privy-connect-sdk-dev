@@ -7,6 +7,7 @@ import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 import { logger } from "./utils";
 import Modal from "./componnets/Modal";
 import { src_email, src_privy_dark } from "./assets";
+import Divider from "./componnets/Divider";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -85,10 +86,14 @@ export default function WalletConnectButton({
 
 function ExternalWalletList() {
     const { wallets, select } = useWallet();
+    console.log("【XXXXX】 🚀 ExternalWalletList 🚀 wallets:", wallets);
+    const [showAll, setShowAll] = useState(false); // 控制是否显示全部钱包
+
+    const visibleWallets = showAll ? wallets : wallets.slice(0, 2);
 
     return (
-        <div>
-            {wallets.map((wallet: Wallet) => (
+        <div className="privy_wallet_list_container">
+            {visibleWallets.map((wallet: Wallet) => (
                 <button
                     key={wallet.adapter.name}
                     onClick={() => {
@@ -96,10 +101,18 @@ function ExternalWalletList() {
                     }}
                     className="privy_wallet_list_item"
                 >
-                    <img src={wallet.adapter.icon} alt={wallet.adapter.name} width={30} />
-                    {wallet.adapter.name}
+                    <img src={wallet.adapter.icon} alt={wallet.adapter.name} width={24} />
+                    <div className="privy_wallet_list_item_name"> {wallet.adapter.name} </div>
                 </button>
             ))}
+            {!showAll && (
+                <div
+                    className="privy_wallet_list_more"
+                    onClick={() => setShowAll(true)} // 点击按钮显示全部钱包
+                >
+                    More Wallets
+                </div>
+            )}
         </div>
     );
 }
@@ -156,7 +169,7 @@ function ConnectWalletModal({
         <Modal isOpen={isOpen} onClose={onClose}>
             <h4 className="modal_title">Log in or Sign up</h4>
             <PrivyLogin onClose={onClose} />
-            {!hideConnectByWallets && <hr />}
+            {!hideConnectByWallets && <Divider />}
             {!hideConnectByWallets && <ExternalWalletList />}
         </Modal>
     );

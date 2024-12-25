@@ -6,12 +6,14 @@
     --wallet-theme-color: #ffffff;
 
     --wallet-text-foreground-color: #09090b;
+    --wallet-text-muted-foreground-color: #71717a;
 
     --wallet-border-color: #e4e4e7;
 
     --wallet-input-border-color: #e4e4e7;
 
     --wallet-bg-muted: #f4f4f5;
+    --wallet-bg-secondary: #f4f4f5;
 
     font-family: "Poppins";
     font-family: "Poppins";
@@ -199,6 +201,19 @@
     border: 1px solid var(--wallet-border-color);
     background-color: var(--wallet-bg-muted);
     margin: 10px 0 26px 0;
+    transition: box-shadow 0.2s ease;
+
+    &:focus-within {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 1),
+            0 0 0 calc(2px + 2px) var(--wallet-primary-color);
+    }
+
+    /* 禁用状态 */
+    &.disabled {
+        background-color: #e0e0e0; /* 灰色背景 */
+        border-color: #bdbdbd; /* 灰色边框 */
+        pointer-events: none; /* 禁用鼠标事件 */
+    }
 
     input[type="email"] {
         flex-grow: 1; /* Make input expand to fill space */
@@ -211,13 +226,48 @@
         font-size: 16px; /* Size of the text */
     }
 
-    input[type="email"]:focus {
-        background: transparent;
-        outline: none;
-    }
-
     input[type="email"]:valid {
         background: transparent; /* 有内容时保持背景透明 */
+    }
+}
+
+.privy_wallet_list_container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+
+    .privy_wallet_list_item {
+        display: flex;
+        align-items: center;
+        justify-content: stretch;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        color: var(--wallet-text-color);
+        cursor: pointer;
+        background-color: var(--wallet-bg-secondary);
+
+        .privy_wallet_list_item_name {
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 21px;
+        }
+    }
+
+    .privy_wallet_list_more {
+        grid-column: span 2;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 18px;
+        color: var(--wallet-text-muted-foreground-color);
+        text-decoration: underline;
+        text-decoration-thickness: 0.8px; /* 下划线粗细 */
+        text-underline-offset: 1.2px; /* 下划线距离 */
+        cursor: pointer;
+        margin: 12px 0 0 0;
     }
 }
 

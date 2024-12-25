@@ -470,8 +470,47 @@ var Modal_default = Modal;
 // src/assets/privy_dark.png
 var privy_dark_default = "./privy_dark-RKT5Z5ZY.png";
 
-// src/WalletConnectButton.tsx
+// src/componnets/Divider.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
+function Divider() {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "divider", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "divider-text", children: "OR" }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("style", { children: `
+/* \u5206\u5272\u7EBF\u5BB9\u5668 */
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 18px 0; /* \u4E0A\u4E0B\u95F4\u8DDD */
+  position: relative;
+}
+
+/* \u5DE6\u53F3\u7EBF\u6761 */
+.divider::before,
+.divider::after {
+  content: "";
+  flex-grow: 1; /* \u586B\u5145\u5269\u4F59\u7A7A\u95F4 */
+  height: 1.5px; /* \u7EBF\u6761\u9AD8\u5EA6 */
+  background-color: #E4E4E7; /* \u6D45\u7070\u8272\u7EBF\u6761 */
+}
+
+/* \u4E2D\u95F4\u6587\u5B57 */
+.divider-text {
+  color: #000; /* \u9ED1\u8272\u6587\u672C */
+  font-size: 14px; /* \u5B57\u4F53\u5927\u5C0F */
+  font-weight: 500; /* \u52A0\u7C97 */
+  background-color: #fff; /* \u80CC\u666F\u989C\u8272\uFF0C\u8986\u76D6\u7EBF\u6761 */
+  padding: 0 16px; /* \u5185\u8FB9\u8DDD\uFF0C\u589E\u52A0\u5DE6\u53F3\u7A7A\u95F4 */
+}
+
+            ` })
+  ] });
+}
+var Divider_default = Divider;
+
+// src/WalletConnectButton.tsx
+var import_jsx_runtime4 = require("react/jsx-runtime");
 var formatAddress = (address) => {
   if (!address) return "";
   if (address.length <= 10) return address;
@@ -493,8 +532,8 @@ function WalletConnectButton({
     }
   }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "boom_privy_button_container", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "boom_privy_button_container", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
         ConnectWalletModal,
         {
           isOpen,
@@ -502,7 +541,7 @@ function WalletConnectButton({
           hideConnectByWallets
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
         "button",
         {
           className: `privy-wallet-button wallet-connect-base ${className}  red-button`,
@@ -511,17 +550,17 @@ function WalletConnectButton({
         }
       )
     ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "boom_privy_button_container", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "privy_wallet_dropdown", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "privy_user_info", onClick: fetchUpdateBalance, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "boom_privy_button_container", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_wallet_dropdown", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_user_info", onClick: fetchUpdateBalance, children: [
       "(",
       (balance / 1e9).toFixed(4),
       " SOL) ",
       formatAddress(userWalletAddress)
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "privy_dropdown_content", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { className: "privy_dropdown_item", onClick: boomWallet.disconnect, children: "Logout" }),
-      boomWallet.type === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { className: "privy_dropdown_item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
-      boomWallet.type === "EMAIL" && option && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_dropdown_content", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "privy_dropdown_item", onClick: boomWallet.disconnect, children: "Logout" }),
+      boomWallet.type === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "privy_dropdown_item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
+      boomWallet.type === "EMAIL" && option && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
         "button",
         {
           className: "privy_dropdown_item",
@@ -534,20 +573,37 @@ function WalletConnectButton({
 }
 function ExternalWalletList() {
   const { wallets, select } = (0, import_wallet_adapter_react3.useWallet)();
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { children: wallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
-    "button",
-    {
-      onClick: () => {
-        select(wallet.adapter.name);
+  console.log("\u3010XXXXX\u3011 \u{1F680} ExternalWalletList \u{1F680} wallets:", wallets);
+  const [showAll, setShowAll] = (0, import_react4.useState)(false);
+  const visibleWallets = showAll ? wallets : wallets.slice(0, 2);
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_wallet_list_container", children: [
+    visibleWallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(
+      "button",
+      {
+        onClick: () => {
+          select(wallet.adapter.name);
+        },
+        className: "privy_wallet_list_item",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 24 }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_wallet_list_item_name", children: [
+            " ",
+            wallet.adapter.name,
+            " "
+          ] })
+        ]
       },
-      className: "privy_wallet_list_item",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 30 }),
-        wallet.adapter.name
-      ]
-    },
-    wallet.adapter.name
-  )) });
+      wallet.adapter.name
+    )),
+    !showAll && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+      "div",
+      {
+        className: "privy_wallet_list_more",
+        onClick: () => setShowAll(true),
+        children: "More Wallets"
+      }
+    )
+  ] });
 }
 function PrivyLogin({ onClose }) {
   const [email, setEmail] = (0, import_react4.useState)("");
@@ -555,11 +611,11 @@ function PrivyLogin({ onClose }) {
     onComplete: () => {
     }
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "privy_login_container", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "privy_login_title", children: "Protected by Privy" }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "privy_email_form", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("img", { src: privy_dark_default, alt: "email", width: 20 }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_login_container", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "privy_login_title", children: "Protected by Privy" }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_email_form", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: privy_dark_default, alt: "email", width: 20 }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
         "input",
         {
           type: "email",
@@ -570,8 +626,8 @@ function PrivyLogin({ onClose }) {
         }
       )
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "privy_login_mpc_tip", children: "MPC wallet is more SECURE" }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "privy_login_mpc_tip", children: "MPC wallet is more SECURE" }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
       "button",
       {
         className: "privy_login_submit_button",
@@ -596,11 +652,11 @@ function ConnectWalletModal({
   onClose,
   hideConnectByWallets
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(Modal_default, { isOpen, onClose, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h4", { className: "modal_title", children: "Log in or Sign up" }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PrivyLogin, { onClose }),
-    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("hr", {}),
-    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ExternalWalletList, {})
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Modal_default, { isOpen, onClose, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h4", { className: "modal_title", children: "Log in or Sign up" }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PrivyLogin, { onClose }),
+    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Divider_default, {}),
+    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ExternalWalletList, {})
   ] });
 }
 
