@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { src_arrow_down } from "../assets";
+import { src_arrow_down_dark, src_arrow_down_light } from "../assets";
 
 function Select({ content, children }: { content: React.ReactNode; children: React.ReactNode }) {
     const [isOpen, setIsOpen] = useState(false); // 控制下拉菜单开关
@@ -28,7 +28,8 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
             {/* Select Button */}
             <div className={`select-button ${isOpen ? "active" : ""}`} onClick={toggleDropdown}>
                 <span>{content}</span>
-                <img src={src_arrow_down} alt="arrow_down" width={10} />
+                <img src={src_arrow_down_light} className="light_img" alt="arrow_down" width={10} />
+                <img src={src_arrow_down_dark} className="dark_img" alt="arrow_down" width={10} />
             </div>
 
             {/* Dropdown Menu */}
@@ -47,9 +48,10 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
                     padding: 8px 16px;
                     border: 1px solid #e4e4e7;
                     border-radius: 12px;
-                    background-color: #fff;
+                    background-color: transparent;
                     cursor: pointer;
                     transition: all 0.3s ease;
+                    background-color: var(--wallet-theme-color);
 
                     img {
                         margin-left: 8px;
@@ -57,7 +59,7 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
                 }
 
                 .select-button:hover {
-                    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1),
+                    box-shadow: 0 0 0 2px var(--wallet-theme-color),
                         0 0 0 calc(2px + 2px) var(--wallet-primary-color);
                 }
 
@@ -66,12 +68,11 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
                     top: 100%;
                     left: 0;
                     width: 100%;
-                    background-color: #fff;
-                    border: 1px solid #e4e4e7;
+                    background-color: var(--wallet-theme-color);
+                    border: 1px solid var(--wallet-border-color);
                     border-radius: 12px;
                     overflow: hidden;
                     margin-top: 8px;
-                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
                     z-index: 1000;
                     padding: 8px;
                 }
@@ -86,7 +87,7 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
                 }
 
                 .dropdown-item:hover {
-                    background-color: #f3f4f6;
+                    background-color: var(--wallet-bg-muted);
                 }
 
                 .dropdown-item.selected {
@@ -99,6 +100,10 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
                 }
 
                 @media (max-width: 767px) {
+                    .select-container {
+                        display: none;
+                    }
+                
                     .select-button {
                         height: 38px;
                     }

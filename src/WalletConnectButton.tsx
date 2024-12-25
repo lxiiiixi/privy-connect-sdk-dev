@@ -6,9 +6,17 @@ import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 import { logger } from "./utils";
 import Modal from "./componnets/Modal";
-import { src_email, src_privy_dark, src_secure, src_wallet } from "./assets";
+import {
+    src_email_dark,
+    src_email_light,
+    src_privy_dark,
+    src_privy_light,
+    src_secure,
+    src_wallet,
+} from "./assets";
 import Divider from "./componnets/Divider";
 import Select from "./componnets/Selector";
+import Menu from "./componnets/Menu";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -59,6 +67,7 @@ export default function WalletConnectButton({
 
     return (
         <div className="boom_privy_button_container">
+            {/* pc */}
             <Select
                 content={
                     <div onClick={fetchUpdateBalance}>
@@ -89,6 +98,27 @@ export default function WalletConnectButton({
                     </>
                 }
             />
+            {/* h5 */}
+            <Menu balance={(balance / 1e9).toFixed(4)} address={formatAddress(userWalletAddress)}>
+                <div className={`menu-dropdown-item`} onClick={boomWallet.disconnect}>
+                    <span>{"Logout"}</span>
+                </div>
+                {boomWallet.type === "EMAIL" && (
+                    <div className={`menu-dropdown-item`} onClick={boomWallet.exportWallet}>
+                        <span>{"Export Wallet"}</span>
+                    </div>
+                )}
+                {boomWallet.type === "EMAIL" && option && (
+                    <div
+                        className={`menu-dropdown-item`}
+                        onClick={option === "DELEGATE" ? onDelegate : onRevoke}
+                    >
+                        <span>
+                            {option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"}
+                        </span>
+                    </div>
+                )}
+            </Menu>
         </div>
     );
 }
@@ -136,10 +166,13 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
     return (
         <div className="privy_login_container">
             <div className="privy_login_title">
-                Protected by <img src={src_privy_dark} alt="privy" width={56} />
+                Protected by{" "}
+                <img src={src_privy_light} className="dark_img" alt="privy" width={56} />
+                <img src={src_privy_dark} className="light_img" alt="privy_img" width={56} />
             </div>
             <div className="privy_email_form">
-                <img src={src_email} alt="email" width={20} />
+                <img src={src_email_dark} className="light_img" alt="email" width={20} />
+                <img src={src_email_light} className="dark_img" alt="email" width={20} />
                 <input
                     type="email"
                     placeholder="your@email.com"
@@ -159,7 +192,6 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
                     // loginWithCode({
                     //     code: "000000",
                     // });
-
                     onClose();
                     login({
                         type: "email",
