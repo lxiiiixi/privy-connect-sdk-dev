@@ -61,10 +61,9 @@ export default function WalletConnectButton({
         <div className="boom_privy_button_container">
             <Select
                 content={
-                    <>
-                        {" "}
+                    <div onClick={fetchUpdateBalance}>
                         ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
-                    </>
+                    </div>
                 }
                 children={
                     <>

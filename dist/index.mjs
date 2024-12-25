@@ -423,7 +423,7 @@ var useBoomWallet = () => {
 
 // src/WalletConnectButton.tsx
 import { useLogin, useLoginWithEmail } from "@privy-io/react-auth";
-import { useEffect as useEffect3, useState as useState3 } from "react";
+import { useEffect as useEffect4, useState as useState3 } from "react";
 import { useWallet as useWallet2 } from "@solana/wallet-adapter-react";
 
 // src/componnets/Modal.tsx
@@ -485,14 +485,26 @@ function Divider() {
 var Divider_default = Divider;
 
 // src/componnets/Selector.tsx
-import { useState as useState2 } from "react";
+import { useState as useState2, useEffect as useEffect3, useRef } from "react";
 import { jsx as jsx4, jsxs as jsxs2 } from "react/jsx-runtime";
 function Select({ content, children }) {
   const [isOpen, setIsOpen] = useState2(false);
+  const selectRef = useRef(null);
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
   };
-  return /* @__PURE__ */ jsxs2("div", { className: "select-container", children: [
+  useEffect3(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+  return /* @__PURE__ */ jsxs2("div", { className: "select-container", ref: selectRef, children: [
     /* @__PURE__ */ jsxs2("div", { className: `select-button ${isOpen ? "active" : ""}`, onClick: toggleDropdown, children: [
       /* @__PURE__ */ jsx4("span", { children: content }),
       /* @__PURE__ */ jsx4("img", { src: src_arrow_down, alt: "arrow_down", width: 10 })
@@ -505,7 +517,6 @@ function Select({ content, children }) {
 
                 .select-button {
                     height: 48px;
-
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
@@ -525,7 +536,6 @@ function Select({ content, children }) {
                     box-shadow: 0 0 0 2px rgba(255, 255, 255, 1),
                         0 0 0 calc(2px + 2px) var(--wallet-primary-color);
                 }
-
 
                 .select-dropdown {
                     position: absolute;
@@ -563,6 +573,13 @@ function Select({ content, children }) {
                     margin-left: auto;
                     color: #ffd700;
                 }
+
+                @media (max-width: 767px) {
+                    .select-button {
+                        height: 38px;
+                        height: 38px;
+                    }
+                }
             ` })
   ] });
 }
@@ -585,7 +602,7 @@ function WalletConnectButton({
   const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
   const [isOpen, setIsOpen] = useState3(false);
-  useEffect3(() => {
+  useEffect4(() => {
     if (boomWallet == null ? void 0 : boomWallet.walletAddress) {
       setIsOpen(false);
     }
@@ -615,8 +632,7 @@ function WalletConnectButton({
   return /* @__PURE__ */ jsx5("div", { className: "boom_privy_button_container", children: /* @__PURE__ */ jsx5(
     Selector_default,
     {
-      content: /* @__PURE__ */ jsxs3(Fragment2, { children: [
-        " ",
+      content: /* @__PURE__ */ jsxs3("div", { onClick: fetchUpdateBalance, children: [
         "(",
         (balance / 1e9).toFixed(4),
         " SOL) ",
