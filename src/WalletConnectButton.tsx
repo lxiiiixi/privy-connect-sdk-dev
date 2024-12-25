@@ -8,6 +8,7 @@ import { logger } from "./utils";
 import Modal from "./componnets/Modal";
 import { src_email, src_privy_dark, src_secure, src_wallet } from "./assets";
 import Divider from "./componnets/Divider";
+import Select from "./componnets/Selector";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -58,29 +59,37 @@ export default function WalletConnectButton({
 
     return (
         <div className="boom_privy_button_container">
-            <div className="privy_wallet_dropdown">
-                <div className="privy_user_info" onClick={fetchUpdateBalance}>
-                    ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
-                </div>
-                <div className="privy_dropdown_content">
-                    <button className="privy_dropdown_item" onClick={boomWallet.disconnect}>
-                        Logout
-                    </button>
-                    {boomWallet.type === "EMAIL" && (
-                        <button className="privy_dropdown_item" onClick={boomWallet.exportWallet}>
-                            Export Wallet
-                        </button>
-                    )}
-                    {boomWallet.type === "EMAIL" && option && (
-                        <button
-                            className="privy_dropdown_item"
-                            onClick={option === "DELEGATE" ? onDelegate : onRevoke}
-                        >
-                            {option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"}
-                        </button>
-                    )}
-                </div>
-            </div>
+            <Select
+                content={
+                    <>
+                        {" "}
+                        ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
+                    </>
+                }
+                children={
+                    <>
+                        <div className={`dropdown-item`} onClick={boomWallet.disconnect}>
+                            <span>{"Logout"}</span>
+                        </div>
+                        {boomWallet.type === "EMAIL" && (
+                            <div className={`dropdown-item`} onClick={boomWallet.exportWallet}>
+                                <span>{"Export Wallet"}</span>
+                            </div>
+                        )}
+                        {boomWallet.type === "EMAIL" && option && (
+                            <div
+                                className={`dropdown-item`}
+                                onClick={option === "DELEGATE" ? onDelegate : onRevoke}
+                            >
+                                <span>
+                                    {" "}
+                                    {option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"}
+                                </span>
+                            </div>
+                        )}
+                    </>
+                }
+            />
         </div>
     );
 }

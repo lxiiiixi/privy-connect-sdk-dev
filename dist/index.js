@@ -453,7 +453,7 @@ var useBoomWallet = () => {
 
 // src/WalletConnectButton.tsx
 var import_react_auth3 = require("@privy-io/react-auth");
-var import_react4 = require("react");
+var import_react5 = require("react");
 var import_wallet_adapter_react3 = require("@solana/wallet-adapter-react");
 
 // src/componnets/Modal.tsx
@@ -473,6 +473,7 @@ var src_email = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAjCAYAAADr
 var src_privy_dark = "data:image/jpeg;base64,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";
 var src_secure = "data:image/jpeg;base64,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";
 var src_wallet = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAtCAYAAADV2ImkAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAPLSURBVHgBzZmPVeJAEMZnN0TDn/eOq8B0cJYQKhArECvQq0CtQK4CsYKDCuA6oAO5Cg7fiYkkYe8bknBLIOBDJPne82WzbOS3s5PZGVbQnlWHptPQUWp2hVubu/A3lJIeJ5NJhz4oQXtSrVYDJJ3NZqpFEeTqlwkaHh2ZjTFEO+pDwJE1p1dKCQe3zvueUl3XfT2nHbUTMFszDNUNZUOOYc0ukezB4mMpVQvWv0g+xAQbnvcyoB1Ueu9AfckBW18/SgyA0zs+NjupZR+Uy9UTiidoGNTkPto3MC/525vfQvMMkE7GsDEs9sMwVHcyeRlyh+uuDhJC/FIq+h+4fqEdtRY4WXLAntL6FwjWE0NY/G7Xpd1VS8CmWT0tleg+25qZS34wLYBj2D6tWnS+5LgOEmuuW/JDaQ5sWZaNt/onLcGKQR5Lvk1zYCmNG8DZcR9b9LxooIkkRwLAthYdkr4XFZYl4ojQj+/Hrjv5yg3uR8y9wGQcooX1PxcGWzdC3khK0cvKO2QQKFt7ZMgvH4J8nycRW96mAwnfhzAqmrMZPYDhqVqtttJjZOqRJFI4lL9sBq9UKjd6Z3rjSIU0jhTqMQxpaBjmp8bdMPTrpiltolkzlXfclsvlZ9d12/MOy6q2YH6V+vtjWTWHchKHWXYJnQnuwbtu2iUiBQE18owUnueNlAobaI6SPrjHPV9XgLEEd74/GVLOiqDFpdblcAheY+FShwqieJUX747vh8008NDzxiMqkBCbe0kbAcBOAYtcMrBNgltoTOrk3RXHIQVXtZO27wcKL9xChQHmUGYYpSsuwVA41LPGFQKY0wH4ah+w9U3jUGY95w4c5+LrCoe0xmFYaucOHOfiCey8urGsUjurBMsdGLDNpM25OCrvjudlj5eUo3jnIs0VTNPsbnsmV+C0fN+3t43JFTj200FynyQ4m1QEH35ElHDiW4fTSpRIXfQ/6+OEUCMum3IH9rxJBzm5A+gkaUeloa7T4zABwmTqhfBhQLc4rd02DpP6VpitGankLTaRjhBGk8G0j06j4jRSoZIfTtpxaet9lUrtlovj5D5dNdtUPGnWFr8lflzWyyE7DuaFEZL2hXU5UkiECgZe7NvTaXBNBRFX9KT9kBOG5mDeYD/RS/ykpM5Tq6V+rb/4kN2AQTXop6L9LmFZURUi/g+qIXirvv4gwkvHMPgkaDZCYvLp9V4QBPa6sz6O0Rz2loAj6GoLkA9UIOmwrJVzuqgCMNjSNuUrnPXJy9fXv0spZ+bBYmRtcYY5OrS9fNmX5qdTmw5+/gF+j9QfT7pT+QAAAABJRU5ErkJggg==";
+var src_arrow_down = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACQSURBVHgBrc7tCYQwDAbgRk7Q1ANHuVFuBDdRJ3EUR3AFR/C3grER/AI/EvWFlAaapzHm5QAfiJgCeLHvf/LGxSiznnfN9x+GlrgQbRW76DBbLPNR5vU9zRsRmV/bdqUUZczNJFMPQPV4CYIom36RbrrejIuNzQMNeolpUDEmQdXYGXobO0IfYWfobWwPlWADj2deadJksQ4AAAAASUVORK5CYII=";
 
 // src/componnets/Divider.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
@@ -513,8 +514,92 @@ function Divider() {
 }
 var Divider_default = Divider;
 
-// src/WalletConnectButton.tsx
+// src/componnets/Selector.tsx
+var import_react4 = require("react");
 var import_jsx_runtime4 = require("react/jsx-runtime");
+function Select({ content, children }) {
+  const [isOpen, setIsOpen] = (0, import_react4.useState)(false);
+  const toggleDropdown = () => {
+    setIsOpen((prev) => !prev);
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "select-container", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: `select-button ${isOpen ? "active" : ""}`, onClick: toggleDropdown, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { children: content }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: src_arrow_down, alt: "arrow_down", width: 10 })
+    ] }),
+    isOpen && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "select-dropdown", children }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("style", { children: `
+                .select-container {
+                    position: relative;
+                }
+
+                .select-button {
+                    height: 48px;
+
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 8px 16px;
+                    border: 1px solid #e4e4e7;
+                    border-radius: 12px;
+                    background-color: #fff;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+
+                    img {
+                        margin-left: 8px;
+                    }
+                }
+
+                .select-button:hover {
+                    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1),
+                        0 0 0 calc(2px + 2px) var(--wallet-primary-color);
+                }
+
+
+                .select-dropdown {
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    background-color: #fff;
+                    border: 1px solid #e4e4e7;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    margin-top: 8px;
+                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                    z-index: 1000;
+                    padding: 8px;
+                }
+
+                .dropdown-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 8px 16px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                }
+
+                .dropdown-item:hover {
+                    background-color: #f3f4f6;
+                }
+
+                .dropdown-item.selected {
+                    font-weight: 500;
+                }
+
+                .dropdown-item .checkmark {
+                    margin-left: auto;
+                    color: #ffd700;
+                }
+            ` })
+  ] });
+}
+var Selector_default = Select;
+
+// src/WalletConnectButton.tsx
+var import_jsx_runtime5 = require("react/jsx-runtime");
 var formatAddress = (address) => {
   if (!address) return "";
   if (address.length <= 10) return address;
@@ -529,15 +614,15 @@ function WalletConnectButton({
   const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
   const { balance, fetchUpdateBalance } = useSolanaBalance(userWalletAddress || "");
   const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
-  const [isOpen, setIsOpen] = (0, import_react4.useState)(false);
-  (0, import_react4.useEffect)(() => {
+  const [isOpen, setIsOpen] = (0, import_react5.useState)(false);
+  (0, import_react5.useEffect)(() => {
     if (boomWallet == null ? void 0 : boomWallet.walletAddress) {
       setIsOpen(false);
     }
   }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
   if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
-    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "boom_privy_button_container", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "boom_privy_button_container", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
         ConnectWalletModal,
         {
           isOpen,
@@ -545,46 +630,53 @@ function WalletConnectButton({
           hideConnectByWallets
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
         "button",
         {
           className: `privy_wallet_button wallet-connect-base ${className}`,
           onClick: () => setIsOpen(true),
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { children: " Connect Wallet " }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: src_wallet, alt: "arrow_right", width: 20 })
+            /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { children: " Connect Wallet " }),
+            /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("img", { src: src_wallet, alt: "arrow_right", width: 20 })
           ]
         }
       )
     ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "boom_privy_button_container", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_wallet_dropdown", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_user_info", onClick: fetchUpdateBalance, children: [
-      "(",
-      (balance / 1e9).toFixed(4),
-      " SOL) ",
-      formatAddress(userWalletAddress)
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_dropdown_content", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "privy_dropdown_item", onClick: boomWallet.disconnect, children: "Logout" }),
-      boomWallet.type === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "privy_dropdown_item", onClick: boomWallet.exportWallet, children: "Export Wallet" }),
-      boomWallet.type === "EMAIL" && option && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-        "button",
-        {
-          className: "privy_dropdown_item",
-          onClick: option === "DELEGATE" ? onDelegate : onRevoke,
-          children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"
-        }
-      )
-    ] })
-  ] }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: "boom_privy_button_container", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+    Selector_default,
+    {
+      content: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_jsx_runtime5.Fragment, { children: [
+        " ",
+        "(",
+        (balance / 1e9).toFixed(4),
+        " SOL) ",
+        formatAddress(userWalletAddress)
+      ] }),
+      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_jsx_runtime5.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: `dropdown-item`, onClick: boomWallet.disconnect, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { children: "Logout" }) }),
+        boomWallet.type === "EMAIL" && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: `dropdown-item`, onClick: boomWallet.exportWallet, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { children: "Export Wallet" }) }),
+        boomWallet.type === "EMAIL" && option && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          "div",
+          {
+            className: `dropdown-item`,
+            onClick: option === "DELEGATE" ? onDelegate : onRevoke,
+            children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("span", { children: [
+              " ",
+              option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"
+            ] })
+          }
+        )
+      ] })
+    }
+  ) });
 }
 function ExternalWalletList() {
   const { wallets, select } = (0, import_wallet_adapter_react3.useWallet)();
   console.log("\u3010XXXXX\u3011 \u{1F680} ExternalWalletList \u{1F680} wallets:", wallets);
-  const [showAll, setShowAll] = (0, import_react4.useState)(false);
+  const [showAll, setShowAll] = (0, import_react5.useState)(false);
   const visibleWallets = showAll ? wallets : wallets.slice(0, 2);
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_wallet_list_container", children: [
-    visibleWallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "privy_wallet_list_container", children: [
+    visibleWallets.map((wallet) => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
       "button",
       {
         onClick: () => {
@@ -592,8 +684,8 @@ function ExternalWalletList() {
         },
         className: "privy_wallet_list_item",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 24 }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_wallet_list_item_name", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("img", { src: wallet.adapter.icon, alt: wallet.adapter.name, width: 24 }),
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "privy_wallet_list_item_name", children: [
             " ",
             wallet.adapter.name,
             " "
@@ -602,7 +694,7 @@ function ExternalWalletList() {
       },
       wallet.adapter.name
     )),
-    !showAll && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+    !showAll && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
       "div",
       {
         className: "privy_wallet_list_more",
@@ -613,20 +705,20 @@ function ExternalWalletList() {
   ] });
 }
 function PrivyLogin({ onClose }) {
-  const [email, setEmail] = (0, import_react4.useState)("");
+  const [email, setEmail] = (0, import_react5.useState)("");
   const { login } = (0, import_react_auth3.useLogin)({
     onComplete: () => {
     }
   });
   const { state, sendCode, loginWithCode } = (0, import_react_auth3.useLoginWithEmail)();
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_login_container", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_login_title", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "privy_login_container", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "privy_login_title", children: [
       "Protected by ",
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: src_privy_dark, alt: "privy", width: 56 })
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("img", { src: src_privy_dark, alt: "privy", width: 56 })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_email_form", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: src_email, alt: "email", width: 20 }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "privy_email_form", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("img", { src: src_email, alt: "email", width: 20 }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
         "input",
         {
           type: "email",
@@ -637,11 +729,11 @@ function PrivyLogin({ onClose }) {
         }
       )
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "privy_login_mpc_tip", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "privy_login_mpc_tip", children: [
       "MPC wallet is more ",
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: src_secure, alt: "secure", width: 80 })
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("img", { src: src_secure, alt: "secure", width: 80 })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
       "button",
       {
         className: "privy_login_submit_button",
@@ -666,11 +758,11 @@ function ConnectWalletModal({
   onClose,
   hideConnectByWallets
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Modal_default, { isOpen, onClose, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h4", { className: "modal_title", children: "Log in or Sign up" }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PrivyLogin, { onClose }),
-    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Divider_default, {}),
-    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ExternalWalletList, {})
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Modal_default, { isOpen, onClose, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("h4", { className: "modal_title", children: "Log in or Sign up" }),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PrivyLogin, { onClose }),
+    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Divider_default, {}),
+    !hideConnectByWallets && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(ExternalWalletList, {})
   ] });
 }
 
