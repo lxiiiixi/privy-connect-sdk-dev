@@ -15,6 +15,7 @@ type TradePayload = {
     slippage?: number;
 };
 type BoomWallet = {
+    privyUserId?: string;
     type: "EMAIL" | "WALLET" | "NONE";
     email?: string;
     isConnected: boolean;
@@ -24,6 +25,7 @@ type BoomWallet = {
     };
     exportWallet?: () => void;
     disconnect?: () => void;
+    getAccessToken?: () => Promise<string | null>;
 };
 declare const useBoomWallet: () => BoomWallet;
 

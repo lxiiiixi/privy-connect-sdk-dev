@@ -343,7 +343,8 @@ var usePrivyEmbeddedWallet = () => {
     authenticated,
     login,
     logout,
-    trade
+    trade,
+    getAccessToken
   };
 };
 var useBoomWalletDelegate = () => {
@@ -382,14 +383,16 @@ var useBoomWallet = () => {
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
   const externalWallet = useExternalWallet();
   if (privyEmbeddedWallet.user.wallet) {
-    const { trade, logout, exportWallet, user, authenticated } = privyEmbeddedWallet;
+    const { trade, logout, exportWallet, user, authenticated, getAccessToken } = privyEmbeddedWallet;
     return {
+      privyUserId: user.id,
       type: "EMAIL",
       email: (_a = user.email) == null ? void 0 : _a.address,
       isConnected: authenticated,
       walletAddress: (_b = user.wallet) == null ? void 0 : _b.address,
       exportWallet,
       disconnect: logout,
+      getAccessToken,
       transactions: {
         trade: (payload) => trade(payload)
       }
@@ -398,12 +401,14 @@ var useBoomWallet = () => {
   if (externalWallet == null ? void 0 : externalWallet.wallet) {
     const { trade, disconnect, publicKey } = externalWallet;
     return {
+      privyUserId: void 0,
       type: "WALLET",
       email: void 0,
       isConnected: externalWallet.connected,
       walletAddress: publicKey == null ? void 0 : publicKey.toString(),
       exportWallet: void 0,
       disconnect,
+      getAccessToken: void 0,
       transactions: {
         trade: (payload) => trade(payload)
       }

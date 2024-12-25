@@ -27,15 +27,17 @@ createRoot(document.getElementById("root")!).render(
 
 ```tsx
 type BoomWallet = {
+    privyUserId?: string; // 邮箱登录时才有的用户id
     type: "EMAIL" | "WALLET" | "NONE"; // 登录类型,NONE时表示未登录
     email?: string; // 邮箱（邮箱登录时才有）
     isConnected: boolean; // 是否连接钱包
     walletAddress?: string; // 钱包地址
     transactions: {
-        trade: () => void;
+        trade: (payload: TradePayload) => Promise<string>; // 交易
     };
     exportWallet?: () => void; // 导出内部钱包（前端应该用不到）
     disconnect?: () => void; // 断开钱包（前端应该用不到）
+    getAccessToken?: () => Promise<string | null>; // 获取accessToken(邮箱登录时)
 };
 ```
 

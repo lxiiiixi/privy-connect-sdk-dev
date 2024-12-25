@@ -54,6 +54,7 @@ export type PrivyWallet = {
     signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
     sendTransaction?: any; // 发送交易
     trade: any; // 购买 usdc
+    getAccessToken?: () => Promise<string | null>;
 };
 
 export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
@@ -165,6 +166,7 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         login,
         logout,
         trade,
+        getAccessToken,
     };
 };
 
