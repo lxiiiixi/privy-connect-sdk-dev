@@ -93,8 +93,7 @@ html.dark {
     }
 }
 
-html.dark,
-.boom_privy_button_container {
+html.dark .boom_privy_button_container {
     .light_img {
         display: none !important;
     }
@@ -267,7 +266,7 @@ html.dark,
     }
 
     input[type="email"]::placeholder {
-        color: pink; /* 设置 placeholder 的字体颜色 */
+        color: var(--wallet-text-muted-foreground-color);
     }
 
     /* 针对自动填充状态的样式 */

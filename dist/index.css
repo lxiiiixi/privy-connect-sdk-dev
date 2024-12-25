@@ -46,8 +46,7 @@ html.dark {
     display: none !important;
   }
 }
-html.dark,
-.boom_privy_button_container {
+html.dark .boom_privy_button_container {
   .light_img {
     display: none !important;
   }
@@ -192,7 +191,7 @@ html.dark,
     background: transparent;
   }
   input[type=email]::placeholder {
-    color: pink;
+    color: var(--wallet-text-muted-foreground-color);
   }
   input:-webkit-autofill {
     background-color: transparent !important;
