@@ -10,23 +10,22 @@
   --wallet-input-border-color: #e4e4e7;
   --wallet-bg-muted: #f4f4f5;
   --wallet-bg-secondary: #f4f4f5;
-  font-family: "Poppins";
-  font-family: "Poppins";
-  color: var(--wallet-text-foreground-color);
 }
 @font-face {
   font-family: "Poppins";
-  src: url("./Poppins-Regular-UUWQX4EV.ttf") format("ttf");
+  src: url("./Poppins-Regular-UUWQX4EV.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
 }
 @font-face {
   font-family: "Poppins";
-  src: url("./Poppins-Bold-TBISX6G2.ttf") format("ttf");
+  src: url("./Poppins-Bold-TBISX6G2.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
 }
-.boom-privy-button-container {
+.boom_privy_button_container {
+  font-family: "Poppins";
+  color: var(--wallet-text-foreground-color);
 }
 .privy_wallet_button {
   background-color: var(--wallet-primary-color);
@@ -151,12 +150,19 @@
     line-height: 21px;
     font-weight: 500;
     text-align: right;
+    img {
+      display: inline;
+    }
   }
   .privy_login_mpc_tip {
     text-align: left;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
+    display: flex;
+    justify-content: left;
+    align-items: baseline;
+    gap: 8px;
   }
 }
 .privy_email_form {

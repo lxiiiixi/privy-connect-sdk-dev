@@ -6,7 +6,7 @@ import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 import { logger } from "./utils";
 import Modal from "./componnets/Modal";
-import { src_email, src_privy_dark } from "./assets";
+import { src_email, src_privy_dark, src_secure } from "./assets";
 import Divider from "./componnets/Divider";
 
 const formatAddress = (address?: string) => {
@@ -47,7 +47,7 @@ export default function WalletConnectButton({
                     hideConnectByWallets={hideConnectByWallets}
                 />
                 <button
-                    className={`privy-wallet-button wallet-connect-base ${className}  red-button`}
+                    className={`privy_wallet_button wallet-connect-base ${className}`}
                     onClick={() => setIsOpen(true)}
                 >
                     Connect Wallet
@@ -123,9 +123,11 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
     });
     return (
         <div className="privy_login_container">
-            <div className="privy_login_title">Protected by Privy</div>
+            <div className="privy_login_title">
+                Protected by <img src={src_privy_dark} alt="privy" width={56} />
+            </div>
             <div className="privy_email_form">
-                <img src={src_privy_dark} alt="email" width={20} />
+                <img src={src_email} alt="email" width={20} />
                 <input
                     type="email"
                     placeholder="your@email.com"
@@ -135,7 +137,9 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
                 />
             </div>
 
-            <div className="privy_login_mpc_tip">MPC wallet is more SECURE</div>
+            <div className="privy_login_mpc_tip">
+                MPC wallet is more <img src={src_secure} alt="secure" width={80} />
+            </div>
             <button
                 className="privy_login_submit_button"
                 type="submit"

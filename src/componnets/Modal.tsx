@@ -7,7 +7,7 @@ function Modal({
     onClose: () => void;
     children: React.ReactNode;
 }) {
-    // if (!isOpen) return null; // 如果 Modal 没有打开，则不渲染
+    if (!isOpen) return null;
 
     return (
         <div className="modal_overlay" onClick={onClose}>

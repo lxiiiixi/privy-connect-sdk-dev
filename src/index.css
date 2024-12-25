@@ -14,27 +14,25 @@
 
     --wallet-bg-muted: #f4f4f5;
     --wallet-bg-secondary: #f4f4f5;
-
-    font-family: "Poppins";
-    font-family: "Poppins";
-    color: var(--wallet-text-foreground-color);
 }
 
 @font-face {
     font-family: "Poppins";
-    src: url("./assets/Poppins-Regular.ttf") format("ttf");
+    src: url("./assets/Poppins-Regular.ttf") format("truetype");
     font-weight: 500;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Poppins";
-    src: url("./assets/Poppins-Bold.ttf") format("ttf");
+    src: url("./assets/Poppins-Bold.ttf") format("truetype");
     font-weight: 600;
     font-style: normal;
 }
 
-.boom-privy-button-container {
+.boom_privy_button_container {
+    font-family: "Poppins";
+    color: var(--wallet-text-foreground-color);
 }
 
 /* button start */
@@ -182,6 +180,10 @@
         line-height: 21px;
         font-weight: 500;
         text-align: right;
+
+        img {
+            display: inline;
+        }
     }
 
     .privy_login_mpc_tip {
@@ -189,6 +191,11 @@
         font-size: 16px;
         font-weight: 600;
         line-height: 24px;
+
+        display: flex;
+        justify-content: left;
+        align-items: baseline;
+        gap: 8px;
     }
 }
 
