@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useWallet, Wallet } from "@solana/wallet-adapter-react";
 import { useBoomWalletDelegate } from "./wallets/usePrivyEmbeddedWallet";
 import { logger } from "./utils";
+import Modal from "./componnets/Modal";
+import { src_email, src_privy_dark } from "./assets";
 
 const formatAddress = (address?: string) => {
     if (!address) return "";
@@ -37,39 +39,39 @@ export default function WalletConnectButton({
 
     if (!boomWallet || !boomWallet?.isConnected)
         return (
-            <>
+            <div className="boom_privy_button_container">
                 <ConnectWalletModal
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     hideConnectByWallets={hideConnectByWallets}
                 />
                 <button
-                    className={`privy-wallet-connect-button wallet-connect-base ${className}  red-button`}
+                    className={`privy-wallet-button wallet-connect-base ${className}  red-button`}
                     onClick={() => setIsOpen(true)}
                 >
                     Connect Wallet
                 </button>
-            </>
+            </div>
         );
 
     return (
-        <>
-            <div className="privy-wallet-dropdown">
-                <div className="privy-user-info" onClick={fetchUpdateBalance}>
+        <div className="boom_privy_button_container">
+            <div className="privy_wallet_dropdown">
+                <div className="privy_user_info" onClick={fetchUpdateBalance}>
                     ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
                 </div>
-                <div className="privy-dropdown-content">
-                    <button className="dropdown-item" onClick={boomWallet.disconnect}>
+                <div className="privy_dropdown_content">
+                    <button className="privy_dropdown_item" onClick={boomWallet.disconnect}>
                         Logout
                     </button>
                     {boomWallet.type === "EMAIL" && (
-                        <button className="dropdown-item" onClick={boomWallet.exportWallet}>
+                        <button className="privy_dropdown_item" onClick={boomWallet.exportWallet}>
                             Export Wallet
                         </button>
                     )}
                     {boomWallet.type === "EMAIL" && option && (
                         <button
-                            className="dropdown-item"
+                            className="privy_dropdown_item"
                             onClick={option === "DELEGATE" ? onDelegate : onRevoke}
                         >
                             {option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"}
@@ -77,29 +79,7 @@ export default function WalletConnectButton({
                     )}
                 </div>
             </div>
-        </>
-    );
-}
-
-function Modal({
-    isOpen,
-    onClose,
-    children,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    children: React.ReactNode;
-}) {
-    if (!isOpen) return null; // 如果 Modal 没有打开，则不渲染
-
-    return (
-        <>
-            <div className="modal-overlay" onClick={onClose}>
-                <div className="modal-content" onClick={e => e.stopPropagation()}>
-                    {children}
-                </div>
-            </div>
-        </>
+        </div>
     );
 }
 
@@ -114,7 +94,7 @@ function ExternalWalletList() {
                     onClick={() => {
                         select(wallet.adapter.name);
                     }}
-                    className="wallet-list-item"
+                    className="privy_wallet_list_item"
                 >
                     <img src={wallet.adapter.icon} alt={wallet.adapter.name} width={30} />
                     {wallet.adapter.name}
@@ -129,8 +109,10 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
         onComplete: () => {},
     });
     return (
-        <>
-            <div className="email-form">
+        <div className="privy_login_container">
+            <div className="privy_login_title">Protected by Privy</div>
+            <div className="privy_email_form">
+                <img src={src_privy_dark} alt="email" width={20} />
                 <input
                     type="email"
                     placeholder="your@email.com"
@@ -138,25 +120,29 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                 />
-                <button
-                    type="submit"
-                    onClick={() => {
-                        onClose();
-                        login({
-                            type: "email",
-                            prefill: {
-                                type: "email",
-                                value: email,
-                            },
-                        });
-                    }}
-                >
-                    submit
-                </button>
             </div>
-        </>
+
+            <div className="privy_login_mpc_tip">MPC wallet is more SECURE</div>
+            <button
+                className="privy_login_submit_button"
+                type="submit"
+                onClick={() => {
+                    onClose();
+                    login({
+                        type: "email",
+                        prefill: {
+                            type: "email",
+                            value: email,
+                        },
+                    });
+                }}
+            >
+                Submit
+            </button>
+        </div>
     );
 }
+
 function ConnectWalletModal({
     isOpen,
     onClose,
@@ -168,7 +154,7 @@ function ConnectWalletModal({
 }) {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
-            <h4>Login</h4>
+            <h4 className="modal_title">Log in or Sign up</h4>
             <PrivyLogin onClose={onClose} />
             {!hideConnectByWallets && <hr />}
             {!hideConnectByWallets && <ExternalWalletList />}

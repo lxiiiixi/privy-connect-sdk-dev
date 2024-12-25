@@ -19,6 +19,6 @@
 
 /* 要带上wallet-connect-base提高当前样式权重 */
 .wallet-connect-base.privy-wallet-connect-button {
-    background-color: #fcd535;
-    font-family: "Courier New", Courier, monospace;
+    /* background-color: #fcd535; */
+    /* font-family: "Courier New", Courier, monospace; */
 }

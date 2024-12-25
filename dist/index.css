@@ -1,10 +1,88 @@
 /* src/index.css */
 :root {
   --wallet-primary-color: #fcd535;
+  --wallet-primary-color-hover: #f0b90b;
   --wallet-secondary-color: #ffffff;
-  --wallet-text-color: #09090b;
+  --wallet-theme-color: #ffffff;
+  --wallet-text-foreground-color: #09090b;
+  --wallet-border-color: #e4e4e7;
+  --wallet-input-border-color: #e4e4e7;
+  --wallet-bg-muted: #f4f4f5;
+  font-family: "Poppins";
+  font-family: "Poppins";
+  color: var(--wallet-text-foreground-color);
 }
-.privy-wallet-connect-button {
+@font-face {
+  font-family: "Poppins";
+  src: url("./Poppins-Regular-UUWQX4EV.ttf") format("ttf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("./Poppins-Bold-TBISX6G2.ttf") format("ttf");
+  font-weight: 600;
+  font-style: normal;
+}
+.boom-privy-button-container {
+}
+.privy_wallet_button {
+  background-color: var(--wallet-primary-color);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  transition: background-color 0.15s ease;
+  font-weight: 500;
+  color: var(--wallet-text-color);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 21px;
+  &:hover {
+    background-color: var(--wallet-primary-color-hover);
+  }
+}
+.privy_login_submit_button {
+  width: 100%;
+  background-color: var(--wallet-primary-color);
+  border: none;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 10px 0;
+  transition: background-color 0.15s ease;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  &:hover {
+    background-color: var(--wallet-primary-color-hover);
+  }
+}
+.modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  .modal_content {
+    background-color: var(--wallet-theme-color);
+    padding: 22px 42px;
+    border-radius: 12px;
+    width: 499px;
+    height: auto;
+    border: 1px solid var(--wallet-border-color);
+    .modal_title {
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 27px;
+    }
+  }
+}
+.privy_user_info {
+  font-family: "Poppins";
   background-color: var(--wallet-primary-color);
   border: none;
   border-radius: 12px;
@@ -14,28 +92,15 @@
   cursor: pointer;
   font-size: 16px;
   line-height: 24px;
-}
-.privy-user-info {
-  background-color: var(--wallet-primary-color);
-  border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
-  font-weight: 500;
-  color: var(--wallet-text-color);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 24px;
-}
-.privy-wallet-dropdown {
-  position: relative;
-  display: inline-block;
-}
-.privy-user-info {
   cursor: pointer;
   padding: 8px 16px;
   border-radius: 8px;
 }
-.privy-dropdown-content {
+.privy_wallet_dropdown {
+  position: relative;
+  display: inline-block;
+}
+.privy_dropdown_content {
   display: none;
   position: absolute;
   top: 100%;
@@ -47,10 +112,10 @@
   padding: 8px;
   z-index: 1000;
 }
-.privy-wallet-dropdown:hover .privy-dropdown-content {
+.privy_wallet_dropdown:hover .privy_dropdown_content {
   display: block;
 }
-.dropdown-item {
+.dropdown_item {
   display: block;
   width: 100%;
   padding: 8px 16px;
@@ -60,29 +125,9 @@
   cursor: pointer;
   border-radius: 8px;
 }
-.dropdown-item:hover {
+.privy_dropdown_item:hover {
   background-color: var(--wallet-primary-color);
   opacity: 0.8;
-}
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-}
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  width: 100%;
 }
 .wallet-list-item {
   width: 100%;
@@ -97,41 +142,59 @@
   font-size: 16px;
   margin: 8px 0;
 }
-.email-form {
+.privy_login_container {
+  margin: 16px 0;
+  .privy_login_title {
+    font-size: 14px;
+    line-height: 21px;
+    font-weight: 500;
+    text-align: right;
+  }
+  .privy_login_mpc_tip {
+    text-align: left;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+}
+.privy_email_form {
   display: flex;
   align-items: center;
-  padding: 0px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--wallet-primary-color);
-  margin: 10px 0;
+  height: 44px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--wallet-border-color);
+  background-color: var(--wallet-bg-muted);
+  margin: 10px 0 26px 0;
+  input[type=email] {
+    flex-grow: 1;
+    padding: 6px;
+    margin-right: 10px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #000000;
+    font-size: 16px;
+  }
+  input[type=email]:focus {
+    background: transparent;
+    outline: none;
+  }
+  input[type=email]:valid {
+    background: transparent;
+  }
 }
-.email-form input[type=email] {
-  flex-grow: 1;
-  padding: 6px;
-  margin-right: 10px;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #000000;
-  font-size: 16px;
+@media (max-width: 767px) {
+  .privy_wallet_button {
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 21px;
+  }
 }
-.email-form input[type=email]:focus {
-  background: transparent;
-  outline: none;
-}
-.email-form input[type=email]:valid {
-  background: transparent;
-}
-.email-form button {
-  padding: 10px 10px;
-  color: var(--wallet-primary-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: color 0.3s ease;
-  background: transparent;
-}
-.email-form button:hover {
-  color: var(--wallet-secondary-color);
+@media (min-width: 1025px) {
+  .privy_wallet_button {
+    padding: 8px 32px;
+    font-size: 14px;
+    line-height: 21px;
+  }
 }
