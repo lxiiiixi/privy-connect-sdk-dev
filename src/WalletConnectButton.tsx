@@ -170,14 +170,16 @@ function PrivyLogin({ onClose }: { onClose: () => void }) {
                 <img src={src_privy_light} className="dark_img" alt="privy" width={56} />
                 <img src={src_privy_dark} className="light_img" alt="privy_img" width={56} />
             </div>
-            <div className="privy_email_form">
+            <div className="input-wrapper">
                 <img src={src_email_dark} className="light_img" alt="email" width={20} />
                 <img src={src_email_light} className="dark_img" alt="email" width={20} />
                 <input
                     type="email"
                     placeholder="your@email.com"
                     id="email"
+                    className="privy_email_input"
                     value={email}
+                    autoComplete="off"
                     onChange={e => setEmail(e.target.value)}
                 />
             </div>

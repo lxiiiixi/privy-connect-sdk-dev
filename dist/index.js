@@ -145,9 +145,7 @@ var logger = (() => {
   return {
     log: (...messages) => {
       if (isDev) {
-        console.log(formatMessage("LOG"), messages);
       } else {
-        console.debug(formatMessage("LOG"), messages);
       }
     },
     warn: (...messages) => {
@@ -858,7 +856,7 @@ function PrivyLogin({ onClose }) {
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("img", { src: src_privy_light, className: "dark_img", alt: "privy", width: 56 }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("img", { src: src_privy_dark, className: "light_img", alt: "privy_img", width: 56 })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "privy_email_form", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "input-wrapper", children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("img", { src: src_email_dark, className: "light_img", alt: "email", width: 20 }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("img", { src: src_email_light, className: "dark_img", alt: "email", width: 20 }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
@@ -867,7 +865,9 @@ function PrivyLogin({ onClose }) {
           type: "email",
           placeholder: "your@email.com",
           id: "email",
+          className: "privy_email_input",
           value: email,
+          autoComplete: "off",
           onChange: (e) => setEmail(e.target.value)
         }
       )

@@ -42,3 +42,9 @@ type BoomWallet = {
 ```
 
 4. `useSolanaBalance` 可以用于获取和更新用户余额
+
+## Change Log
+
+-   1.3.5
+    -   修复部分 h5 样式。
+    -   删除开发环境下的 console.log

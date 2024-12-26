@@ -226,53 +226,40 @@ html.dark .boom_privy_button_container {
     }
 }
 
-.privy_email_form {
-    display: flex;
-    align-items: center;
-    height: 44px;
-    padding: 8px 12px;
-    border-radius: 12px;
-    border: 1px solid var(--wallet-border-color);
-    background-color: var(--wallet-bg-muted);
-    margin: 14px 0 36px 0;
-    transition: box-shadow 0.2s ease;
+.input-wrapper {
+    position: relative;
+    width: 100%;
 
-    &:focus-within {
-        box-shadow: 0 0 0 2px var(--wallet-theme-color),
-            0 0 0 calc(2px + 2px) var(--wallet-primary-color);
+    img {
+        position: absolute;
+        left: 12px;
+        top: 14.5px;
     }
 
-    /* 禁用状态 */
-    &.disabled {
-        background-color: #e0e0e0; /* 灰色背景 */
-        border-color: #bdbdbd; /* 灰色边框 */
-        pointer-events: none; /* 禁用鼠标事件 */
-    }
-
-    input[type="email"] {
-        flex-grow: 1; /* Make input expand to fill space */
-        padding: 6px;
-        margin-right: 10px; /* Space between input and button */
-        background: transparent;
-        border: none;
+    input[type="email"].privy_email_input {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 44px;
+        padding: 8px 12px 8px 38px;
+        border-radius: 12px;
+        border: 1px solid var(--wallet-border-color);
         outline: none;
-        color: var(--wallet-text-foreground-color); /* Light grey text color */
-        font-size: 16px; /* Size of the text */
+        background-color: var(--wallet-bg-muted);
+        color: var(--wallet-text-foreground-color);
+        margin: 14px 0 36px 0;
+        transition: box-shadow 0.2s ease;
+
+        &:focus-within {
+            box-shadow: 0 0 0 2px var(--wallet-theme-color),
+                0 0 0 calc(2px + 2px) var(--wallet-primary-color);
+            color: var(--wallet-text-foreground-color) !important;
+        }
     }
 
-    input[type="email"]:valid {
-        appearance: none;
-        background: transparent; /* 有内容时保持背景透明 */
-    }
-
-    input[type="email"]::placeholder {
-        color: var(--wallet-text-muted-foreground-color);
-    }
-
-    /* 针对自动填充状态的样式 */
-    input:-webkit-autofill {
-        background-color: transparent !important;
-        box-shadow: 0 0 0px 1000px var(--wallet-bg-muted) inset !important;
+    input[type="email"]:-webkit-autofill {
+        box-shadow: 0 0 0px 1000px var(--wallet-bg-muted) inset, 0 0 0 2px var(--wallet-theme-color),
+            0 0 0 calc(2px + 2px) var(--wallet-primary-color) !important;
     }
 }
 
@@ -322,6 +309,7 @@ html.dark .boom_privy_button_container {
         width: 38px;
         height: 38px;
         padding: 0;
+        border-radius: 8px;
         display: flex;
         justify-content: center;
         align-items: center;
