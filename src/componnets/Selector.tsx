@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { src_arrow_down_dark, src_arrow_down_light } from "../assets";
 
-function Select({ content, children }: { content: React.ReactNode; children: React.ReactNode }) {
+function Select({
+    content,
+    selectedButtonClassName,
+    children,
+}: {
+    content: React.ReactNode;
+    selectedButtonClassName?: string;
+    children: React.ReactNode;
+}) {
     const [isOpen, setIsOpen] = useState(false); // 控制下拉菜单开关
     const selectRef = useRef<HTMLDivElement>(null); // 用于检测点击目标是否在组件内
 
@@ -26,7 +34,10 @@ function Select({ content, children }: { content: React.ReactNode; children: Rea
     return (
         <div className="select-container" ref={selectRef}>
             {/* Select Button */}
-            <div className={`select-button ${isOpen ? "active" : ""}`} onClick={toggleDropdown}>
+            <div
+                className={`select-button ${isOpen ? "active" : ""} ${selectedButtonClassName}`}
+                onClick={toggleDropdown}
+            >
                 <span>{content}</span>
                 <img src={src_arrow_down_light} className="light_img" alt="arrow_down" width={10} />
                 <img src={src_arrow_down_dark} className="dark_img" alt="arrow_down" width={10} />

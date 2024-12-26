@@ -10,10 +10,12 @@ import {
 function Menu({
     address,
     balance,
+    buttonClassName,
     children,
 }: {
     address: string;
     balance: string;
+    buttonClassName?: string;
     children: React.ReactNode;
 }) {
     const [isOpen, setIsOpen] = useState(false); // 控制下拉菜单开关
@@ -40,7 +42,7 @@ function Menu({
     return (
         <div className="menu-container" ref={selectRef}>
             {/* Select Button */}
-            <button className={`privy_wallet_button`} onClick={toggleDropdown}>
+            <button className={`privy_wallet_button ${buttonClassName}`} onClick={toggleDropdown}>
                 <span> Connect Wallet </span>
                 <img src={src_wallet} alt="arrow_right" width={20} />
             </button>

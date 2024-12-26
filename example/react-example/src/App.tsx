@@ -30,7 +30,7 @@ function App() {
                 >
                     Toggle To {isDark ? "Light" : "Dark"}
                 </button>
-                <WalletConnectButton className="privy-wallet-connect-button" />
+                <WalletConnectButton />
                 <hr />
                 <div>
                     <h2 className="text-2xl font-bold my-3">User Info</h2>

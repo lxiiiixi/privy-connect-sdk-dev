@@ -25,10 +25,12 @@ const formatAddress = (address?: string) => {
 };
 
 export default function WalletConnectButton({
-    className,
+    buttonClassName = "",
+    selectedButtonClassName = "",
     hideConnectByWallets = false,
 }: {
-    className?: string;
+    buttonClassName?: string;
+    selectedButtonClassName?: string;
     hideConnectByWallets?: boolean;
 }) {
     const boomWallet = useBoomWallet();
@@ -56,7 +58,7 @@ export default function WalletConnectButton({
                     hideConnectByWallets={hideConnectByWallets}
                 />
                 <button
-                    className={`privy_wallet_button wallet-connect-base ${className}`}
+                    className={`privy_wallet_button ${buttonClassName}`}
                     onClick={() => setIsOpen(true)}
                 >
                     <span> Connect Wallet </span>
@@ -69,6 +71,7 @@ export default function WalletConnectButton({
         <div className="boom_privy_button_container">
             {/* pc */}
             <Select
+                selectedButtonClassName={selectedButtonClassName}
                 content={
                     <div onClick={updateBalance}>
                         ({(balance / 1e9).toFixed(4)} SOL) {formatAddress(userWalletAddress)}
@@ -90,7 +93,6 @@ export default function WalletConnectButton({
                                 onClick={option === "DELEGATE" ? onDelegate : onRevoke}
                             >
                                 <span>
-                                    {" "}
                                     {option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate"}
                                 </span>
                             </div>
@@ -99,7 +101,11 @@ export default function WalletConnectButton({
                 }
             />
             {/* h5 */}
-            <Menu balance={(balance / 1e9).toFixed(4)} address={formatAddress(userWalletAddress)}>
+            <Menu
+                balance={(balance / 1e9).toFixed(4)}
+                address={formatAddress(userWalletAddress)}
+                buttonClassName={buttonClassName}
+            >
                 <div className={`menu-dropdown-item`} onClick={boomWallet.disconnect}>
                     <span>{"Logout"}</span>
                 </div>
@@ -125,7 +131,7 @@ export default function WalletConnectButton({
 
 function ExternalWalletList() {
     const { wallets, select } = useWallet();
-    console.log("【XXXXX】 🚀 ExternalWalletList 🚀 wallets:", wallets);
+    logger.log("【XXXXX】 🚀 ExternalWalletList 🚀 wallets:", wallets);
     const [showAll, setShowAll] = useState(false); // 控制是否显示全部钱包
 
     const visibleWallets = showAll ? wallets : wallets.slice(0, 2);

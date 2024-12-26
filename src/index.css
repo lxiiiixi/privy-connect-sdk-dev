@@ -110,6 +110,7 @@ html.dark .boom_privy_button_container {
 
 /* button start */
 .privy_wallet_button {
+    height: 48px;
     background-color: var(--wallet-primary-color);
     border: none;
     border-radius: 12px;
