@@ -1,30 +1,36 @@
 import { useExternalWallet } from "./useExternalWallet";
-import { usePrivyEmbeddedWallet } from "./usePrivyEmbeddedWallet";
+import { useBoomWalletDelegate, usePrivyEmbeddedWallet } from "./usePrivyEmbeddedWallet";
 
 export type TradePayload = {
     inputTokenAddress: string; // 买
     outputTokenAddress: string; // 卖
     amountIn: string; // 需要精度处理之后的数据
-    slippage?: number;
+    slippage?: number; // 滑点，比如 30、50
 };
 
 type BoomWallet = {
-    privyUserId?: string;
+    privyUserId?: string; // 用户id（只有邮箱登陆的时候才有）
     type: "EMAIL" | "WALLET" | "NONE"; // 登录类型,NONE时表示未登录
     email?: string; // 邮箱（邮箱登录时才有）
-    isConnected: boolean;
-    walletAddress?: string;
+    isConnected: boolean; // 是否连接
+    walletAddress?: string; // 用户的钱包地址
     transactions: {
-        trade: (payload: TradePayload) => Promise<string>;
+        trade: (payload: TradePayload) => Promise<string>; // 执行交易方法
     };
-    exportWallet?: () => void;
-    disconnect?: () => void;
-    getAccessToken?: () => Promise<string | null>;
+    exportWallet?: () => void; // 导出钱包（邮箱登录时才需要导出）
+    disconnect?: () => void; // 断开连接
+    getAccessToken?: () => Promise<string | null>; // 获取用户的 access token（邮箱登陆的情况下才用，有的地方传给后端做一些接口校验使用）
+    // 代理调用的许可操作只有针对登陆 type 为 EMAIL 时才需要
+    delegateAllowanceStatus?: "ALLOWED" | "NOT_ALLOWED"; // 用户这个钱包代理调用的状态（）
+    onDelegate?: () => Promise<void>; // 执行代理调用操作
+    onRevoke?: () => Promise<void>; // 撤销代理调用
 };
 
 export const useBoomWallet: () => BoomWallet = () => {
     const privyEmbeddedWallet = usePrivyEmbeddedWallet();
     const externalWallet = useExternalWallet();
+    const { delegateAllowanceStatus, onDelegate, onRevoke } = useBoomWalletDelegate();
+
     if (privyEmbeddedWallet.user.wallet) {
         const { trade, logout, exportWallet, user, authenticated, getAccessToken } =
             privyEmbeddedWallet;
@@ -37,6 +43,9 @@ export const useBoomWallet: () => BoomWallet = () => {
             exportWallet: exportWallet,
             disconnect: logout,
             getAccessToken,
+            delegateAllowanceStatus,
+            onDelegate,
+            onRevoke,
             transactions: {
                 trade: (payload: TradePayload) => trade(payload),
             },
@@ -53,6 +62,9 @@ export const useBoomWallet: () => BoomWallet = () => {
             exportWallet: undefined,
             disconnect: disconnect,
             getAccessToken: undefined,
+            delegateAllowanceStatus: undefined,
+            onRevoke: undefined,
+            onDelegate: undefined,
             transactions: {
                 trade: (payload: TradePayload) => trade(payload),
             },
@@ -64,6 +76,7 @@ export const useBoomWallet: () => BoomWallet = () => {
         walletAddress: "",
         exportWallet: undefined,
         disconnect: undefined,
+
         transactions: {
             trade: () => Promise.resolve(""),
         },

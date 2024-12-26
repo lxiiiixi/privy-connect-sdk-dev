@@ -275,13 +275,6 @@ var usePrivyEmbeddedWallet = () => {
       logger.warn(error);
     }
   }, [userEmbeddedWallet, authenticated]);
-  useEffect2(() => {
-    const getToken = async () => {
-      const accessToken = await getAccessToken();
-      logger.log("accessToken", accessToken);
-    };
-    getToken();
-  }, []);
   logger.log(
     "solanaWallets",
     user,
@@ -368,8 +361,10 @@ var useBoomWalletDelegate = () => {
     await revokeWallets();
   };
   const option = isDisplay ? isAlreadyDelegated ? "REVOKE" : "DELEGATE" : null;
+  const delegateAllowanceStatus = isAlreadyDelegated ? "ALLOWED" : "NOT_ALLOWED";
   return {
     option,
+    delegateAllowanceStatus,
     onDelegate,
     onRevoke
   };
@@ -380,6 +375,7 @@ var useBoomWallet = () => {
   var _a, _b;
   const privyEmbeddedWallet = usePrivyEmbeddedWallet();
   const externalWallet = useExternalWallet();
+  const { delegateAllowanceStatus, onDelegate, onRevoke } = useBoomWalletDelegate();
   if (privyEmbeddedWallet.user.wallet) {
     const { trade, logout, exportWallet, user, authenticated, getAccessToken } = privyEmbeddedWallet;
     return {
@@ -391,6 +387,9 @@ var useBoomWallet = () => {
       exportWallet,
       disconnect: logout,
       getAccessToken,
+      delegateAllowanceStatus,
+      onDelegate,
+      onRevoke,
       transactions: {
         trade: (payload) => trade(payload)
       }
@@ -407,6 +406,9 @@ var useBoomWallet = () => {
       exportWallet: void 0,
       disconnect,
       getAccessToken: void 0,
+      delegateAllowanceStatus: void 0,
+      onRevoke: void 0,
+      onDelegate: void 0,
       transactions: {
         trade: (payload) => trade(payload)
       }
@@ -425,21 +427,7 @@ var useBoomWallet = () => {
 };
 
 // src/WalletConnectButton.tsx
-import { useLogin, useLoginWithEmail } from "@privy-io/react-auth";
-import { useEffect as useEffect5, useState as useState4 } from "react";
-import { useWallet as useWallet2 } from "@solana/wallet-adapter-react";
-
-// src/componnets/Modal.tsx
-import { jsx as jsx2 } from "react/jsx-runtime";
-function Modal({
-  isOpen,
-  onClose,
-  children
-}) {
-  if (!isOpen) return null;
-  return /* @__PURE__ */ jsx2("div", { className: "modal_overlay", onClick: onClose, children: /* @__PURE__ */ jsx2("div", { className: "modal_content", onClick: (e) => e.stopPropagation(), children }) });
-}
-var Modal_default = Modal;
+import { useEffect as useEffect6, useState as useState5 } from "react";
 
 // src/assets/index.tsx
 var src_email_dark = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAjCAYAAADrJzjpAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAP8SURBVHgB7VivcxpBFH57vwlkBpE2iIoTEYgKJKIioqKiIqIioiKyf05lZUVFREVERUUFMhJRgag4UUFmIuhMDxbYu+33jls4KEkbkgCZyWe42z3g23ffe+/bFbQEYRgGFxcXDSI7TNOkRhuEEFbPtqntum7UA6bjiw8GQTUUYniktajSFkEI3bMsqxXHcZvv7eLk7u5uPU3VWzwW0NZBBFpT3XVLUqnhT8cMV4HhcHhkXoIQQmqdnAdB0KYNYTwecwBraUqHWutMAVqrV1BFdyqVnZ2dIzzQoAnpnu+7H4ua2jAC3985EYLyfBORZWag6frs2j3bItIMWSp5p7NbHWbEy+VyDa8i0zVLRMpeRFsGDiQ03jX3WXLatr0Hyo18zHFdp1GpVDpYgaQtAOcfWB5DKs/MWEbccZxqgThxBiuVNH3fC5AgPzGgaEMolUrNJEne4HKvOH4F8Qnwap4h+s9935dYQJfWCO4nnmcdI/fASziL838RZx2h0CPKOl/hpH56nltFLnTvWz7ctQeD8Ushktf434oZB6cu7i9xWV1KHMl5KWX8CTJBVRFcfoJ8QTWWj+P4pNQoonsAywKd8Zj5mzEuFuia3waD/pnnBSGKSFYSnat+hFsrciIaDAZNIezmbCY9xB80iu33tuDkk3IMm6HD+RkRoZ8sLc1LNC56So0zQiwLJMaPSqXcTpKU63xuBe5GPiwLKdULpRRHeeqNuAEiQKdSDlrF33Zdv24ifi1xA/4yxs6XyQcLasA/KPYPdANw8sXxL/giqs/PpK1abf/sElj8zo2JG3BlQfQ7sLoccWN3Ibf04H9rP8sCEYUnSl/OmzkR2bY4hTS/QxlLy+/KxBlMDAvoIPodPHtABflw8l4nH1OTUeKmHt8kn5T9L/jd33QNisQdWhFITK7r7+EeDzl5jWVgowaXGYLkudZ+NwioF8fj0HV1E3NzmxIs4LxWe9KKoujGObIycQMEtoW33x6NRofGXeabkFdEI+K4YwfDC5qCazJ8/9fhUIJzTKvg1sQZebk6g0SiondehPH4/X6/RbfEnRA3yOt6GwtopKnAbirFAnRgWTZklUT7+0/bq8hiGe6UuIFZwOI4SNNdwaIHikfi68Yj8XXjYRNH256dyQna6FnhdZj0hQky4tz5uKvxNXsOz9ut05ZhstOfbTSmZ4eOY6MZiWzCsugA7u/Hv9zaupAfD54YGwx+7eJpbVAqld8VfQY/oJTdQcveyPkK+37XTXHUnTZg3KYHVtjOfZg7Zp6sbHxylUnaNJg0gvmRLfXcMTObf97hJAkT13u0VeAdEn3O9wF/H+wb8HkiPtjlVc0mYd2YRFj3sGviLWFUnPsDJ1QhiqdlK8UAAAAASUVORK5CYII=";
@@ -453,44 +441,9 @@ var src_wallet = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAxCAYAAAC
 var src_solana_icon = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAZCAYAAAArK+5dAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAPSSURBVHgB1VW9jiNFEK7q7vnxisAZIhtnmyDBI/giNsIgCBAJ+wb8PACbXXiI5DI2IEViswsdknGXcdmOJSQuO0tob2fcP8VX3WOvby8h4SRst3umu+qr6uqqr4j+7x8+fln9+rT72/h1nKXOz5L4xvPuJEloAoc6kdhIyQRKNhGZqLMkDixORPfE5MGJ04QoV/YAfvlHF2NcM3PHonus1plER37CJJNHBhLMxUNoSH7JsqK6JiNspHJfZANfPbqew9/f8NhlMJVRnQR12R+ThRXL3J1cZYQnCeZsjNhARDZRePmiOu/t1xfX8zGlNUROs+akkL2SvbdExXkpPwtHeTKbv1JOmkWktzY++HN23uu+Szf1T00bPjiERWIG81LAVMnkELAUowoYmVrBHRCVaDspp4lbyH/az77s96F3xptvnTU/BmvI+UQBSmyF9KAGl2VwoQmQtvhPgS3VDuADAtEmrAsFDaUjijf2Wb/4bEtv88MXq5dz0m870LbFCsaAZ2poeh/yGFR6TnnO+1mu7A956N6w7RefvHYCV1t7GUf5eMc11xTF5yBU4tlzy5F2bGhHNQwifK8iUR0RSkcBOW9QExpadi1ZH6htTq5Pr588eL446/cGDMfqGzfypr511GDUg86W9T2PV5YarFWIuRudVCPMj1aqQdcrqm6xBhnoiRttx2zWp3896Q4h0r+Hq5cdm2odqtjtWnitowmYA6GiaWyC+Dawx5pvRUIdUdmRgj6jyj3k894JZjxjr0cCLJ+/d9YfqOLh6hZG4jq42KnQ2ERRQ16NtJHHPMNoo8AJgEkiDHnIRYRPZfJ+kafQpGe3fLN8jYv0JIbr32FkDkXazQIrIAzBGJ4x+zJnj5Wfgt5NkwHBXTgNuKucyKvxK76fVhcrmTc05Kwa99lxlF1Dk7OlZFSbc0uly3zIrqIHmf++Jt44wSOcQH0ajhfhzXiU7/+uVrLc1h3jPMZF74J/CmqY16AAMSLJCKediAELImnprlYc6iNQg1rx8NNzQ6yZhVph3I3bRa2Vu37w+CPpUuA1GOvdPdEX/lUOEjbgG5syJRZizlpGeGoMuQ8op5Y/3d+8k9yZ3YOD15SyuylsPMFI7iwTJFqVQu67D6q0SBXYPO91N9al5dXnH76wGTwW8ImQld6l6PIx6+dWpAa0I+Z14QOllzNxbjZsePnL+fu97jiAf5/BJ0cQCsSDOOLFKNnDTXRcbOSeksErD/7PvWNqT1I6H3h9g8ta/vzdoj9k0SWyZtjS/H42aabsP4d8f0PmXq0A6YeLxdvtB/8AUDQqQPJlEpYAAAAASUVORK5CYII=";
 var src_user_icon = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAdCAYAAAC5UQwxAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAIQSURBVHgBvZZBVtswEIZnxm5fN6XuDcINyCJ9r7twAsIJEk7QsuymOHAAuAFwgsAJyA5eWJAb4Bsg2DrRoFFiIGDJcvLCv8hznjT6rBlpfgN8sjB0YnJ71NbEOzjlDiM05sFjRhxTpPuqmWYh61QCk7s04QmdMnDHvxKeGfC+ASvvNN9gcp02OMKrYkeVQsgo4qYPSr54jnEQDLMB0DDZGPimOIHJKO0xwBbUlEl9+/vosAd1gRrxDywpQui6xkprKAdFT/ABVhDF/LOsluU7nES1U/lBeXntCdYlhASCgTz13qUgMahw4BfIzO8qUKV+pWMIBdpiI5zDskK8cA05a0g5n8CSu5Te6hxzDajf0ozdgW7ZfppBXaDoqdU3u+QaUL0/i3EryJ5sE4+tY7TLF8EhmmyoVjqsWqu804zSLUY6thNivVekSMA6JmNTPL9jqCjWF2/H5cXex3mBAjN99Eoe5zMyYt6rentr0KAHC3ERb7+HLgC9/icGC3gJ0XRY9EjpuZCTfAF0S9NdAl0A/hj17wP9r7guSdVEqe9j6/928f/llG7cHh3UMNsEAmAi2fnGzeHf1xeA+XdLjne13L2ezOHiTSnFbIc5dNYIExl/pZ48WKC5Al1Ys0wqd16BwKsbboUKBs4uM97DJ4jir5sE3+wRX91wq2TupGr+y2h2cngX2ZruelhmbdK8K8/PaEPb65H1RXgAAAAASUVORK5CYII=";
 
-// src/componnets/Divider.tsx
-import { Fragment, jsx as jsx3, jsxs } from "react/jsx-runtime";
-function Divider() {
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx3("div", { className: "divider", children: /* @__PURE__ */ jsx3("span", { className: "divider-text", children: "OR" }) }),
-    /* @__PURE__ */ jsx3("style", { children: `
-.divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin: 18px 0; 
-  position: relative;
-}
-
-.divider::before,
-.divider::after {
-  content: "";
-  flex-grow: 1; 
-  height: 1.5px;
-  background-color: var(--wallet-border-color);
-}
-
-.divider-text {
-  color: var(--wallet-text-foreground-color); 
-  font-size: 14px; 
-  font-weight: 500; 
-  padding: 0 16px;
-}
-
-            ` })
-  ] });
-}
-var Divider_default = Divider;
-
 // src/componnets/Selector.tsx
 import { useState as useState2, useEffect as useEffect3, useRef } from "react";
-import { jsx as jsx4, jsxs as jsxs2 } from "react/jsx-runtime";
+import { jsx as jsx2, jsxs } from "react/jsx-runtime";
 function Select({
   content,
   selectedButtonClassName,
@@ -512,21 +465,21 @@ function Select({
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-  return /* @__PURE__ */ jsxs2("div", { className: "select-container", ref: selectRef, children: [
-    /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs("div", { className: "select-container", ref: selectRef, children: [
+    /* @__PURE__ */ jsxs(
       "div",
       {
         className: `select-button ${isOpen ? "active" : ""} ${selectedButtonClassName}`,
         onClick: toggleDropdown,
         children: [
-          /* @__PURE__ */ jsx4("span", { children: content }),
-          /* @__PURE__ */ jsx4("img", { src: src_arrow_down_light, className: "light_img", alt: "arrow_down", width: 10 }),
-          /* @__PURE__ */ jsx4("img", { src: src_arrow_down_dark, className: "dark_img", alt: "arrow_down", width: 10 })
+          /* @__PURE__ */ jsx2("span", { children: content }),
+          /* @__PURE__ */ jsx2("img", { src: src_arrow_down_light, className: "light_img", alt: "arrow_down", width: 10 }),
+          /* @__PURE__ */ jsx2("img", { src: src_arrow_down_dark, className: "dark_img", alt: "arrow_down", width: 10 })
         ]
       }
     ),
-    isOpen && /* @__PURE__ */ jsx4("div", { className: "select-dropdown", children }),
-    /* @__PURE__ */ jsx4("style", { children: `
+    isOpen && /* @__PURE__ */ jsx2("div", { className: "select-dropdown", children }),
+    /* @__PURE__ */ jsx2("style", { children: `
                 .select-container {
                     position: relative;
                 }
@@ -606,7 +559,7 @@ var Selector_default = Select;
 
 // src/componnets/Menu.tsx
 import { useState as useState3, useEffect as useEffect4, useRef as useRef2 } from "react";
-import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
+import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 function Menu({
   address,
   balance,
@@ -629,28 +582,28 @@ function Menu({
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-  return /* @__PURE__ */ jsxs3("div", { className: "menu-container", ref: selectRef, children: [
-    /* @__PURE__ */ jsxs3("button", { className: `privy_wallet_button ${buttonClassName}`, onClick: toggleDropdown, children: [
-      /* @__PURE__ */ jsx5("span", { children: " Connect Wallet " }),
-      /* @__PURE__ */ jsx5("img", { src: src_wallet, alt: "arrow_right", width: 20 })
+  return /* @__PURE__ */ jsxs2("div", { className: "menu-container", ref: selectRef, children: [
+    /* @__PURE__ */ jsxs2("button", { className: `privy_wallet_button ${buttonClassName}`, onClick: toggleDropdown, children: [
+      /* @__PURE__ */ jsx3("span", { children: " Connect Wallet " }),
+      /* @__PURE__ */ jsx3("img", { src: src_wallet, alt: "arrow_right", width: 20 })
     ] }),
-    isOpen && /* @__PURE__ */ jsxs3("div", { className: "menu-select-dropdown", children: [
-      /* @__PURE__ */ jsxs3("div", { children: [
-        /* @__PURE__ */ jsxs3("span", { className: "menu-dropdown-item", style: { fontWeight: "600" }, children: [
-          /* @__PURE__ */ jsx5("img", { src: src_user_icon, width: 14 }),
+    isOpen && /* @__PURE__ */ jsxs2("div", { className: "menu-select-dropdown", children: [
+      /* @__PURE__ */ jsxs2("div", { children: [
+        /* @__PURE__ */ jsxs2("span", { className: "menu-dropdown-item", style: { fontWeight: "600" }, children: [
+          /* @__PURE__ */ jsx3("img", { src: src_user_icon, width: 14 }),
           " ",
           address
         ] }),
-        /* @__PURE__ */ jsxs3("span", { className: "menu-dropdown-item", style: { fontWeight: "500" }, children: [
-          /* @__PURE__ */ jsx5("img", { src: src_solana_icon, width: 14 }),
+        /* @__PURE__ */ jsxs2("span", { className: "menu-dropdown-item", style: { fontWeight: "500" }, children: [
+          /* @__PURE__ */ jsx3("img", { src: src_solana_icon, width: 14 }),
           balance,
           " SOL"
         ] })
       ] }),
-      /* @__PURE__ */ jsx5("div", { className: "divider" }),
+      /* @__PURE__ */ jsx3("div", { className: "divider" }),
       children
     ] }),
-    /* @__PURE__ */ jsx5("style", { children: `
+    /* @__PURE__ */ jsx3("style", { children: `
 .menu-container {
     display: none;
 }
@@ -704,98 +657,60 @@ function Menu({
 }
 var Menu_default = Menu;
 
-// src/WalletConnectButton.tsx
-import { Fragment as Fragment2, jsx as jsx6, jsxs as jsxs4 } from "react/jsx-runtime";
-var formatAddress = (address) => {
-  if (!address) return "";
-  if (address.length <= 10) return address;
-  return `${address.slice(0, 3)}...${address.slice(-4)}`;
-};
-function WalletConnectButton({
-  buttonClassName = "",
-  selectedButtonClassName = "",
-  hideConnectByWallets = false
+// src/ConnectWalletModal.tsx
+import { useLogin, useLoginWithEmail } from "@privy-io/react-auth";
+import { useEffect as useEffect5, useState as useState4 } from "react";
+import { useWallet as useWallet2 } from "@solana/wallet-adapter-react";
+
+// src/componnets/Modal.tsx
+import { jsx as jsx4 } from "react/jsx-runtime";
+function Modal({
+  isOpen,
+  onClose,
+  children
 }) {
-  const boomWallet = useBoomWallet();
-  logger.log("\u{1F680} ~ boomWallet:", boomWallet);
-  const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
-  const { balance, updateBalance } = useSolanaBalance(userWalletAddress || "");
-  const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
-  const [isOpen, setIsOpen] = useState4(false);
-  useEffect5(() => {
-    if (boomWallet == null ? void 0 : boomWallet.walletAddress) {
-      setIsOpen(false);
-    }
-  }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
-  if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
-    return /* @__PURE__ */ jsxs4("div", { className: "boom_privy_button_container", children: [
-      /* @__PURE__ */ jsx6(
-        ConnectWalletModal,
-        {
-          isOpen,
-          onClose: () => setIsOpen(false),
-          hideConnectByWallets
-        }
-      ),
-      /* @__PURE__ */ jsxs4(
-        "button",
-        {
-          className: `privy_wallet_button ${buttonClassName}`,
-          onClick: () => setIsOpen(true),
-          children: [
-            /* @__PURE__ */ jsx6("span", { children: " Connect Wallet " }),
-            /* @__PURE__ */ jsx6("img", { src: src_wallet, alt: "arrow_right", width: 20 })
-          ]
-        }
-      )
-    ] });
-  return /* @__PURE__ */ jsxs4("div", { className: "boom_privy_button_container", children: [
-    /* @__PURE__ */ jsx6(
-      Selector_default,
-      {
-        selectedButtonClassName,
-        content: /* @__PURE__ */ jsxs4("div", { onClick: updateBalance, children: [
-          "(",
-          (balance / 1e9).toFixed(4),
-          " SOL) ",
-          formatAddress(userWalletAddress)
-        ] }),
-        children: /* @__PURE__ */ jsxs4(Fragment2, { children: [
-          /* @__PURE__ */ jsx6("div", { className: `dropdown-item`, onClick: boomWallet.disconnect, children: /* @__PURE__ */ jsx6("span", { children: "Logout" }) }),
-          boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx6("div", { className: `dropdown-item`, onClick: boomWallet.exportWallet, children: /* @__PURE__ */ jsx6("span", { children: "Export Wallet" }) }),
-          boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx6(
-            "div",
-            {
-              className: `dropdown-item`,
-              onClick: option === "DELEGATE" ? onDelegate : onRevoke,
-              children: /* @__PURE__ */ jsx6("span", { children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate" })
-            }
-          )
-        ] })
-      }
-    ),
-    /* @__PURE__ */ jsxs4(
-      Menu_default,
-      {
-        balance: (balance / 1e9).toFixed(4),
-        address: formatAddress(userWalletAddress),
-        buttonClassName,
-        children: [
-          /* @__PURE__ */ jsx6("div", { className: `menu-dropdown-item`, onClick: boomWallet.disconnect, children: /* @__PURE__ */ jsx6("span", { children: "Logout" }) }),
-          boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx6("div", { className: `menu-dropdown-item`, onClick: boomWallet.exportWallet, children: /* @__PURE__ */ jsx6("span", { children: "Export Wallet" }) }),
-          boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx6(
-            "div",
-            {
-              className: `menu-dropdown-item`,
-              onClick: option === "DELEGATE" ? onDelegate : onRevoke,
-              children: /* @__PURE__ */ jsx6("span", { children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate" })
-            }
-          )
-        ]
-      }
-    )
+  if (!isOpen) return null;
+  return /* @__PURE__ */ jsx4("div", { className: "boom_privy_button_container modal_overlay", onClick: onClose, children: /* @__PURE__ */ jsx4("div", { className: "modal_content", onClick: (e) => e.stopPropagation(), children }) });
+}
+var Modal_default = Modal;
+
+// src/componnets/Divider.tsx
+import { Fragment, jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
+function Divider() {
+  return /* @__PURE__ */ jsxs3(Fragment, { children: [
+    /* @__PURE__ */ jsx5("div", { className: "divider", children: /* @__PURE__ */ jsx5("span", { className: "divider-text", children: "OR" }) }),
+    /* @__PURE__ */ jsx5("style", { children: `
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 18px 0; 
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex-grow: 1; 
+  height: 1.5px;
+  background-color: var(--wallet-border-color);
+}
+
+.divider-text {
+  color: var(--wallet-text-foreground-color); 
+  font-size: 14px; 
+  font-weight: 500; 
+  padding: 0 16px;
+}
+
+            ` })
   ] });
 }
+var Divider_default = Divider;
+
+// src/ConnectWalletModal.tsx
+import { jsx as jsx6, jsxs as jsxs4 } from "react/jsx-runtime";
 function ExternalWalletList() {
   const { wallets, select } = useWallet2();
   logger.log("\u3010XXXXX\u3011 \u{1F680} ExternalWalletList \u{1F680} wallets:", wallets);
@@ -870,7 +785,6 @@ function PrivyLogin({ onClose }) {
         className: "privy_login_submit_button",
         type: "submit",
         onClick: () => {
-          onClose();
           login({
             type: "email",
             prefill: {
@@ -878,6 +792,7 @@ function PrivyLogin({ onClose }) {
               value: email
             }
           });
+          onClose();
         },
         children: "Submit"
       }
@@ -887,13 +802,115 @@ function PrivyLogin({ onClose }) {
 function ConnectWalletModal({
   isOpen,
   onClose,
-  hideConnectByWallets
+  hideConnectByWallets = false
 }) {
+  const { walletAddress } = useBoomWallet();
+  useEffect5(() => {
+    if (!!walletAddress) {
+      onClose();
+    }
+  }, [walletAddress]);
   return /* @__PURE__ */ jsxs4(Modal_default, { isOpen, onClose, children: [
     /* @__PURE__ */ jsx6("h4", { className: "modal_title", children: "Log in or Sign up" }),
     /* @__PURE__ */ jsx6(PrivyLogin, { onClose }),
     !hideConnectByWallets && /* @__PURE__ */ jsx6(Divider_default, {}),
     !hideConnectByWallets && /* @__PURE__ */ jsx6(ExternalWalletList, {})
+  ] });
+}
+var ConnectWalletModal_default = ConnectWalletModal;
+
+// src/WalletConnectButton.tsx
+import { Fragment as Fragment2, jsx as jsx7, jsxs as jsxs5 } from "react/jsx-runtime";
+var formatAddress = (address) => {
+  if (!address) return "";
+  if (address.length <= 10) return address;
+  return `${address.slice(0, 3)}...${address.slice(-4)}`;
+};
+function WalletConnectButton({
+  buttonClassName = "",
+  selectedButtonClassName = "",
+  hideConnectByWallets = false
+}) {
+  const boomWallet = useBoomWallet();
+  logger.log("\u{1F680} ~ boomWallet:", boomWallet);
+  const userWalletAddress = boomWallet == null ? void 0 : boomWallet.walletAddress;
+  const { balance, updateBalance } = useSolanaBalance(userWalletAddress || "");
+  const { option, onDelegate, onRevoke } = useBoomWalletDelegate();
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState5(false);
+  const openConnectModal = () => setIsConnectModalOpen(true);
+  const closeConnectModal = () => setIsConnectModalOpen(false);
+  useEffect6(() => {
+    if (boomWallet == null ? void 0 : boomWallet.walletAddress) {
+      closeConnectModal();
+    }
+  }, [boomWallet == null ? void 0 : boomWallet.walletAddress]);
+  if (!boomWallet || !(boomWallet == null ? void 0 : boomWallet.isConnected))
+    return /* @__PURE__ */ jsxs5("div", { className: "boom_privy_button_container", children: [
+      /* @__PURE__ */ jsx7(
+        ConnectWalletModal_default,
+        {
+          isOpen: isConnectModalOpen,
+          onClose: closeConnectModal,
+          hideConnectByWallets
+        }
+      ),
+      /* @__PURE__ */ jsxs5(
+        "button",
+        {
+          className: `privy_wallet_button ${buttonClassName}`,
+          onClick: openConnectModal,
+          children: [
+            /* @__PURE__ */ jsx7("span", { children: " Connect Wallet " }),
+            /* @__PURE__ */ jsx7("img", { src: src_wallet, alt: "arrow_right", width: 20 })
+          ]
+        }
+      )
+    ] });
+  return /* @__PURE__ */ jsxs5("div", { className: "boom_privy_button_container", children: [
+    /* @__PURE__ */ jsx7(
+      Selector_default,
+      {
+        selectedButtonClassName,
+        content: /* @__PURE__ */ jsxs5("div", { onClick: updateBalance, children: [
+          "(",
+          (balance / 1e9).toFixed(4),
+          " SOL) ",
+          formatAddress(userWalletAddress)
+        ] }),
+        children: /* @__PURE__ */ jsxs5(Fragment2, { children: [
+          /* @__PURE__ */ jsx7("div", { className: `dropdown-item`, onClick: boomWallet.disconnect, children: /* @__PURE__ */ jsx7("span", { children: "Logout" }) }),
+          boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx7("div", { className: `dropdown-item`, onClick: boomWallet.exportWallet, children: /* @__PURE__ */ jsx7("span", { children: "Export Wallet" }) }),
+          boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx7(
+            "div",
+            {
+              className: `dropdown-item`,
+              onClick: option === "DELEGATE" ? onDelegate : onRevoke,
+              children: /* @__PURE__ */ jsx7("span", { children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate" })
+            }
+          )
+        ] })
+      }
+    ),
+    /* @__PURE__ */ jsxs5(
+      Menu_default,
+      {
+        balance: (balance / 1e9).toFixed(4),
+        address: formatAddress(userWalletAddress),
+        buttonClassName,
+        children: [
+          /* @__PURE__ */ jsx7("div", { className: `menu-dropdown-item`, onClick: boomWallet.disconnect, children: /* @__PURE__ */ jsx7("span", { children: "Logout" }) }),
+          boomWallet.type === "EMAIL" && /* @__PURE__ */ jsx7("div", { className: `menu-dropdown-item`, onClick: boomWallet.exportWallet, children: /* @__PURE__ */ jsx7("span", { children: "Export Wallet" }) }),
+          boomWallet.type === "EMAIL" && option && /* @__PURE__ */ jsx7(
+            "div",
+            {
+              className: `menu-dropdown-item`,
+              onClick: option === "DELEGATE" ? onDelegate : onRevoke,
+              children: /* @__PURE__ */ jsx7("span", { children: option === "DELEGATE" ? "Approve Delegate" : "Revoke Delegate" })
+            }
+          )
+        ]
+      }
+    )
   ] });
 }
 
@@ -910,6 +927,7 @@ if (typeof window !== "undefined") {
 }
 export {
   BoomWalletProvider,
+  ConnectWalletModal_default as ConnectWalletModal,
   WalletConnectButton,
   useBoomWallet,
   useSolanaBalance

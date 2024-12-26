@@ -26,6 +26,9 @@ type BoomWallet = {
     exportWallet?: () => void;
     disconnect?: () => void;
     getAccessToken?: () => Promise<string | null>;
+    delegateAllowanceStatus?: "ALLOWED" | "NOT_ALLOWED";
+    onDelegate?: () => Promise<void>;
+    onRevoke?: () => Promise<void>;
 };
 declare const useBoomWallet: () => BoomWallet;
 
@@ -35,9 +38,15 @@ declare function WalletConnectButton({ buttonClassName, selectedButtonClassName,
     hideConnectByWallets?: boolean;
 }): react_jsx_runtime.JSX.Element;
 
+declare function ConnectWalletModal({ isOpen, onClose, hideConnectByWallets, }: {
+    isOpen: boolean;
+    onClose: () => void;
+    hideConnectByWallets?: boolean;
+}): react_jsx_runtime.JSX.Element;
+
 declare const useSolanaBalance: (address: string) => {
     balance: number;
     updateBalance: () => Promise<number>;
 };
 
-export { BoomWalletProvider, WalletConnectButton, useBoomWallet, useSolanaBalance };
+export { BoomWalletProvider, ConnectWalletModal, WalletConnectButton, useBoomWallet, useSolanaBalance };

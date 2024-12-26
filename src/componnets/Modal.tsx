@@ -10,7 +10,7 @@ function Modal({
     if (!isOpen) return null;
 
     return (
-        <div className="modal_overlay" onClick={onClose}>
+        <div className="boom_privy_button_container modal_overlay" onClick={onClose}>
             <div className="modal_content" onClick={e => e.stopPropagation()}>
                 {children}
             </div>

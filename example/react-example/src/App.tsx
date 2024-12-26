@@ -1,10 +1,10 @@
 import "./App.css";
-import { WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
+import { ConnectWalletModal, WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
 import { Trade } from "./Trade";
 import { useState } from "react";
 
 function App() {
-    const { walletAddress, type, email } = useBoomWallet();
+    const { walletAddress, type, email, disconnect } = useBoomWallet();
     const htmlElement = document.documentElement;
 
     const [isDark, setIsDark] = useState(htmlElement.classList.contains("dark"));
@@ -21,6 +21,10 @@ function App() {
         }
     }
 
+    const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+    const openConnectModal = () => setIsConnectModalOpen(true);
+    const closeConnectModal = () => setIsConnectModalOpen(false);
+
     return (
         <>
             <div className="space-y-4">
@@ -31,6 +35,18 @@ function App() {
                     Toggle To {isDark ? "Light" : "Dark"}
                 </button>
                 <WalletConnectButton />
+                <hr />
+                {walletAddress ? (
+                    <button onClick={disconnect} className="btn mx-2">
+                        logout
+                    </button>
+                ) : (
+                    <button onClick={openConnectModal} className="btn mx-2">
+                        open
+                    </button>
+                )}
+
+                <ConnectWalletModal isOpen={isConnectModalOpen} onClose={closeConnectModal} />
                 <hr />
                 <div>
                     <h2 className="text-2xl font-bold my-3">User Info</h2>

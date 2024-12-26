@@ -96,13 +96,13 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
         }
     }, [userEmbeddedWallet, authenticated]);
 
-    useEffect(() => {
-        const getToken = async () => {
-            const accessToken = await getAccessToken();
-            logger.log("accessToken", accessToken);
-        };
-        getToken();
-    }, []);
+    // useEffect(() => {
+    //     const getToken = async () => {
+    //         const accessToken = await getAccessToken();
+    //         logger.log("accessToken", accessToken);
+    //     };
+    //     getToken();
+    // }, []);
 
     logger.log(
         "solanaWallets",
@@ -205,8 +205,13 @@ export const useBoomWalletDelegate = () => {
 
     const option = isDisplay ? (isAlreadyDelegated ? "REVOKE" : "DELEGATE") : null;
 
+    const delegateAllowanceStatus: "ALLOWED" | "NOT_ALLOWED" = isAlreadyDelegated
+        ? "ALLOWED"
+        : "NOT_ALLOWED";
+
     return {
         option,
+        delegateAllowanceStatus,
         onDelegate,
         onRevoke,
     };
