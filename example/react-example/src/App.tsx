@@ -4,7 +4,8 @@ import { Trade } from "./Trade";
 import { useState } from "react";
 
 function App() {
-    const { walletAddress, type, email, disconnect } = useBoomWallet();
+    const { walletAddress, type, email, disconnect, signMessage } = useBoomWallet();
+    console.log("【XXXXX】 🚀 App 🚀 walletAddress:", walletAddress);
     const htmlElement = document.documentElement;
 
     const [isDark, setIsDark] = useState(htmlElement.classList.contains("dark"));
@@ -67,6 +68,18 @@ function App() {
                 </div>
                 <hr />
                 {walletAddress && <Trade />}
+                <hr />
+                <button
+                    onClick={async () => {
+                        if (walletAddress) {
+                            const s = await signMessage(walletAddress);
+                            console.log(s);
+                        }
+                    }}
+                    className="btn mx-2"
+                >
+                    sign
+                </button>
             </div>
         </>
     );

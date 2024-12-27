@@ -5,6 +5,9 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -26,6 +29,73 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// node_modules/.pnpm/tweetnacl-util@0.15.1/node_modules/tweetnacl-util/nacl-util.js
+var require_nacl_util = __commonJS({
+  "node_modules/.pnpm/tweetnacl-util@0.15.1/node_modules/tweetnacl-util/nacl-util.js"(exports2, module2) {
+    "use strict";
+    (function(root, f) {
+      "use strict";
+      if (typeof module2 !== "undefined" && module2.exports) module2.exports = f();
+      else if (root.nacl) root.nacl.util = f();
+      else {
+        root.nacl = {};
+        root.nacl.util = f();
+      }
+    })(exports2, function() {
+      "use strict";
+      var util = {};
+      function validateBase64(s) {
+        if (!/^(?:[A-Za-z0-9+\/]{2}[A-Za-z0-9+\/]{2})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/.test(s)) {
+          throw new TypeError("invalid encoding");
+        }
+      }
+      util.decodeUTF8 = function(s) {
+        if (typeof s !== "string") throw new TypeError("expected string");
+        var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+        for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+        return b;
+      };
+      util.encodeUTF8 = function(arr) {
+        var i, s = [];
+        for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
+        return decodeURIComponent(escape(s.join("")));
+      };
+      if (typeof atob === "undefined") {
+        if (typeof Buffer.from !== "undefined") {
+          util.encodeBase64 = function(arr) {
+            return Buffer.from(arr).toString("base64");
+          };
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(Buffer.from(s, "base64"), 0));
+          };
+        } else {
+          util.encodeBase64 = function(arr) {
+            return new Buffer(arr).toString("base64");
+          };
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(new Buffer(s, "base64"), 0));
+          };
+        }
+      } else {
+        util.encodeBase64 = function(arr) {
+          var i, s = [], len = arr.length;
+          for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
+          return btoa(s.join(""));
+        };
+        util.decodeBase64 = function(s) {
+          validateBase64(s);
+          var i, d = atob(s), b = new Uint8Array(d.length);
+          for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+          return b;
+        };
+      }
+      return util;
+    });
+  }
+});
 
 // src/index.ts
 var src_exports = {};
@@ -223,6 +293,7 @@ var request_default = API_REQUEST;
 
 // src/wallets/useExternalWallet.ts
 var import_web32 = require("@solana/web3.js");
+var import_tweetnacl_util = __toESM(require_nacl_util());
 var useExternalWallet = () => {
   const walletState = (0, import_wallet_adapter_react2.useWallet)();
   const {
@@ -235,7 +306,8 @@ var useExternalWallet = () => {
     select,
     wallet,
     wallets,
-    sendTransaction
+    sendTransaction,
+    signMessage: walletSignMessage
   } = walletState;
   logger.log(
     "\u{1F680} ~ CustomWalletButton ~ connect:",
@@ -261,6 +333,13 @@ var useExternalWallet = () => {
     const signature = await sendTransaction(transaction, connection);
     return signature;
   };
+  const signWalletMessage = async (message) => {
+    if (!walletSignMessage) return null;
+    const messageBuffer = new TextEncoder().encode(message);
+    const signature = await walletSignMessage(messageBuffer);
+    const base64Signature = (0, import_tweetnacl_util.encodeBase64)(signature);
+    return base64Signature;
+  };
   return {
     ...walletState,
     wallets,
@@ -268,14 +347,15 @@ var useExternalWallet = () => {
     wallet,
     disconnect,
     publicKey,
-    trade
+    trade,
+    signWalletMessage
   };
 };
 
 // src/wallets/usePrivyEmbeddedWallet.tsx
 var import_react_auth2 = require("@privy-io/react-auth");
 var import_react3 = require("react");
-var import_bs58 = __toESM(require("bs58"));
+var import_tweetnacl_util2 = __toESM(require_nacl_util());
 var usePrivyEmbeddedWallet = () => {
   const {
     user,
@@ -323,15 +403,8 @@ var usePrivyEmbeddedWallet = () => {
       logger.warn("Failed to sign message");
       return null;
     }
-    const base58Signature = import_bs58.default.encode(signature);
-    const hexSignature = Buffer.from(signature).toString("hex");
-    logger.log("signMessage success", base58Signature, hexSignature);
-    return {
-      signature: base58Signature,
-      // base58 格式
-      hexSignature
-      // hex 格式
-    };
+    const base64Signature = (0, import_tweetnacl_util2.encodeBase64)(signature);
+    return base64Signature;
   };
   const trade = async (payload) => {
     const { inputTokenAddress, outputTokenAddress, amountIn, slippage } = payload;
@@ -409,7 +482,7 @@ var useBoomWallet = () => {
   const externalWallet = useExternalWallet();
   const { delegateAllowanceStatus, onDelegate, onRevoke } = useBoomWalletDelegate();
   if (privyEmbeddedWallet.user.wallet) {
-    const { trade, logout, exportWallet, user, authenticated, getAccessToken } = privyEmbeddedWallet;
+    const { trade, logout, exportWallet, user, authenticated, getAccessToken, signMessage } = privyEmbeddedWallet;
     return {
       privyUserId: user.id,
       type: "EMAIL",
@@ -424,11 +497,12 @@ var useBoomWallet = () => {
       onRevoke,
       transactions: {
         trade: (payload) => trade(payload)
-      }
+      },
+      signMessage
     };
   }
   if (externalWallet == null ? void 0 : externalWallet.wallet) {
-    const { trade, disconnect, publicKey } = externalWallet;
+    const { trade, disconnect, publicKey, signWalletMessage } = externalWallet;
     return {
       privyUserId: void 0,
       type: "WALLET",
@@ -443,7 +517,8 @@ var useBoomWallet = () => {
       onDelegate: void 0,
       transactions: {
         trade: (payload) => trade(payload)
-      }
+      },
+      signMessage: signWalletMessage
     };
   }
   return {
@@ -454,7 +529,8 @@ var useBoomWallet = () => {
     disconnect: void 0,
     transactions: {
       trade: () => Promise.resolve("")
-    }
+    },
+    signMessage: (message) => Promise.resolve(null)
   };
 };
 

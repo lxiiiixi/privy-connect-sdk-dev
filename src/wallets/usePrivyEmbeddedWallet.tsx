@@ -21,6 +21,7 @@ import { connection } from "../solana";
 import API_REQUEST from "../request";
 import { TradePayload } from "./useBoomWallet";
 import { logger } from "../utils";
+import { encodeBase64 } from "tweetnacl-util";
 
 export type LoginType = "EMAIL" | "WALLET";
 export type User = {
@@ -51,7 +52,7 @@ export type PrivyWallet = {
     logout: () => void; // 登出
     loginType: LoginType; // 用户的登录类型
     exportWallet?: () => void; // 导出钱包
-    signMessage: (message: string) => Promise<{ signature: string; hexSignature: string } | null>; // 签名
+    signMessage: (message: string) => Promise<string | null>; // 签名
     sendTransaction?: any; // 发送交易
     trade: any; // 购买 usdc
     getAccessToken?: () => Promise<string | null>;
@@ -122,15 +123,13 @@ export const usePrivyEmbeddedWallet: () => PrivyWallet = () => {
             logger.warn("Failed to sign message");
             return null;
         }
-        const base58Signature = bs58.encode(signature);
-        const hexSignature = Buffer.from(signature).toString("hex");
-        logger.log("signMessage success", base58Signature, hexSignature);
+        // const base58Signature = bs58.encode(signature); // base58 格式
+        // const hexSignature = Buffer.from(signature).toString("hex"); // hex 格式
+        const base64Signature = encodeBase64(signature);
 
-        return {
-            signature: base58Signature, // base58 格式
-            hexSignature, // hex 格式
-        };
+        return base64Signature;
     };
+
     const trade = async (payload: TradePayload) => {
         const { inputTokenAddress, outputTokenAddress, amountIn, slippage } = payload;
 

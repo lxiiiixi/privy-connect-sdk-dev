@@ -8,12 +8,16 @@ import API_REQUEST from "../request";
 import { VersionedTransaction } from "@solana/web3.js";
 import { TradePayload } from "./useBoomWallet";
 import { logger } from "../utils";
+import bs58 from "bs58";
+import { encodeBase64 } from "tweetnacl-util";
 
 // https://docs.privy.io/guide/react/wallets/usage/solana/
 type ButtonState = "connecting" | "connected" | "disconnecting" | "has-wallet" | "no-wallet";
 type ExternalWalletType = {
     trade: any;
-} & WalletContextState;
+} & WalletContextState & {
+        signWalletMessage: (message: string) => Promise<string | null>; // 签名
+    };
 export const useExternalWallet: () => ExternalWalletType | null = () => {
     const walletState = useWallet();
     const {
@@ -27,6 +31,7 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
         wallet,
         wallets,
         sendTransaction,
+        signMessage: walletSignMessage,
     } = walletState;
 
     // connect 和 select 的区别？
@@ -61,6 +66,14 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
         return signature;
     };
 
+    const signWalletMessage = async (message: string) => {
+        if (!walletSignMessage) return null;
+        const messageBuffer = new TextEncoder().encode(message);
+        const signature = await walletSignMessage(messageBuffer);
+        const base64Signature = encodeBase64(signature);
+        return base64Signature;
+    };
+
     return {
         ...walletState,
         wallets,
@@ -69,5 +82,6 @@ export const useExternalWallet: () => ExternalWalletType | null = () => {
         disconnect,
         publicKey,
         trade,
+        signWalletMessage,
     };
 };

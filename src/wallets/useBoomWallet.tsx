@@ -24,6 +24,7 @@ type BoomWallet = {
     delegateAllowanceStatus?: "ALLOWED" | "NOT_ALLOWED"; // 用户这个钱包代理调用的状态（）
     onDelegate?: () => Promise<void>; // 执行代理调用操作
     onRevoke?: () => Promise<void>; // 撤销代理调用
+    signMessage: (message: string) => Promise<string | null>; // 签名
 };
 
 export const useBoomWallet: () => BoomWallet = () => {
@@ -32,7 +33,7 @@ export const useBoomWallet: () => BoomWallet = () => {
     const { delegateAllowanceStatus, onDelegate, onRevoke } = useBoomWalletDelegate();
 
     if (privyEmbeddedWallet.user.wallet) {
-        const { trade, logout, exportWallet, user, authenticated, getAccessToken } =
+        const { trade, logout, exportWallet, user, authenticated, getAccessToken, signMessage } =
             privyEmbeddedWallet;
         return {
             privyUserId: user.id,
@@ -49,10 +50,11 @@ export const useBoomWallet: () => BoomWallet = () => {
             transactions: {
                 trade: (payload: TradePayload) => trade(payload),
             },
+            signMessage,
         };
     }
     if (externalWallet?.wallet) {
-        const { trade, disconnect, publicKey } = externalWallet;
+        const { trade, disconnect, publicKey, signWalletMessage } = externalWallet;
         return {
             privyUserId: undefined,
             type: "WALLET",
@@ -68,6 +70,7 @@ export const useBoomWallet: () => BoomWallet = () => {
             transactions: {
                 trade: (payload: TradePayload) => trade(payload),
             },
+            signMessage: signWalletMessage,
         };
     }
     return {
@@ -80,5 +83,6 @@ export const useBoomWallet: () => BoomWallet = () => {
         transactions: {
             trade: () => Promise.resolve(""),
         },
+        signMessage: message => Promise.resolve(null),
     };
 };

@@ -29,6 +29,7 @@ type BoomWallet = {
     delegateAllowanceStatus?: "ALLOWED" | "NOT_ALLOWED";
     onDelegate?: () => Promise<void>;
     onRevoke?: () => Promise<void>;
+    signMessage: (message: string) => Promise<string | null>;
 };
 declare const useBoomWallet: () => BoomWallet;
 
