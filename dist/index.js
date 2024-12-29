@@ -103,6 +103,7 @@ __export(src_exports, {
   BoomWalletProvider: () => BoomWalletProvider,
   ConnectWalletModal: () => ConnectWalletModal_default,
   WalletConnectButton: () => WalletConnectButton,
+  getAllAssociatedTokens: () => getAllAssociatedTokens,
   getTokenBalance: () => getTokenBalance,
   useBoomWallet: () => useBoomWallet,
   useSolanaBalance: () => useSolanaBalance
@@ -272,12 +273,37 @@ var getTokenBalance = async (tokenMintAddress, walletAddress) => {
   });
   if (tokenAccounts.value.length > 0) {
     const tokenAccount = tokenAccounts.value[0];
-    const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
-    return balance;
+    const balance = tokenAccount.account.data.parsed.info.tokenAmount;
+    return { ...balance, tokenAddress: tokenMintAddress };
   } else {
     logger.warn("User does not own this token: " + tokenMintAddress);
     return null;
   }
+};
+var TOKEN_PROGRAM_ID = new import_web3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+var TOKEN_2022_PROGRAM_ID = new import_web3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
+var getAllAssociatedTokens = async (userAddress) => {
+  const userPublicKey = new import_web3.PublicKey(userAddress);
+  const [tokenAccounts, token2022Accounts] = await Promise.all([
+    connection.getParsedTokenAccountsByOwner(userPublicKey, {
+      programId: TOKEN_PROGRAM_ID
+    }),
+    connection.getParsedTokenAccountsByOwner(userPublicKey, {
+      programId: TOKEN_2022_PROGRAM_ID
+    })
+  ]);
+  const result = [];
+  for (const { pubkey, account } of [...tokenAccounts.value, ...token2022Accounts.value]) {
+    const parsedData = account.data.parsed.info;
+    const tokenMint = parsedData.mint;
+    const tokenAmount = parsedData.tokenAmount;
+    result.push({
+      ...tokenAmount,
+      tokenAddress: tokenMint
+      // 代币 mint 地址
+    });
+  }
+  return result;
 };
 
 // src/request.ts
@@ -1058,6 +1084,7 @@ if (typeof window !== "undefined") {
   BoomWalletProvider,
   ConnectWalletModal,
   WalletConnectButton,
+  getAllAssociatedTokens,
   getTokenBalance,
   useBoomWallet,
   useSolanaBalance

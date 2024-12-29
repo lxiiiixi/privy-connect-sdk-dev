@@ -1,5 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
+import { TokenAmount } from '@solana/web3.js';
 
 interface BoomWalletProviderProps {
     appId: string;
@@ -45,10 +46,20 @@ declare function ConnectWalletModal({ isOpen, onClose, hideConnectByWallets, }: 
     hideConnectByWallets?: boolean;
 }): react_jsx_runtime.JSX.Element;
 
+type BalanceTokenAmount = TokenAmount & {
+    tokenAddress: string;
+};
 declare const useSolanaBalance: (address: string) => {
     balance: number;
     updateBalance: () => Promise<number>;
 };
-declare const getTokenBalance: (tokenMintAddress?: string, walletAddress?: string) => Promise<any>;
+declare const getTokenBalance: (tokenMintAddress?: string, walletAddress?: string) => Promise<BalanceTokenAmount | null>;
+declare const getAllAssociatedTokens: (userAddress: string) => Promise<{
+    tokenAddress: string;
+    amount: string;
+    decimals: number;
+    uiAmount: number | null;
+    uiAmountString?: string;
+}[]>;
 
-export { BoomWalletProvider, ConnectWalletModal, WalletConnectButton, getTokenBalance, useBoomWallet, useSolanaBalance };
+export { type BalanceTokenAmount, BoomWalletProvider, ConnectWalletModal, WalletConnectButton, getAllAssociatedTokens, getTokenBalance, useBoomWallet, useSolanaBalance };

@@ -1,11 +1,13 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, TokenAmount } from "@solana/web3.js";
 import { useEffect, useState } from "react";
 import { SOLANA_MAINNET_RPC_URL } from "./constant";
 import { logger } from "./utils";
 
 export const connection = new Connection(SOLANA_MAINNET_RPC_URL, "confirmed");
 
-// TODO：余额的获取是否需要定时更新？
+export type BalanceTokenAmount = TokenAmount & {
+    tokenAddress: string;
+};
 
 export const useSolanaBalance = (address: string) => {
     const [balance, setBalance] = useState(0);
@@ -32,7 +34,13 @@ export const useSolanaBalance = (address: string) => {
     return { balance, updateBalance };
 };
 
-export const getTokenBalance = async (tokenMintAddress?: string, walletAddress?: string) => {
+export const getTokenBalance: (
+    tokenMintAddress?: string,
+    walletAddress?: string
+) => Promise<BalanceTokenAmount | null> = async (
+    tokenMintAddress?: string,
+    walletAddress?: string
+) => {
     if (!tokenMintAddress || !walletAddress) {
         logger.warn("tokenMintAddress or walletAddress is not provided");
         return null;
@@ -48,8 +56,8 @@ export const getTokenBalance = async (tokenMintAddress?: string, walletAddress?:
     // 获取 Token 账户中的余额
     if (tokenAccounts.value.length > 0) {
         const tokenAccount = tokenAccounts.value[0]; // 获取第一个匹配的代币账户
-        const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
-        return balance;
+        const balance: BalanceTokenAmount = tokenAccount.account.data.parsed.info.tokenAmount;
+        return { ...balance, tokenAddress: tokenMintAddress };
     } else {
         logger.warn("User does not own this token: " + tokenMintAddress);
         return null;
@@ -57,7 +65,7 @@ export const getTokenBalance = async (tokenMintAddress?: string, walletAddress?:
 };
 
 export const useTokenBalance = (tokenMintAddress?: string, walletAddress?: string) => {
-    const [balance, setBalance] = useState(0);
+    const [balance, setBalance] = useState<BalanceTokenAmount | null>(null);
 
     const updateBalance = async () => {
         if (!!tokenMintAddress && !!walletAddress) {
@@ -71,4 +79,40 @@ export const useTokenBalance = (tokenMintAddress?: string, walletAddress?: strin
     }, [tokenMintAddress, walletAddress]);
 
     return { balance, updateBalance };
+};
+
+/** Address of the SPL Token program */
+export const TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+/** Address of the SPL Token 2022 program */
+export const TOKEN_2022_PROGRAM_ID = new PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
+
+export const getAllAssociatedTokens = async (userAddress: string) => {
+    const userPublicKey = new PublicKey(userAddress);
+
+    // 获取所有与用户地址关联的 Token 账户
+    const [tokenAccounts, token2022Accounts] = await Promise.all([
+        connection.getParsedTokenAccountsByOwner(userPublicKey, {
+            programId: TOKEN_PROGRAM_ID,
+        }),
+        connection.getParsedTokenAccountsByOwner(userPublicKey, {
+            programId: TOKEN_2022_PROGRAM_ID,
+        }),
+    ]);
+
+    const result = [];
+
+    for (const { pubkey, account } of [...tokenAccounts.value, ...token2022Accounts.value]) {
+        const parsedData = account.data.parsed.info;
+
+        // 获取代币的 mint 地址
+        const tokenMint: string = parsedData.mint;
+        const tokenAmount: BalanceTokenAmount = parsedData.tokenAmount;
+
+        result.push({
+            ...tokenAmount,
+            tokenAddress: tokenMint, // 代币 mint 地址
+        });
+    }
+
+    return result;
 };

@@ -1,7 +1,9 @@
 import "./App.css";
 import {
+    BalanceTokenAmount,
     ConnectWalletModal,
     WalletConnectButton,
+    getAllAssociatedTokens,
     getTokenBalance,
     useBoomWallet,
 } from "boom-wallet-sdk";
@@ -10,7 +12,8 @@ import { useEffect, useState } from "react";
 
 function App() {
     const { walletAddress, type, email, disconnect, signMessage } = useBoomWallet();
-    const [usdcBalance, setUsdcBalance] = useState(0);
+    const [usdcBalance, setUsdcBalance] = useState<BalanceTokenAmount | null>(null);
+    const [allAssociatedTokens, setAllAssociatedTokens] = useState<BalanceTokenAmount[]>([]);
 
     useEffect(() => {
         if (walletAddress) {
@@ -21,6 +24,14 @@ function App() {
             };
             getBalance().then(balance => {
                 setUsdcBalance(balance);
+            });
+        }
+    }, [walletAddress]);
+
+    useEffect(() => {
+        if (walletAddress) {
+            getAllAssociatedTokens(walletAddress).then(tokens => {
+                setAllAssociatedTokens(tokens);
             });
         }
     }, [walletAddress]);
@@ -85,8 +96,15 @@ function App() {
                         </div>
                         <div className="flex justify-between gap-10">
                             <div className="flex-shrink-0">USDC Balance</div>
-                            <div className="truncate ">{usdcBalance || "null"}</div>
+                            <div className="truncate">{usdcBalance?.uiAmountString || "null"}</div>
                         </div>
+                        <h2 className="text-2xl font-bold my-3">All Associated Tokens</h2>
+                        {allAssociatedTokens.map(token => (
+                            <div className="flex justify-between w-full" key={token.tokenAddress}>
+                                <div className="truncate w-[100px]">{token.tokenAddress}</div>
+                                <div>{token.uiAmountString}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
                 <hr />
