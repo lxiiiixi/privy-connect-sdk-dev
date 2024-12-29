@@ -3,7 +3,7 @@ export const logger = (() => {
 
     const formatMessage = (level: string) => {
         const timestamp = new Date().toISOString();
-        return `[${timestamp}] [${level}]`;
+        return `[Boom-wallet-sdk] [${timestamp}] [${level}]`;
     };
 
     return {

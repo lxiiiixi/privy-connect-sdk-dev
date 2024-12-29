@@ -4,7 +4,7 @@ export { default as BoomWalletProvider } from "./BoomWalletProvider";
 export { useBoomWallet } from "./wallets/useBoomWallet";
 export { default as WalletConnectButton } from "./WalletConnectButton";
 export { default as ConnectWalletModal } from "./ConnectWalletModal";
-export { useSolanaBalance } from "./solana";
+export { useSolanaBalance, getTokenBalance } from "./solana";
 import "./index.css";
 
 // export * from "./index.css";

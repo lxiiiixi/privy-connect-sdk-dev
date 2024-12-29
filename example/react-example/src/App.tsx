@@ -1,15 +1,33 @@
 import "./App.css";
-import { ConnectWalletModal, WalletConnectButton, useBoomWallet } from "boom-wallet-sdk";
+import {
+    ConnectWalletModal,
+    WalletConnectButton,
+    getTokenBalance,
+    useBoomWallet,
+} from "boom-wallet-sdk";
 import { Trade } from "./Trade";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
     const { walletAddress, type, email, disconnect, signMessage } = useBoomWallet();
-    console.log("【XXXXX】 🚀 App 🚀 walletAddress:", walletAddress);
+    const [usdcBalance, setUsdcBalance] = useState(0);
+
+    useEffect(() => {
+        if (walletAddress) {
+            const usdcMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+            const getBalance = async () => {
+                const balance = await getTokenBalance(usdcMintAddress, walletAddress);
+                return balance;
+            };
+            getBalance().then(balance => {
+                setUsdcBalance(balance);
+            });
+        }
+    }, [walletAddress]);
+
+    // 切换明暗模式 ————————————————————————
     const htmlElement = document.documentElement;
-
     const [isDark, setIsDark] = useState(htmlElement.classList.contains("dark"));
-
     function toggleTheme() {
         if (isDark) {
             htmlElement.classList.remove("dark");
@@ -21,6 +39,7 @@ function App() {
             setIsDark(true);
         }
     }
+    // 切换明暗模式 ————————————————————————
 
     const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
     const openConnectModal = () => setIsConnectModalOpen(true);
@@ -64,6 +83,10 @@ function App() {
                             <div className="flex-shrink-0">Wallet Address</div>
                             <div className="truncate ">{walletAddress || "null"}</div>
                         </div>
+                        <div className="flex justify-between gap-10">
+                            <div className="flex-shrink-0">USDC Balance</div>
+                            <div className="truncate ">{usdcBalance || "null"}</div>
+                        </div>
                     </div>
                 </div>
                 <hr />
@@ -73,7 +96,7 @@ function App() {
                     onClick={async () => {
                         if (walletAddress) {
                             const s = await signMessage(walletAddress);
-                            console.log(s);
+                            console.log(s); // 拿到签名
                         }
                     }}
                     className="btn mx-2"

@@ -5,6 +5,9 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -27,12 +30,80 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
+// node_modules/.pnpm/tweetnacl-util@0.15.1/node_modules/tweetnacl-util/nacl-util.js
+var require_nacl_util = __commonJS({
+  "node_modules/.pnpm/tweetnacl-util@0.15.1/node_modules/tweetnacl-util/nacl-util.js"(exports2, module2) {
+    "use strict";
+    (function(root, f) {
+      "use strict";
+      if (typeof module2 !== "undefined" && module2.exports) module2.exports = f();
+      else if (root.nacl) root.nacl.util = f();
+      else {
+        root.nacl = {};
+        root.nacl.util = f();
+      }
+    })(exports2, function() {
+      "use strict";
+      var util = {};
+      function validateBase64(s) {
+        if (!/^(?:[A-Za-z0-9+\/]{2}[A-Za-z0-9+\/]{2})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/.test(s)) {
+          throw new TypeError("invalid encoding");
+        }
+      }
+      util.decodeUTF8 = function(s) {
+        if (typeof s !== "string") throw new TypeError("expected string");
+        var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+        for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+        return b;
+      };
+      util.encodeUTF8 = function(arr) {
+        var i, s = [];
+        for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
+        return decodeURIComponent(escape(s.join("")));
+      };
+      if (typeof atob === "undefined") {
+        if (typeof Buffer.from !== "undefined") {
+          util.encodeBase64 = function(arr) {
+            return Buffer.from(arr).toString("base64");
+          };
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(Buffer.from(s, "base64"), 0));
+          };
+        } else {
+          util.encodeBase64 = function(arr) {
+            return new Buffer(arr).toString("base64");
+          };
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(new Buffer(s, "base64"), 0));
+          };
+        }
+      } else {
+        util.encodeBase64 = function(arr) {
+          var i, s = [], len = arr.length;
+          for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
+          return btoa(s.join(""));
+        };
+        util.decodeBase64 = function(s) {
+          validateBase64(s);
+          var i, d = atob(s), b = new Uint8Array(d.length);
+          for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+          return b;
+        };
+      }
+      return util;
+    });
+  }
+});
+
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
   BoomWalletProvider: () => BoomWalletProvider,
   ConnectWalletModal: () => ConnectWalletModal_default,
   WalletConnectButton: () => WalletConnectButton,
+  getTokenBalance: () => getTokenBalance,
   useBoomWallet: () => useBoomWallet,
   useSolanaBalance: () => useSolanaBalance
 });
@@ -141,7 +212,7 @@ var logger = (() => {
   const isDev = process.env.NODE_ENV === "development";
   const formatMessage = (level) => {
     const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-    return `[${timestamp}] [${level}]`;
+    return `[Boom-wallet-sdk] [${timestamp}] [${level}]`;
   };
   return {
     log: (...messages) => {
@@ -189,6 +260,25 @@ var useSolanaBalance = (address) => {
   }, [address]);
   return { balance, updateBalance };
 };
+var getTokenBalance = async (tokenMintAddress, walletAddress) => {
+  if (!tokenMintAddress || !walletAddress) {
+    logger.warn("tokenMintAddress or walletAddress is not provided");
+    return null;
+  }
+  const userPublicKey = new import_web3.PublicKey(walletAddress);
+  const mintPublicKey = new import_web3.PublicKey(tokenMintAddress);
+  const tokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
+    mint: mintPublicKey
+  });
+  if (tokenAccounts.value.length > 0) {
+    const tokenAccount = tokenAccounts.value[0];
+    const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
+    return balance;
+  } else {
+    logger.warn("User does not own this token: " + tokenMintAddress);
+    return null;
+  }
+};
 
 // src/request.ts
 var import_axios = __toESM(require("axios"));
@@ -223,7 +313,7 @@ var request_default = API_REQUEST;
 
 // src/wallets/useExternalWallet.ts
 var import_web32 = require("@solana/web3.js");
-var import_tweetnacl_util = require("tweetnacl-util");
+var import_tweetnacl_util = __toESM(require_nacl_util());
 var useExternalWallet = () => {
   const walletState = (0, import_wallet_adapter_react2.useWallet)();
   const {
@@ -285,7 +375,7 @@ var useExternalWallet = () => {
 // src/wallets/usePrivyEmbeddedWallet.tsx
 var import_react_auth2 = require("@privy-io/react-auth");
 var import_react3 = require("react");
-var import_tweetnacl_util2 = require("tweetnacl-util");
+var import_tweetnacl_util2 = __toESM(require_nacl_util());
 var usePrivyEmbeddedWallet = () => {
   const {
     user,
@@ -968,6 +1058,7 @@ if (typeof window !== "undefined") {
   BoomWalletProvider,
   ConnectWalletModal,
   WalletConnectButton,
+  getTokenBalance,
   useBoomWallet,
   useSolanaBalance
 });

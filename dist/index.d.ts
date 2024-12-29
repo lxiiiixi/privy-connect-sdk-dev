@@ -49,5 +49,6 @@ declare const useSolanaBalance: (address: string) => {
     balance: number;
     updateBalance: () => Promise<number>;
 };
+declare const getTokenBalance: (tokenMintAddress?: string, walletAddress?: string) => Promise<any>;
 
-export { BoomWalletProvider, ConnectWalletModal, WalletConnectButton, useBoomWallet, useSolanaBalance };
+export { BoomWalletProvider, ConnectWalletModal, WalletConnectButton, getTokenBalance, useBoomWallet, useSolanaBalance };

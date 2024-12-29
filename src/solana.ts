@@ -31,3 +31,44 @@ export const useSolanaBalance = (address: string) => {
 
     return { balance, updateBalance };
 };
+
+export const getTokenBalance = async (tokenMintAddress?: string, walletAddress?: string) => {
+    if (!tokenMintAddress || !walletAddress) {
+        logger.warn("tokenMintAddress or walletAddress is not provided");
+        return null;
+    }
+
+    const userPublicKey = new PublicKey(walletAddress);
+    const mintPublicKey = new PublicKey(tokenMintAddress);
+
+    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
+        mint: mintPublicKey,
+    });
+
+    // 获取 Token 账户中的余额
+    if (tokenAccounts.value.length > 0) {
+        const tokenAccount = tokenAccounts.value[0]; // 获取第一个匹配的代币账户
+        const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
+        return balance;
+    } else {
+        logger.warn("User does not own this token: " + tokenMintAddress);
+        return null;
+    }
+};
+
+export const useTokenBalance = (tokenMintAddress?: string, walletAddress?: string) => {
+    const [balance, setBalance] = useState(0);
+
+    const updateBalance = async () => {
+        if (!!tokenMintAddress && !!walletAddress) {
+            const balance = await getTokenBalance(tokenMintAddress, walletAddress);
+            setBalance(balance);
+        }
+    };
+
+    useEffect(() => {
+        updateBalance();
+    }, [tokenMintAddress, walletAddress]);
+
+    return { balance, updateBalance };
+};

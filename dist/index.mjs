@@ -1,3 +1,96 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+
+// node_modules/.pnpm/tweetnacl-util@0.15.1/node_modules/tweetnacl-util/nacl-util.js
+var require_nacl_util = __commonJS({
+  "node_modules/.pnpm/tweetnacl-util@0.15.1/node_modules/tweetnacl-util/nacl-util.js"(exports, module) {
+    "use strict";
+    (function(root, f) {
+      "use strict";
+      if (typeof module !== "undefined" && module.exports) module.exports = f();
+      else if (root.nacl) root.nacl.util = f();
+      else {
+        root.nacl = {};
+        root.nacl.util = f();
+      }
+    })(exports, function() {
+      "use strict";
+      var util = {};
+      function validateBase64(s) {
+        if (!/^(?:[A-Za-z0-9+\/]{2}[A-Za-z0-9+\/]{2})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/.test(s)) {
+          throw new TypeError("invalid encoding");
+        }
+      }
+      util.decodeUTF8 = function(s) {
+        if (typeof s !== "string") throw new TypeError("expected string");
+        var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+        for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+        return b;
+      };
+      util.encodeUTF8 = function(arr) {
+        var i, s = [];
+        for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
+        return decodeURIComponent(escape(s.join("")));
+      };
+      if (typeof atob === "undefined") {
+        if (typeof Buffer.from !== "undefined") {
+          util.encodeBase64 = function(arr) {
+            return Buffer.from(arr).toString("base64");
+          };
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(Buffer.from(s, "base64"), 0));
+          };
+        } else {
+          util.encodeBase64 = function(arr) {
+            return new Buffer(arr).toString("base64");
+          };
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(new Buffer(s, "base64"), 0));
+          };
+        }
+      } else {
+        util.encodeBase64 = function(arr) {
+          var i, s = [], len = arr.length;
+          for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
+          return btoa(s.join(""));
+        };
+        util.decodeBase64 = function(s) {
+          validateBase64(s);
+          var i, d = atob(s), b = new Uint8Array(d.length);
+          for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+          return b;
+        };
+      }
+      return util;
+    });
+  }
+});
+
 // src/index.ts
 import { Buffer as Buffer2 } from "buffer";
 
@@ -105,7 +198,7 @@ var logger = (() => {
   const isDev = process.env.NODE_ENV === "development";
   const formatMessage = (level) => {
     const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-    return `[${timestamp}] [${level}]`;
+    return `[Boom-wallet-sdk] [${timestamp}] [${level}]`;
   };
   return {
     log: (...messages) => {
@@ -153,6 +246,25 @@ var useSolanaBalance = (address) => {
   }, [address]);
   return { balance, updateBalance };
 };
+var getTokenBalance = async (tokenMintAddress, walletAddress) => {
+  if (!tokenMintAddress || !walletAddress) {
+    logger.warn("tokenMintAddress or walletAddress is not provided");
+    return null;
+  }
+  const userPublicKey = new PublicKey(walletAddress);
+  const mintPublicKey = new PublicKey(tokenMintAddress);
+  const tokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
+    mint: mintPublicKey
+  });
+  if (tokenAccounts.value.length > 0) {
+    const tokenAccount = tokenAccounts.value[0];
+    const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
+    return balance;
+  } else {
+    logger.warn("User does not own this token: " + tokenMintAddress);
+    return null;
+  }
+};
 
 // src/request.ts
 import axios from "axios";
@@ -187,7 +299,7 @@ var request_default = API_REQUEST;
 
 // src/wallets/useExternalWallet.ts
 import { VersionedTransaction } from "@solana/web3.js";
-import { encodeBase64 } from "tweetnacl-util";
+var import_tweetnacl_util = __toESM(require_nacl_util());
 var useExternalWallet = () => {
   const walletState = useWallet();
   const {
@@ -231,7 +343,7 @@ var useExternalWallet = () => {
     if (!walletSignMessage) return null;
     const messageBuffer = new TextEncoder().encode(message);
     const signature = await walletSignMessage(messageBuffer);
-    const base64Signature = encodeBase64(signature);
+    const base64Signature = (0, import_tweetnacl_util.encodeBase64)(signature);
     return base64Signature;
   };
   return {
@@ -253,7 +365,7 @@ import {
   useSolanaWallets
 } from "@privy-io/react-auth";
 import { useEffect as useEffect2 } from "react";
-import { encodeBase64 as encodeBase642 } from "tweetnacl-util";
+var import_tweetnacl_util2 = __toESM(require_nacl_util());
 var usePrivyEmbeddedWallet = () => {
   const {
     user,
@@ -301,7 +413,7 @@ var usePrivyEmbeddedWallet = () => {
       logger.warn("Failed to sign message");
       return null;
     }
-    const base64Signature = encodeBase642(signature);
+    const base64Signature = (0, import_tweetnacl_util2.encodeBase64)(signature);
     return base64Signature;
   };
   const trade = async (payload) => {
@@ -935,6 +1047,7 @@ export {
   BoomWalletProvider,
   ConnectWalletModal_default as ConnectWalletModal,
   WalletConnectButton,
+  getTokenBalance,
   useBoomWallet,
   useSolanaBalance
 };

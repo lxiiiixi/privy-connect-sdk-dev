@@ -55,3 +55,6 @@ type BoomWallet = {
     -   调试发现样式有点不好做兼容，所以改动比较大，但是之前的内容也都保留了，右上角的按钮需要自己写，相关的方法都保留在 **useBoomWallet **了。
     -   用法上不使用之前的 `&lt;WalletConnectButton /&gt;` 组件了，导入 `&lt;ConnectWalletModal *isOpen*={isConnectModalOpen} *onClose*={closeConnectModal} /&gt;` 组件，自己定义一个状态控制 Modal 的开关。
     -   相关的展示数据和操作方法在 BoomWallet 类型中（如下图），按钮的 ui 样式见 Figma。
+
+-   1.4.1
+    -   增加 **signMessage **方法给钱包做签名，两种钱包方法通用，方法类型为 `signMessage: (message: string) => Promise<string | null>;`\*\* \*\*
