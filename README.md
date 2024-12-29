@@ -57,4 +57,10 @@ type BoomWallet = {
     -   相关的展示数据和操作方法在 BoomWallet 类型中（如下图），按钮的 ui 样式见 Figma。
 
 -   1.4.1
+
     -   增加 **signMessage **方法给钱包做签名，两种钱包方法通用，方法类型为 `signMessage: (message: string) => Promise<string | null>;`\*\* \*\*
+
+-   新版本: 1.4.2
+    -   添加单币余额查询的方法 getTokenBalance，以及 hook 形式的 useTokenBalance。
+    -   添加根据钱包地址获取所有关联的标准 SPL Token 的地址和余额列表方法 getAllAssociatedTokens。
+    -   返回的数据类型是 BalanceTokenAmount，可以直接引入。
